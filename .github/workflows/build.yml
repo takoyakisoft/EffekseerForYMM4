@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Managed
         working-directory: EffekseerForYMM4
-        run: dotnet build --configuration Release --no-restore
+        run: msbuild EffekseerForYMM4.csproj /p:Configuration=Release /p:Platform=x64
 
       - name: Create Release Package
         shell: pwsh
