@@ -54,7 +54,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path EffekseerForYMM4
           Copy-Item -Path "EffekseerForNative/bin/Release/EffekseerForNative.dll" -Destination "EffekseerForYMM4/"
-          Copy-Item -Path "EffekseerForYMM4/bin/Release/net10.0-windows10.0.19041.0/EffekseerForYMM4.dll" -Destination "EffekseerForYMM4/"
+          Copy-Item -Path "EffekseerForYMM4/bin/x64/Release/net10.0-windows10.0.19041.0/EffekseerForYMM4.dll" -Destination "EffekseerForYMM4/"
           Compress-Archive -Path "EffekseerForYMM4" -DestinationPath "EffekseerForYMM4.zip"
           Rename-Item -Path "EffekseerForYMM4.zip" -NewName "EffekseerForYMM4.ymme"
 
