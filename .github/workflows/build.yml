@@ -64,9 +64,12 @@ jobs:
           }
           Copy-Item -Path "README.md" -Destination "$pluginPath/Readme.txt"
           Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.ymme"
+          Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: EffekseerForYMM4.ymme
+          files: |
+            EffekseerForYMM4.ymme
+            EffekseerForYMM4.zip
           generate_release_notes: true
