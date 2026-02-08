@@ -54,11 +54,16 @@ jobs:
       - name: Create Release Package
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path EffekseerForYMM4
-          Copy-Item -Path "EffekseerForNative/bin/Release/EffekseerForNative.dll" -Destination "EffekseerForYMM4/"
-          Copy-Item -Path "EffekseerForYMM4/bin/x64/Release/net10.0-windows10.0.19041.0/EffekseerForYMM4.dll" -Destination "EffekseerForYMM4/"
-          Compress-Archive -Path "EffekseerForYMM4" -DestinationPath "EffekseerForYMM4.zip"
-          Rename-Item -Path "EffekseerForYMM4.zip" -NewName "EffekseerForYMM4.ymme"
+          $pluginPath = "YMM4/user/plugin/EffekseerForYMM4"
+          if (-not (Test-Path $pluginPath)) {
+            Write-Error "Plugin output directory not found at $pluginPath"
+            exit 1
+          }
+          if (-not (Test-Path "$pluginPath/EffekseerForNative.dll")) {
+             Copy-Item -Path "EffekseerForNative/bin/Release/EffekseerForNative.dll" -Destination "$pluginPath/" -Force
+          }
+          Copy-Item -Path "README.md" -Destination "$pluginPath/Readme.txt"
+          Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.ymme"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
