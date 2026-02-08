@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{9482C5D6-B446-4985-8D4C-762283088C95}</ProjectGuid>
+    <Keyword>NetCoreCProj</Keyword>
+    <RootNamespace>EffekseerForNative</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CLRSupport>NetCore</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CLRSupport>NetCore</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
+    <ClInclude Include="src\Core\EffectsManager.h" />
+    <ClInclude Include="src\Core\EffekseerSound.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Wrapper\EffekseerRenderer.cpp" />
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Client.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Color.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.CurveLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.DefaultEffectLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.DefaultFile.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Effect.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNode.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeModel.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeRibbon.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeRing.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeRoot.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeSprite.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.EffectNodeTrack.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.FCurves.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Instance.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.InstanceChunk.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.InstanceContainer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.InstanceGlobal.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.InstanceGroup.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.InternalScript.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.IntrusiveList.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Manager.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Matrix43.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Matrix44.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Random.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.RectF.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Resource.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.ResourceManager.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Server.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Setting.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Socket.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Vector2D.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.Vector3D.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Effekseer.WorkerThread.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\ForceField\ForceFields.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\IO\Effekseer.EfkEfcFactory.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Material\Effekseer.CompiledMaterial.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Material\Effekseer.MaterialCompiler.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Material\Effekseer.MaterialFile.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Model\Model.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Model\ModelLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Model\ProceduralModelGenerator.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Model\SplineGenerator.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Noise\CurlNoise.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Parameter\Easing.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Parameter\Effekseer.Parameters.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Parameter\Rotation.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\SIMD\Mat43f.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\SIMD\Mat44f.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\SIMD\Utils.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\Utils\Effekseer.CustomAllocator.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.CommonUtils.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.DDSTextureLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.IndexBufferBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.ModelRendererBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.PngTextureLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.Renderer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.Renderer_Impl.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.RenderStateBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.RibbonRendererBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.RingRendererBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.SpriteRendererBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.TGATextureLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.TrackRendererBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\EffekseerRenderer.VertexBufferBase.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\TextureLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\ModelLoader.cpp">
+      <ObjectFileName>$(IntDir)RendererCommon_%(Filename).obj</ObjectFileName>
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.DeviceObject.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.IndexBuffer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.MaterialLoader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.ModelRenderer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.Renderer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.RenderState.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.Shader.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\EffekseerRendererDX11.VertexBuffer.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\EffekseerRenderer\GraphicsDevice.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerMaterialCompiler\DirectX11\EffekseerMaterialCompilerDX11.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerMaterialCompiler\HLSLGenerator\ShaderGenerator.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerMaterialCompiler\Common\ShaderGeneratorCommon.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="src\Core\EffekseerSound.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="src\Core\EffectsManager.cpp">
+      <CompileAsManaged>false</CompileAsManaged>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

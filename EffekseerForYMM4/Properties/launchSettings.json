@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EffekseerForYMM4": {
+      "commandName": "Executable",
+      "executablePath": "$(YMM4DirPath)YukkuriMovieMaker.exe"
+    }
+  }
+}

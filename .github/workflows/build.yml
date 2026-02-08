@@ -1,0 +1,65 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Download YMM4
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/manju-summoner/YukkuriMovieMaker4/releases/download/v4.49.0.2/YukkuriMovieMaker_v4.49.0.2.zip" -OutFile "YMM4.zip"
+          Expand-Archive -Path "YMM4.zip" -DestinationPath "YMM4"
+
+      - name: Setup Directory.Build.props
+        run: |
+          $content = @"
+          <Project>
+            <PropertyGroup>
+              <YMM4DirPath>$(Resolve-Path .\YMM4)\</YMM4DirPath>
+            </PropertyGroup>
+          </Project>
+          "@
+          Set-Content -Path "Directory.Build.props" -Value $content
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore NuGet packages
+        run: dotnet restore EffekseerForYMM4
+
+      - name: Build Native
+        working-directory: EffekseerForNative
+        run: msbuild EffekseerForNative.vcxproj /p:Configuration=Release /p:Platform=x64
+
+      - name: Build Managed
+        working-directory: EffekseerForYMM4
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Create Release Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path EffekseerForYMM4
+          Copy-Item -Path "EffekseerForNative/x64/Release/EffekseerForNative.dll" -Destination "EffekseerForYMM4/"
+          Copy-Item -Path "EffekseerForYMM4/bin/Release/net10.0-windows10.0.19041.0/EffekseerForYMM4.dll" -Destination "EffekseerForYMM4/"
+          Compress-Archive -Path "EffekseerForYMM4" -DestinationPath "EffekseerForYMM4.zip"
+          Rename-Item -Path "EffekseerForYMM4.zip" -NewName "EffekseerForYMM4.ymme"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: EffekseerForYMM4.ymme
+          generate_release_notes: true
