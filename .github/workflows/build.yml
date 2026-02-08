@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: windows-2025-vs2026
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
