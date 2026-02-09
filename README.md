@@ -1,15 +1,21 @@
 ﻿# EffekseerForYMM4
 
+[![Build Status](https://github.com/takoyakisoft/EffekseerForYMM4/actions/workflows/build.yml/badge.svg)](https://github.com/takoyakisoft/EffekseerForYMM4/actions/workflows/build.yml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](#)
+
+![Image](assets/EffekseerForYMM4.png)
+
+EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生するためのプラグインです。
+
 <p align="center">
   <img src="assets/sample.gif" width="100%" alt="sample">
 </p>
 
-EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生するためのプラグインです。
-
 ## インストール方法
 
-1. 最新のリリースから`EffekseerForYMM4.zip`をダウンロードします。
-2. `YukkuriMovieMaker4/user/plugin`フォルダ内に、ダウンロードしたファイルをそのまま配置します。
+1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)から最新の`EffekseerForYMM4.zip`をダウンロードします。
+2. `YukkuriMovieMaker4/user/plugin`フォルダ内に、ダウンロードしたファイルをそのまま解凍します。
 
 ## 使い方
 
