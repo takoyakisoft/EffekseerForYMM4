@@ -1,7 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.IO;
+using System.Runtime.InteropServices;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Audio;
 using YukkuriMovieMaker.Player.Audio.Effects;
@@ -91,10 +90,6 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
 
             if (nativeRenderer == null || mixer == null) return count;
 
-            int sampleCount = count / 2;
-            double deltaSeconds = (double)sampleCount / Hz;
-            float deltaFrames = (float)(deltaSeconds * 60.0);
-
             // Positionから現在のエフェクトフレームを計算（巻き戻し対応）
             long totalSampleFrames = (long)(duration.TotalSeconds * Hz);
             long currentSampleFrame = Position / 2; // Position is total samples (stereo), so divide by 2
@@ -136,6 +131,12 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
                     nativeRenderer.Reset();
                     currentFrame = 0;
                 }
+
+                // Update Emitter Transform
+                float ex = (float)item.PosX.GetValue(currentSampleFrame, totalSampleFrames, Hz);
+                float ey = (float)item.PosY.GetValue(currentSampleFrame, totalSampleFrames, Hz);
+                float ez = (float)item.PosZ.GetValue(currentSampleFrame, totalSampleFrames, Hz);
+                nativeRenderer.SetLocation(ex, ey, ez);
 
                 // 差分だけUpdate
                 float delta = (float)(targetFrame - currentFrame);

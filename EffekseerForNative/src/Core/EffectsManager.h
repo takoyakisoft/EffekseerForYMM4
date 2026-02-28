@@ -32,6 +32,8 @@ public:
     void SetProjectionOrthographic(float width, float height, float nearVal, float farVal);
     void SetCamera(float distance);
     void SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
+    void SetLocation(float x, float y, float z);
+    void SetRotation(float x, float y, float z);
     void SetSpeed(float speed);
     void SetScale(float scale);
     void SetMaxDurationSeconds(int seconds);
@@ -61,6 +63,12 @@ private:
     int screenHeight_ = 1080;
     float speed_ = 1.0f;
     float scale_ = 1.0f;
+    float locationX_ = 0.0f;
+    float locationY_ = 0.0f;
+    float locationZ_ = 0.0f;
+    float rotationX_ = 0.0f;
+    float rotationY_ = 0.0f;
+    float rotationZ_ = 0.0f;
     int maxDurationSeconds_ = 0;
     std::vector<ActiveEffect> active_;
 };

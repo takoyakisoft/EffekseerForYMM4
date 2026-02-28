@@ -12,6 +12,7 @@ namespace EffekseerForYMM4
 {
     partial class EffekseerVideoEffectProcessor : IVideoEffectProcessor
     {
+        private const double EffekseerFps = 60.0;
         bool isFirst = true;
         readonly EffekseerVideoEffect item;
 
@@ -33,6 +34,15 @@ namespace EffekseerForYMM4
         private TimeSpan _duration = TimeSpan.Zero;
         public TimeSpan Duration => _duration;
         private double currentFrame = 0;
+        private bool needsInitialUpdate = false;
+        private bool hasTransformCache = false;
+        private float lastPosX = 0;
+        private float lastPosY = 0;
+        private float lastPosZ = 0;
+        private float lastRotX = 0;
+        private float lastRotY = 0;
+        private float lastRotZ = 0;
+        private float lastScale = 1;
 
         private int lastWidth = 0;
         private int lastHeight = 0;
@@ -104,6 +114,7 @@ namespace EffekseerForYMM4
             var frame = effectDescription.ItemPosition.Frame;
             var length = effectDescription.ItemDuration.Frame;
             var fps = effectDescription.FPS;
+            var safeFps = Math.Max(fps, 1);
 
             if (lastWidth != width || lastHeight != height)
             {
@@ -137,7 +148,7 @@ namespace EffekseerForYMM4
                     if ((ext == ".efk" || ext == ".efkefc") && nativeRenderer.LoadEffect(item.FilePath))
                     {
                         loadedFilePath = item.FilePath;
-
+                        needsInitialUpdate = true;
                         int tFrames = nativeRenderer.GetTotalFrame();
                         // Calculate duration from total frames and FPS.
                         // If totalFrames is valid (non-zero and not infinite), use it.
@@ -155,12 +166,14 @@ namespace EffekseerForYMM4
 
 
             int totalFrames = nativeRenderer.GetTotalFrame();
-            // ItemPosition.Frameからエフェクトの再生位置を計算（巻き戻し対応）
-            double targetFrame = frame;
+            // YMM4のフレーム位置をEffekseer(60fps)へ変換する。
+            double targetFrame = frame * EffekseerFps / safeFps;
 
             if (item.IsLoop && totalFrames > 0 && totalFrames < int.MaxValue)
             {
                 targetFrame %= totalFrames;
+                if (targetFrame < 0)
+                    targetFrame += totalFrames;
             }
 
             lock (_renderLock)
@@ -170,21 +183,23 @@ namespace EffekseerForYMM4
                 {
                     nativeRenderer.Reset();
                     currentFrame = 0;
+                    needsInitialUpdate = true;
+                    hasTransformCache = false;
                 }
 
-                // 差分だけUpdate
-                float delta = (float)(targetFrame - currentFrame);
-                if (delta > 0)
-                {
-                    nativeRenderer.Update(delta);
-                    currentFrame = targetFrame;
-                }
+                double animFrame = frame;
 
-                double animFrame = targetFrame;
-
-                float camX = (float)item.CamPosX.GetValue((long)animFrame, length, (int)fps);
-                float camY = (float)item.CamPosY.GetValue((long)animFrame, length, (int)fps);
-                float camZ = (float)item.CamPosZ.GetValue((long)animFrame, length, (int)fps);
+                float camX = (float)item.CamPosX.GetValue((long)animFrame, length, safeFps);
+                float camY = (float)item.CamPosY.GetValue((long)animFrame, length, safeFps);
+                float camZ = (float)item.CamPosZ.GetValue((long)animFrame, length, safeFps);
+                float posX = (float)item.PosX.GetValue((long)animFrame, length, safeFps);
+                float posY = (float)item.PosY.GetValue((long)animFrame, length, safeFps);
+                float posZ = (float)item.PosZ.GetValue((long)animFrame, length, safeFps);
+                float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float scale = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
+                scale = Math.Max(scale, 0.0001f);
 
                 nativeRenderer.SetCameraLookAt(
                     camX, camY, camZ,
@@ -193,9 +208,54 @@ namespace EffekseerForYMM4
                 );
 
                 // Update Projection
-                float fov = (float)item.Fov.GetValue((long)animFrame, length, (int)fps);
+                float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
 
                 nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
+                nativeRenderer.SetLocation(posX, posY, posZ);
+                nativeRenderer.SetRotation(rotX, rotY, rotZ);
+                nativeRenderer.SetScale(scale);
+
+                bool transformChanged =
+                    !hasTransformCache ||
+                    MathF.Abs(lastPosX - posX) > 0.0001f ||
+                    MathF.Abs(lastPosY - posY) > 0.0001f ||
+                    MathF.Abs(lastPosZ - posZ) > 0.0001f ||
+                    MathF.Abs(lastRotX - rotX) > 0.0001f ||
+                    MathF.Abs(lastRotY - rotY) > 0.0001f ||
+                    MathF.Abs(lastRotZ - rotZ) > 0.0001f ||
+                    MathF.Abs(lastScale - scale) > 0.0001f;
+
+                // 差分だけUpdate（変形を先に適用してから進める）
+                float delta = (float)(targetFrame - currentFrame);
+                bool updatedWithZero = false;
+                if (delta > 0)
+                {
+                    AdvanceRenderer(delta);
+                    currentFrame = targetFrame;
+                    needsInitialUpdate = false;
+                }
+                else if (needsInitialUpdate)
+                {
+                    // frame=0でも初期評価を1回行って描画状態を作る
+                    nativeRenderer.Update(0);
+                    needsInitialUpdate = false;
+                    updatedWithZero = true;
+                }
+
+                if (transformChanged && delta <= 0 && !updatedWithZero)
+                {
+                    // 同一フレームで変形だけ変わった場合に即時反映させる
+                    nativeRenderer.Update(0);
+                }
+
+                hasTransformCache = true;
+                lastPosX = posX;
+                lastPosY = posY;
+                lastPosZ = posZ;
+                lastRotX = rotX;
+                lastRotY = rotY;
+                lastRotZ = rotZ;
+                lastScale = scale;
 
                 // Render
                 var d3dContext = d3dDevice.ImmediateContext;
@@ -244,6 +304,25 @@ namespace EffekseerForYMM4
             }
 
             return effectDescription.DrawDescription;
+        }
+
+        private void AdvanceRenderer(float delta)
+        {
+            if (delta <= 0)
+                return;
+
+            // 厳密再生: 1フレーム刻みで積み上げ、端数のみ最後に加算する
+            int wholeSteps = (int)MathF.Floor(delta);
+            for (int i = 0; i < wholeSteps; i++)
+            {
+                nativeRenderer.Update(1.0f);
+            }
+
+            float remainder = delta - wholeSteps;
+            if (remainder > 0)
+            {
+                nativeRenderer.Update(remainder);
+            }
         }
 
         private void CreateResources(int _width, int _height)

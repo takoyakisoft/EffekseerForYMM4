@@ -24,6 +24,8 @@ namespace EffekseerForNative {
             void SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal);
             void SetProjectionOrthographic(float width, float height, float nearVal, float farVal);
             void SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
+            void SetLocation(float x, float y, float z);
+            void SetRotation(float x, float y, float z);
             void SetScale(float scale);
             void Reset();
             void StopRoot();

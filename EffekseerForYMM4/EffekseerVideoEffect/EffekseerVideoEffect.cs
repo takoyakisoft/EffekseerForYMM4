@@ -10,7 +10,7 @@ namespace EffekseerForYMM4
 
 
 
-    [VideoEffect("Effekseerビデオエフェクト", ["Effekseer"], [])]
+    [VideoEffect("Effekseerビデオエフェクト", ["装飾"], ["Effekseer"])]
     internal class EffekseerVideoEffect : VideoEffectBase
     {
         public override string Label => Name;
@@ -35,21 +35,49 @@ namespace EffekseerForYMM4
         public bool IsLoop { get => isLoop; set => Set(ref isLoop, value); }
         bool isLoop = true;
 
-        [Display(GroupName = "カメラ位置", Name = "X", Description = "カメラのX座標")]
+        [Display(GroupName = "カメラ", Name = "X", Description = "カメラのX座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosX { get; } = new Animation(0, -1000, 1000);
 
-        [Display(GroupName = "カメラ位置", Name = "Y", Description = "カメラのY座標")]
+        [Display(GroupName = "カメラ", Name = "Y", Description = "カメラのY座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosY { get; } = new Animation(0, -1000, 1000);
 
-        [Display(GroupName = "カメラ位置", Name = "Z", Description = "カメラのZ座標")]
+        [Display(GroupName = "カメラ", Name = "Z", Description = "カメラのZ座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosZ { get; } = new Animation(20, -1000, 1000);
 
-        [Display(GroupName = "カメラ設定", Name = "視野角", Description = "視野角(度)")]
+        [Display(GroupName = "カメラ", Name = "視野角", Description = "視野角(度)")]
         [AnimationSlider("F0", "°", 1, 179)]
         public Animation Fov { get; } = new Animation(90, 1, 179);
+
+        [Display(GroupName = "変形", Name = "拡大率", Description = "エフェクト全体の拡大率")]
+        [AnimationSlider("F2", "x", 0.01, 10)]
+        public Animation Scale { get; } = new Animation(1.0, 0.01, 100.0);
+
+        [Display(GroupName = "変形", Name = "位置X", Description = "エフェクト位置X")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosX { get; } = new Animation(0, -1000, 1000);
+
+        [Display(GroupName = "変形", Name = "位置Y", Description = "エフェクト位置Y")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosY { get; } = new Animation(0, -1000, 1000);
+
+        [Display(GroupName = "変形", Name = "位置Z", Description = "エフェクト位置Z")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosZ { get; } = new Animation(0, -1000, 1000);
+
+        [Display(GroupName = "変形", Name = "回転X", Description = "エフェクト回転X")]
+        [AnimationSlider("F1", "°", -180, 180)]
+        public Animation RotX { get; } = new Animation(0, -3600, 3600);
+
+        [Display(GroupName = "変形", Name = "回転Y", Description = "エフェクト回転Y")]
+        [AnimationSlider("F1", "°", -180, 180)]
+        public Animation RotY { get; } = new Animation(0, -3600, 3600);
+
+        [Display(GroupName = "変形", Name = "回転Z", Description = "エフェクト回転Z")]
+        [AnimationSlider("F1", "°", -180, 180)]
+        public Animation RotZ { get; } = new Animation(0, -3600, 3600);
 
         /// <summary>
         /// Exoフィルタを作成する。
@@ -76,6 +104,6 @@ namespace EffekseerForYMM4
         /// クラス内のIAnimatableを列挙する。
         /// </summary>
         /// <returns></returns>
-        protected override IEnumerable<IAnimatable> GetAnimatables() => [CamPosX, CamPosY, CamPosZ, Fov];
+        protected override IEnumerable<IAnimatable> GetAnimatables() => [CamPosX, CamPosY, CamPosZ, Fov, Scale, PosX, PosY, PosZ, RotX, RotY, RotZ];
     }
 }

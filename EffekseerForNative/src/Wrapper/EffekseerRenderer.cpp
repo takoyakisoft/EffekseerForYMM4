@@ -129,6 +129,22 @@ namespace EffekseerForNative {
         }
     }
 
+    void EffekseerRenderer::SetLocation(float x, float y, float z)
+    {
+        if (m_impl)
+        {
+            m_impl->SetLocation(x, y, z);
+        }
+    }
+
+    void EffekseerRenderer::SetRotation(float x, float y, float z)
+    {
+        if (m_impl)
+        {
+            m_impl->SetRotation(x, y, z);
+        }
+    }
+
     void EffekseerRenderer::SetScale(float scale)
     {
         if (m_impl)

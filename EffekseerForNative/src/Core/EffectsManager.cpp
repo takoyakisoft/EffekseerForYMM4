@@ -193,6 +193,8 @@ void EffectsManager::PlayEffect(const std::wstring& key, float x, float y, float
     // Apply current settings
     manager_->SetSpeed(handle, speed_);
     manager_->SetScale(handle, scale_, scale_, scale_);
+    manager_->SetLocation(handle, locationX_, locationY_, locationZ_);
+    manager_->SetRotation(handle, rotationX_, rotationY_, rotationZ_);
 }
 
 
@@ -245,6 +247,30 @@ void EffectsManager::SetSpeed(float speed)
     for (auto& a : active_)
     {
         manager_->SetSpeed(a.handle, speed_);
+    }
+}
+
+void EffectsManager::SetLocation(float x, float y, float z)
+{
+    locationX_ = x;
+    locationY_ = y;
+    locationZ_ = z;
+    if (manager_.Get() == nullptr) return;
+    for (auto& a : active_)
+    {
+        manager_->SetLocation(a.handle, locationX_, locationY_, locationZ_);
+    }
+}
+
+void EffectsManager::SetRotation(float x, float y, float z)
+{
+    rotationX_ = x;
+    rotationY_ = y;
+    rotationZ_ = z;
+    if (manager_.Get() == nullptr) return;
+    for (auto& a : active_)
+    {
+        manager_->SetRotation(a.handle, rotationX_, rotationY_, rotationZ_);
     }
 }
 

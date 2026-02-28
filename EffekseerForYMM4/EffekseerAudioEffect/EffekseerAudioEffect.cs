@@ -11,7 +11,7 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
     /// 音声エフェクト
     /// 音声エフェクトには必ず[AudioEffect]属性を設定してください。
     /// </summary>
-    [AudioEffect("Effekseer音声エフェクト", ["Effekseer"], [])]
+    [AudioEffect("Effekseer音声エフェクト", ["エフェクト"], ["Effekseer"])]
     public class EffekseerAudioEffect : AudioEffectBase
     {
         /// <summary>
@@ -33,17 +33,29 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
         public bool IsLoop { get => isLoop; set => Set(ref isLoop, value); }
         bool isLoop = true;
 
-        [Display(GroupName = "カメラ位置", Name = "X", Description = "カメラのX座標")]
+        [Display(GroupName = "カメラ", Name = "X", Description = "カメラのX座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosX { get; } = new Animation(0, -10000, 10000);
 
-        [Display(GroupName = "カメラ位置", Name = "Y", Description = "カメラのY座標")]
+        [Display(GroupName = "カメラ", Name = "Y", Description = "カメラのY座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosY { get; } = new Animation(0, -10000, 10000);
 
-        [Display(GroupName = "カメラ位置", Name = "Z", Description = "カメラのZ座標")]
+        [Display(GroupName = "カメラ", Name = "Z", Description = "カメラのZ座標")]
         [AnimationSlider("F1", "m", -50, 50)]
         public Animation CamPosZ { get; } = new Animation(20, -10000, 10000);
+
+        [Display(GroupName = "変形", Name = "位置X", Description = "エフェクト位置X")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosX { get; } = new Animation(0, -10000, 10000);
+
+        [Display(GroupName = "変形", Name = "位置Y", Description = "エフェクト位置Y")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosY { get; } = new Animation(0, -10000, 10000);
+
+        [Display(GroupName = "変形", Name = "位置Z", Description = "エフェクト位置Z")]
+        [AnimationSlider("F1", "m", -50, 50)]
+        public Animation PosZ { get; } = new Animation(0, -10000, 10000);
 
         /// <summary>
         /// 音声エフェクトを作成する
@@ -77,6 +89,6 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
         /// IAnimatableを実装するプロパティを返す
         /// </summary>
         /// <returns></returns>
-        protected override IEnumerable<IAnimatable> GetAnimatables() => [Volume, CamPosX, CamPosY, CamPosZ];
+        protected override IEnumerable<IAnimatable> GetAnimatables() => [Volume, CamPosX, CamPosY, CamPosZ, PosX, PosY, PosZ];
     }
 }
