@@ -251,7 +251,7 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
             {
                 lastTimelineFrame = timelineFrame;
                 hasLastTimelineFrame = true;
-                return false;
+                return true;
             }
 
             var deltaFrames = timelineFrame - lastTimelineFrame;

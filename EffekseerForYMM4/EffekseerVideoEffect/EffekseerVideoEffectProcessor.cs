@@ -120,15 +120,16 @@ namespace EffekseerForYMM4
 
             if (isFirst)
             {
-                isFirst = false;
-
                 // Initialize Native Renderer
                 nativeRenderer = new EffekseerForNative.EffekseerRenderer();
                 if (!nativeRenderer.Initialize(d3dDevice.NativePointer, d3dDevice.ImmediateContext.NativePointer, width, height))
                 {
+                    nativeRenderer.Dispose();
+                    nativeRenderer = null;
                     return effectDescription.DrawDescription;
                 }
 
+                isFirst = false;
                 CreateResources(width, height);
             }
 
