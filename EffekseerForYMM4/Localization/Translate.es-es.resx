@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+<data name="CurrentCulture" xml:space="preserve"><value>es-es</value></data>
+<data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>Efecto de video Effekseer</value></data>
+<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Efecto de audio Effekseer</value></data>
+<data name="Group_Effect" xml:space="preserve"><value>Efecto</value></data>
+<data name="Group_Camera" xml:space="preserve"><value>Cámara</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>Transformar</value></data>
+<data name="Common_File_Name" xml:space="preserve"><value>Archivo</value></data>
+<data name="Common_File_Desc" xml:space="preserve"><value>Archivo de efecto</value></data>
+<data name="Common_Loop_Name" xml:space="preserve"><value>Bucle</value></data>
+<data name="Video_Loop_Desc" xml:space="preserve"><value>Reproduce el efecto en bucle.</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>Reproduce el efecto en bucle.</value></data>
+<data name="Video_ScreenSize_Name" xml:space="preserve"><value>Tamaño de pantalla</value></data>
+<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>Renderiza ajustándose al tamaño de la pantalla.</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>Volumen</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>Ajusta el volumen.</value></data>
+<data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>Posición X de la cámara</value></data>
+<data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>Posición Y de la cámara</value></data>
+<data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>Posición Z de la cámara</value></data>
+<data name="Video_Fov_Name" xml:space="preserve"><value>Campo de visión</value></data>
+<data name="Video_Fov_Desc" xml:space="preserve"><value>Campo de visión (grados)</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>Escala</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>Escala de todo el efecto</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>Posición X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>Posición X del efecto</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>Posición Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>Posición Y del efecto</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Posición Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Posición Z del efecto</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>Rotación X</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>Rotación X del efecto</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>Rotación Y</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>Rotación Y del efecto</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Rotación Z</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>Rotación Z del efecto</value></data>
+<data name="Error_DialogTitle" xml:space="preserve"><value>Error</value></data>
+<data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>No se pudo cargar el archivo de Effekseer</value></data>
+<data name="Error_TargetPath_Label" xml:space="preserve"><value>Ruta de destino</value></data>
+<data name="Error_CheckEffectFiles" xml:space="preserve"><value>Comprueba el tipo y el contenido del archivo.</value></data>
+<data name="Error_InvalidEffectExtension" xml:space="preserve"><value>Extensión de archivo no compatible. Extensiones compatibles: {0}</value></data>
+<data name="Error_EffectFileNotFound" xml:space="preserve"><value>No se encontró el archivo.</value></data>
+<data name="Error_EffectFilesMayBeInvalid" xml:space="preserve"><value>El archivo de Effekseer puede ser inválido o pueden faltar archivos referenciados requeridos.</value></data>
+</root>

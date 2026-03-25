@@ -59,8 +59,13 @@ jobs:
             Write-Error "Plugin output directory not found at $pluginPath"
             exit 1
           }
-          if (-not (Test-Path "$pluginPath/EffekseerForNative.dll")) {
-             Copy-Item -Path "EffekseerForNative/bin/Release/EffekseerForNative.dll" -Destination "$pluginPath/" -Force
+          if (-not (Test-Path "$pluginPath/nativepayload/EffekseerForNative.bin")) {
+            Write-Error "Native payload not found at $pluginPath/nativepayload/EffekseerForNative.bin"
+            exit 1
+          }
+          if (-not (Test-Path "$pluginPath/nativepayload/Ijwhost.bin")) {
+            Write-Error "Native payload not found at $pluginPath/nativepayload/Ijwhost.bin"
+            exit 1
           }
           Copy-Item -Path "README.md" -Destination "$pluginPath/Readme.txt"
           Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.ymme"

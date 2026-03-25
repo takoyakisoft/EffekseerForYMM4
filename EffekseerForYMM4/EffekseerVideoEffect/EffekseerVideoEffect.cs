@@ -10,7 +10,7 @@ namespace EffekseerForYMM4
 
 
 
-    [VideoEffect("Effekseerビデオエフェクト", ["装飾"], ["Effekseer"])]
+    [VideoEffect(nameof(Translate.Plugin_VideoEffect_Name), ["装飾"], ["Effekseer"], ResourceType = typeof(Translate))]
     internal class EffekseerVideoEffect : VideoEffectBase
     {
         public override string Label => Name;
@@ -18,66 +18,66 @@ namespace EffekseerForYMM4
         /// <summary>
         /// プラグインの名前
         /// </summary>
-        public string Name => "Effekseerビデオエフェクト";
+        public string Name => Translate.Plugin_VideoEffect_Name;
 
-        [Display(GroupName = "エフェクト", Name = "ファイル", Description = "エフェクトファイル")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_File_Name), Description = nameof(Translate.Common_File_Desc), ResourceType = typeof(Translate))]
         [FileSelector(YukkuriMovieMaker.Settings.FileGroupType.None)]
         public string FilePath { get => filePath; set => Set(ref filePath, value); }
         string filePath = "";
 
-        [Display(GroupName = "エフェクト", Name = "スクリーンサイズ", Description = "スクリーンサイズに合わせてレンダリングする")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Video_ScreenSize_Name), Description = nameof(Translate.Video_ScreenSize_Desc), ResourceType = typeof(Translate))]
         [ToggleSlider]
         public bool IsScreenSize { get => isScreenSize; set => Set(ref isScreenSize, value); }
         bool isScreenSize = true;
 
-        [Display(GroupName = "エフェクト", Name = "ループ", Description = "エフェクトをループ再生する")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_Loop_Name), Description = nameof(Translate.Video_Loop_Desc), ResourceType = typeof(Translate))]
         [ToggleSlider]
         public bool IsLoop { get => isLoop; set => Set(ref isLoop, value); }
         bool isLoop = true;
 
-        [Display(GroupName = "カメラ", Name = "X", Description = "カメラのX座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosX { get; } = new Animation(0, -1000, 1000);
+        public Animation CamPosX { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "カメラ", Name = "Y", Description = "カメラのY座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Y_Name), Description = nameof(Translate.Camera_Y_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosY { get; } = new Animation(0, -1000, 1000);
+        public Animation CamPosY { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "カメラ", Name = "Z", Description = "カメラのZ座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Z_Name), Description = nameof(Translate.Camera_Z_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosZ { get; } = new Animation(20, -1000, 1000);
+        public Animation CamPosZ { get; } = new Animation(20, -100000.0, 100000.0);
 
-        [Display(GroupName = "カメラ", Name = "視野角", Description = "視野角(度)")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_Fov_Name), Description = nameof(Translate.Video_Fov_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F0", "°", 1, 179)]
         public Animation Fov { get; } = new Animation(90, 1, 179);
 
-        [Display(GroupName = "変形", Name = "拡大率", Description = "エフェクト全体の拡大率")]
-        [AnimationSlider("F2", "x", 0.01, 10)]
-        public Animation Scale { get; } = new Animation(1.0, 0.01, 100.0);
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_Scale_Name), Description = nameof(Translate.Transform_Scale_Desc), ResourceType = typeof(Translate))]
+        [AnimationSlider("F1", "%", 0, 400)]
+        public Animation Scale { get; } = new Animation(100.0, 0.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置X", Description = "エフェクト位置X")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionX_Name), Description = nameof(Translate.Transform_PositionX_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosX { get; } = new Animation(0, -1000, 1000);
+        public Animation PosX { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置Y", Description = "エフェクト位置Y")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionY_Name), Description = nameof(Translate.Transform_PositionY_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosY { get; } = new Animation(0, -1000, 1000);
+        public Animation PosY { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置Z", Description = "エフェクト位置Z")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionZ_Name), Description = nameof(Translate.Transform_PositionZ_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosZ { get; } = new Animation(0, -1000, 1000);
+        public Animation PosZ { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "回転X", Description = "エフェクト回転X")]
-        [AnimationSlider("F1", "°", -180, 180)]
-        public Animation RotX { get; } = new Animation(0, -3600, 3600);
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationX_Name), Description = nameof(Translate.Transform_RotationX_Desc), ResourceType = typeof(Translate))]
+        [AnimationSlider("F1", "°", -360, 360)]
+        public Animation RotX { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "回転Y", Description = "エフェクト回転Y")]
-        [AnimationSlider("F1", "°", -180, 180)]
-        public Animation RotY { get; } = new Animation(0, -3600, 3600);
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationY_Name), Description = nameof(Translate.Transform_RotationY_Desc), ResourceType = typeof(Translate))]
+        [AnimationSlider("F1", "°", -360, 360)]
+        public Animation RotY { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "回転Z", Description = "エフェクト回転Z")]
-        [AnimationSlider("F1", "°", -180, 180)]
-        public Animation RotZ { get; } = new Animation(0, -3600, 3600);
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationZ_Name), Description = nameof(Translate.Transform_RotationZ_Desc), ResourceType = typeof(Translate))]
+        [AnimationSlider("F1", "°", -360, 360)]
+        public Animation RotZ { get; } = new Animation(0, -100000.0, 100000.0);
 
         /// <summary>
         /// Exoフィルタを作成する。

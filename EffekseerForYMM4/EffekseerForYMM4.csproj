@@ -7,10 +7,11 @@
 		<UseWPF>true</UseWPF>
 		<Platforms>x64</Platforms>
 		<PlatformTarget>x64</PlatformTarget>
-		<Version>1.0.0</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
-		<FileVersion>1.0.0.0</FileVersion>
-		<InformationalVersion>1.0.0</InformationalVersion>
+		<Version>1.1.0</Version>
+		<AssemblyVersion>1.1.0.0</AssemblyVersion>
+		<FileVersion>1.1.0.0</FileVersion>
+		<InformationalVersion>1.1.0</InformationalVersion>
+
 
 		<!--Pdb内にソースコードのフルパスを含めない-->
 		<RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRoot>
@@ -51,9 +52,23 @@
 		<ProjectReference Include="..\EffekseerForNative\EffekseerForNative.vcxproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\YukkuriMovieMaker.Generator\YukkuriMovieMaker.Generator\YukkuriMovieMaker.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<AdditionalFiles Include="Localization\**\*.csv" />
+	</ItemGroup>
+
+	<Target Name="PreparePluginPayload" BeforeTargets="PostBuild">
+		<MakeDir Directories="$(TargetDir)nativepayload" />
+		<Copy SourceFiles="$(TargetDir)EffekseerForNative.dll" DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.bin" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)EffekseerForNative.dll')" />
+		<Copy SourceFiles="$(TargetDir)Ijwhost.dll" DestinationFiles="$(TargetDir)nativepayload\Ijwhost.bin" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)Ijwhost.dll')" />
+		<Copy SourceFiles="$(TargetDir)EffekseerForNative.pdb" DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.pdb.bin" SkipUnchangedFiles="true" Condition="Exists('$(TargetDir)EffekseerForNative.pdb')" />
+	</Target>
+
 	<!--ビルド後にYMM4のプラグインフォルダにdllをコピーする-->
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(YMM4DirPath)' != ''">
-		<Exec Command="mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;xcopy &quot;$(TargetDir)*&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\&quot; /Y /I /S /E" Condition="Exists('$(YMM4DirPath)')" />
+		<Exec
+			Condition="Exists('$(YMM4DirPath)')"
+			Command="mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\EffekseerForNative.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\EffekseerForNative.pdb&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\EffekseerForNative.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\EffekseerForNative.pdb&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;for %%F in (&quot;$(TargetDir)*.*&quot;) do (&#xD;&#xA;  if /I not &quot;%%~nxF&quot;==&quot;EffekseerForNative.dll&quot; if /I not &quot;%%~nxF&quot;==&quot;Ijwhost.dll&quot; if /I not &quot;%%~nxF&quot;==&quot;EffekseerForNative.pdb&quot; copy &quot;%%~fF&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\&quot; /Y &gt; NUL&#xD;&#xA;)&#xD;&#xA;for /d %%D in (&quot;$(TargetDir)*&quot;) do (&#xD;&#xA;  if /I not &quot;%%~nxD&quot;==&quot;native&quot; (&#xD;&#xA;    mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;    xcopy &quot;%%~fD\*&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD\&quot; /Y /I /S /E &gt; NUL&#xD;&#xA;  )&#xD;&#xA;)" />
 	</Target>
 
 </Project>

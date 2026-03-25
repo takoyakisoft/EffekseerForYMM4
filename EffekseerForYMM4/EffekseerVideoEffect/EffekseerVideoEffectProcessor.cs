@@ -4,6 +4,7 @@ using Vortice.Direct2D1;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using Vortice.Mathematics;
+using EffekseerForYMM4.Commons;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Video;
 using YukkuriMovieMaker.Plugin.Effects;
@@ -13,42 +14,33 @@ namespace EffekseerForYMM4
     partial class EffekseerVideoEffectProcessor : IVideoEffectProcessor
     {
         private const double EffekseerFps = 60.0;
+        private const int MaxReplaySteps = 600;
         bool isFirst = true;
         readonly EffekseerVideoEffect item;
 
         public ID2D1Image Output { get; private set; }
 
-        ID2D1Bitmap1 bitmap;
+        ID2D1Bitmap1? bitmap;
         Vortice.Direct2D1.Effects.Composite compositeEffect;
         Vortice.Direct2D1.Effects.AffineTransform2D transformEffect;
 
-        private EffekseerForNative.EffekseerRenderer nativeRenderer;
+        private EffekseerForNative.EffekseerRenderer? nativeRenderer;
 
         private ID3D11Device d3dDevice;
-        private ID3D11Texture2D renderTargetTexture;
-        private ID3D11RenderTargetView renderTargetView;
-        private ID3D11Texture2D depthStencilTexture;
-        private ID3D11DepthStencilView depthStencilView;
+        private ID3D11Texture2D? renderTargetTexture;
+        private ID3D11RenderTargetView? renderTargetView;
+        private ID3D11Texture2D? depthStencilTexture;
+        private ID3D11DepthStencilView? depthStencilView;
         private IGraphicsDevicesAndContext _devices;
 
         private TimeSpan _duration = TimeSpan.Zero;
         public TimeSpan Duration => _duration;
-        private double currentFrame = 0;
-        private bool needsInitialUpdate = false;
-        private bool hasTransformCache = false;
-        private float lastPosX = 0;
-        private float lastPosY = 0;
-        private float lastPosZ = 0;
-        private float lastRotX = 0;
-        private float lastRotY = 0;
-        private float lastRotZ = 0;
-        private float lastScale = 1;
-
         private int lastWidth = 0;
         private int lastHeight = 0;
 
         private string? loadedFilePath = null;
         private ID2D1Image? inputImage;
+        private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
 
         private static object _renderLock = new object();
 
@@ -134,7 +126,7 @@ namespace EffekseerForYMM4
                 nativeRenderer = new EffekseerForNative.EffekseerRenderer();
                 if (!nativeRenderer.Initialize(d3dDevice.NativePointer, d3dDevice.ImmediateContext.NativePointer, width, height))
                 {
-                    throw new Exception("Failed to initialize Effekseer Renderer");
+                    return effectDescription.DrawDescription;
                 }
 
                 CreateResources(width, height);
@@ -142,32 +134,56 @@ namespace EffekseerForYMM4
 
             if (loadedFilePath != item.FilePath)
             {
+                if (nativeRenderer == null)
+                {
+                    return effectDescription.DrawDescription;
+                }
+
                 if (!string.IsNullOrEmpty(item.FilePath))
                 {
-                    var ext = System.IO.Path.GetExtension(item.FilePath).ToLower();
-                    if ((ext == ".efk" || ext == ".efkefc") && nativeRenderer.LoadEffect(item.FilePath))
+                    var ext = System.IO.Path.GetExtension(item.FilePath).ToLowerInvariant();
+                    if (ext != ".efk" && ext != ".efkefc")
                     {
                         loadedFilePath = item.FilePath;
-                        needsInitialUpdate = true;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, string.Format(Translate.Error_InvalidEffectExtension, ".efk, .efkefc"));
+                    }
+                    else if (!System.IO.File.Exists(item.FilePath))
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, Translate.Error_EffectFileNotFound);
+                    }
+                    else if (nativeRenderer.LoadEffect(item.FilePath))
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.Reset();
                         int tFrames = nativeRenderer.GetTotalFrame();
-                        // Calculate duration from total frames and FPS.
-                        // If totalFrames is valid (non-zero and not infinite), use it.
                         if (tFrames > 0 && tFrames < int.MaxValue)
                         {
-                            _duration = TimeSpan.FromSeconds(tFrames / fps);
+                            _duration = TimeSpan.FromSeconds(tFrames / safeFps);
                         }
+                    }
+                    else
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, nativeRenderer.LastErrorMessage ?? Translate.Error_EffectFilesMayBeInvalid);
                     }
                 }
                 else
                 {
                     loadedFilePath = item.FilePath;
+                    loadErrorNotifier.Reset();
                 }
             }
 
+            if (nativeRenderer == null)
+            {
+                return effectDescription.DrawDescription;
+            }
 
             int totalFrames = nativeRenderer.GetTotalFrame();
-            // YMM4のフレーム位置をEffekseer(60fps)へ変換する。
-            double targetFrame = frame * EffekseerFps / safeFps;
+            // 差分更新ではなく絶対時刻から毎回再構築する。
+            // プレビューとサムネイルで Update の呼ばれ方が違っても同じ見た目に揃える。
+            double targetFrame = Math.Max(0, effectDescription.ItemPosition.Time.TotalSeconds * EffekseerFps);
 
             if (item.IsLoop && totalFrames > 0 && totalFrames < int.MaxValue)
             {
@@ -178,13 +194,9 @@ namespace EffekseerForYMM4
 
             lock (_renderLock)
             {
-                // 巻き戻し検出：targetFrameがcurrentFrameより小さい場合はReset
-                if (targetFrame < currentFrame)
+                if (nativeRenderer == null)
                 {
-                    nativeRenderer.Reset();
-                    currentFrame = 0;
-                    needsInitialUpdate = true;
-                    hasTransformCache = false;
+                    return effectDescription.DrawDescription;
                 }
 
                 double animFrame = frame;
@@ -198,7 +210,8 @@ namespace EffekseerForYMM4
                 float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
                 float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
                 float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-                float scale = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
+                float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
+                float scale = scalePercent / 100.0f;
                 scale = Math.Max(scale, 0.0001f);
 
                 nativeRenderer.SetCameraLookAt(
@@ -215,47 +228,7 @@ namespace EffekseerForYMM4
                 nativeRenderer.SetRotation(rotX, rotY, rotZ);
                 nativeRenderer.SetScale(scale);
 
-                bool transformChanged =
-                    !hasTransformCache ||
-                    MathF.Abs(lastPosX - posX) > 0.0001f ||
-                    MathF.Abs(lastPosY - posY) > 0.0001f ||
-                    MathF.Abs(lastPosZ - posZ) > 0.0001f ||
-                    MathF.Abs(lastRotX - rotX) > 0.0001f ||
-                    MathF.Abs(lastRotY - rotY) > 0.0001f ||
-                    MathF.Abs(lastRotZ - rotZ) > 0.0001f ||
-                    MathF.Abs(lastScale - scale) > 0.0001f;
-
-                // 差分だけUpdate（変形を先に適用してから進める）
-                float delta = (float)(targetFrame - currentFrame);
-                bool updatedWithZero = false;
-                if (delta > 0)
-                {
-                    AdvanceRenderer(delta);
-                    currentFrame = targetFrame;
-                    needsInitialUpdate = false;
-                }
-                else if (needsInitialUpdate)
-                {
-                    // frame=0でも初期評価を1回行って描画状態を作る
-                    nativeRenderer.Update(0);
-                    needsInitialUpdate = false;
-                    updatedWithZero = true;
-                }
-
-                if (transformChanged && delta <= 0 && !updatedWithZero)
-                {
-                    // 同一フレームで変形だけ変わった場合に即時反映させる
-                    nativeRenderer.Update(0);
-                }
-
-                hasTransformCache = true;
-                lastPosX = posX;
-                lastPosY = posY;
-                lastPosZ = posZ;
-                lastRotX = rotX;
-                lastRotY = rotY;
-                lastRotZ = rotZ;
-                lastScale = scale;
+                ReplayRendererToTargetFrame(targetFrame);
 
                 // Render
                 var d3dContext = d3dDevice.ImmediateContext;
@@ -308,6 +281,9 @@ namespace EffekseerForYMM4
 
         private void AdvanceRenderer(float delta)
         {
+            if (nativeRenderer == null)
+                return;
+
             if (delta <= 0)
                 return;
 
@@ -322,6 +298,27 @@ namespace EffekseerForYMM4
             if (remainder > 0)
             {
                 nativeRenderer.Update(remainder);
+            }
+        }
+
+        private void ReplayRendererToTargetFrame(double targetFrame)
+        {
+            if (nativeRenderer == null)
+                return;
+
+            nativeRenderer.Reset();
+            nativeRenderer.Update(0);
+
+            if (targetFrame <= 0)
+                return;
+
+            var replayStep = Math.Max(1.0, targetFrame / MaxReplaySteps);
+            var replayed = 0.0;
+            while (replayed < targetFrame)
+            {
+                var next = Math.Min(targetFrame, replayed + replayStep);
+                AdvanceRenderer((float)(next - replayed));
+                replayed = next;
             }
         }
 

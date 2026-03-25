@@ -12,27 +12,24 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{9482C5D6-B446-4985-8D4C-762283088C95}</ProjectGuid>
-    <Keyword>NetCoreCProj</Keyword>
-    <RootNamespace>EffekseerForNative</RootNamespace>
+    <ProjectGuid>{F53DB1A5-D7A0-44F0-9B57-7E8D8A4E2A5C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>EffekseerNativeCore</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
@@ -48,16 +45,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <TargetName>EffekseerForNative</TargetName>
+    <TargetName>EffekseerNativeCore</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)obj\$(Configuration)\</IntDir>
-    <TargetName>EffekseerForNative</TargetName>
+    <TargetName>EffekseerNativeCore</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -65,15 +60,13 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\EffekseerForNative\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\include;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -81,27 +74,29 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\EffekseerForNative\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\include;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
-    <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
+    <ClInclude Include="..\EffekseerForNative\src\Core\EffekseerSound.h" />
+    <ClInclude Include="..\EffekseerForNative\src\Core\EffectsManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Wrapper\EffekseerRenderer.cpp" />
+    <ClCompile Include="..\EffekseerForNative\src\Core\EffekseerSound.cpp" />
+    <ClCompile Include="..\EffekseerForNative\src\Core\EffectsManager.cpp" />
+    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\Effekseer\Effekseer\**\*.cpp" />
+    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\EffekseerRendererCommon\**\*.cpp" />
+    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\EffekseerRendererDX11\**\*.cpp" />
+    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\EffekseerMaterialCompiler\**\*.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EffekseerNativeCore\EffekseerNativeCore.vcxproj">
-      <Project>{F53DB1A5-D7A0-44F0-9B57-7E8D8A4E2A5C}</Project>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
+    <ClCompile Update="..\EffekseerForNative\vendor\effekseer\src\EffekseerRendererCommon\ModelLoader.cpp">
+      <ObjectFileName>$(IntDir)RendererCommon_%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

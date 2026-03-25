@@ -361,4 +361,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# YMM4のパス指定用
 Directory.Build.props
+
+# AGENTS.md（開発エージェント用設定。コミット不要）
+AGENTS.md

@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+<data name="CurrentCulture" xml:space="preserve"><value>ar-sa</value></data>
+<data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>تأثير فيديو Effekseer</value></data>
+<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>تأثير صوت Effekseer</value></data>
+<data name="Group_Effect" xml:space="preserve"><value>التأثير</value></data>
+<data name="Group_Camera" xml:space="preserve"><value>الكاميرا</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>التحويل</value></data>
+<data name="Common_File_Name" xml:space="preserve"><value>ملف</value></data>
+<data name="Common_File_Desc" xml:space="preserve"><value>ملف التأثير</value></data>
+<data name="Common_Loop_Name" xml:space="preserve"><value>تكرار</value></data>
+<data name="Video_Loop_Desc" xml:space="preserve"><value>يشغل التأثير بشكل متكرر.</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>يشغل التأثير بشكل متكرر.</value></data>
+<data name="Video_ScreenSize_Name" xml:space="preserve"><value>حجم الشاشة</value></data>
+<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>يعرض بما يتوافق مع حجم الشاشة.</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>مستوى الصوت</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>يضبط مستوى الصوت.</value></data>
+<data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>موضع X للكاميرا</value></data>
+<data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>موضع Y للكاميرا</value></data>
+<data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>موضع Z للكاميرا</value></data>
+<data name="Video_Fov_Name" xml:space="preserve"><value>زاوية الرؤية</value></data>
+<data name="Video_Fov_Desc" xml:space="preserve"><value>زاوية الرؤية (درجة)</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>المقياس</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>مقياس التأثير بالكامل</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>الموضع X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>موضع التأثير X</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>الموضع Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>موضع التأثير Y</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>الموضع Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>موضع التأثير Z</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>الدوران X</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>دوران التأثير X</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>الدوران Y</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>دوران التأثير Y</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>الدوران Z</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>دوران التأثير Z</value></data>
+<data name="Error_DialogTitle" xml:space="preserve"><value>خطأ</value></data>
+<data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>تعذر تحميل ملف Effekseer</value></data>
+<data name="Error_TargetPath_Label" xml:space="preserve"><value>المسار الهدف</value></data>
+<data name="Error_CheckEffectFiles" xml:space="preserve"><value>تحقق من نوع الملف ومحتواه.</value></data>
+<data name="Error_InvalidEffectExtension" xml:space="preserve"><value>امتداد ملف غير مدعوم. الامتدادات المدعومة: {0}</value></data>
+<data name="Error_EffectFileNotFound" xml:space="preserve"><value>تعذر العثور على الملف.</value></data>
+<data name="Error_EffectFilesMayBeInvalid" xml:space="preserve"><value>قد يكون ملف Effekseer غير صالح أو قد تكون الملفات المرجعية المطلوبة مفقودة.</value></data>
+</root>
