@@ -143,6 +143,10 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
                 }
                 
                 bool requiresReplay = RequiresReplay(timelineFrame);
+                if (!requiresReplay && item.IsLoop && totalFrames > 0 && targetFrame < currentFrame)
+                {
+                    requiresReplay = true;
+                }
 
                 // Update Emitter Transform
                 float ex = (float)item.PosX.GetValue(currentSampleFrame, totalSampleFrames, Hz);

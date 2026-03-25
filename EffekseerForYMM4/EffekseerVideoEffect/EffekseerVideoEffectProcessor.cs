@@ -160,7 +160,7 @@ namespace EffekseerForYMM4
                         int tFrames = nativeRenderer.GetTotalFrame();
                         if (tFrames > 0 && tFrames < int.MaxValue)
                         {
-                            _duration = TimeSpan.FromSeconds(tFrames / safeFps);
+                            _duration = TimeSpan.FromSeconds((double)tFrames / safeFps);
                         }
                     }
                     else
@@ -212,8 +212,7 @@ namespace EffekseerForYMM4
                 float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
                 float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
                 float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
-                float scale = scalePercent / 100.0f;
-                scale = Math.Max(scale, 0.0001f);
+                float scale = scalePercent <= 0f ? 0f : Math.Max(scalePercent / 100.0f, 0.0001f);
 
                 nativeRenderer.SetCameraLookAt(
                     camX, camY, camZ,
