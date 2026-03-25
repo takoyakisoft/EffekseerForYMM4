@@ -2,9 +2,64 @@
 
 #include <filesystem>
 #include <chrono>
+#include <mutex>
+#include <Windows.h>
+
+namespace
+{
+    std::mutex g_effekseerLogMutex;
+    std::string g_lastEffekseerErrorUtf8;
+
+    std::wstring Utf8ToWide(const std::string& value)
+    {
+        if (value.empty())
+        {
+            return L"";
+        }
+
+        auto length = MultiByteToWideChar(CP_UTF8, 0, value.c_str(), -1, nullptr, 0);
+        if (length <= 0)
+        {
+            return L"";
+        }
+
+        std::wstring result(length, L'\0');
+        MultiByteToWideChar(CP_UTF8, 0, value.c_str(), -1, result.data(), length);
+        if (!result.empty() && result.back() == L'\0')
+        {
+            result.pop_back();
+        }
+        return result;
+    }
+
+    void ClearLastEffekseerError()
+    {
+        std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
+        g_lastEffekseerErrorUtf8.clear();
+    }
+
+    std::wstring ConsumeLastEffekseerError()
+    {
+        std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
+        auto message = Utf8ToWide(g_lastEffekseerErrorUtf8);
+        g_lastEffekseerErrorUtf8.clear();
+        return message;
+    }
+}
 
 bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* context)
 {
+    Effekseer::SetLogger([](Effekseer::LogType logType, const std::string& message)
+        {
+            if (logType != Effekseer::LogType::Error && logType != Effekseer::LogType::Warning)
+            {
+                return;
+            }
+
+            std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
+            g_lastEffekseerErrorUtf8 = message;
+        });
+
     if (device != nullptr && context != nullptr)
     {
         renderer_ = ::EffekseerRendererDX11::Renderer::Create(device, context, 2000, D3D11_COMPARISON_LESS_EQUAL, false);
@@ -151,6 +206,9 @@ void EffectsManager::Draw()
 
 bool EffectsManager::LoadEffect(const std::wstring& key, const std::wstring& path)
 {
+    lastErrorMessage_.clear();
+    ClearLastEffekseerError();
+
     if (manager_.Get() == nullptr) return false;
     std::filesystem::path p(path);
     std::wstring dir = p.parent_path().wstring();
@@ -161,7 +219,15 @@ bool EffectsManager::LoadEffect(const std::wstring& key, const std::wstring& pat
         (const char16_t*)path.c_str(),
         1.0f,
         (const char16_t*)dir.c_str());
-    if (effect == nullptr) return false;
+    if (effect == nullptr)
+    {
+        lastErrorMessage_ = ConsumeLastEffekseerError();
+        if (lastErrorMessage_.empty())
+        {
+            lastErrorMessage_ = L"Failed to load the Effekseer effect file.";
+        }
+        return false;
+    }
     effects_[key] = effect;
 
     return true;
@@ -174,6 +240,8 @@ void EffectsManager::PlayEffect(const std::wstring& key, float x, float y, float
     if (it == effects_.end()) return;
     auto handle = manager_->Play(it->second, x, y, z);
     lastPlayedKey_ = key;
+    auto seed = static_cast<int32_t>(std::hash<std::wstring>{}(key) & 0x7fffffff);
+    manager_->SetRandomSeed(handle, seed);
     manager_->SetSpeed(handle, speed_);
 
     int32_t termMax = 0;
@@ -303,4 +371,9 @@ int EffectsManager::GetTotalFrame(const std::wstring& key) const
     
     auto term = it->second->CalculateTerm();
     return term.TermMax;
+}
+
+const std::wstring& EffectsManager::GetLastErrorMessage() const
+{
+    return lastErrorMessage_;
 }

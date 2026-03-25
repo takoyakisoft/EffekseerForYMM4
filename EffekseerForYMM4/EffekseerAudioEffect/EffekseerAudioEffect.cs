@@ -4,6 +4,7 @@ using YukkuriMovieMaker.Controls;
 using YukkuriMovieMaker.Exo;
 using YukkuriMovieMaker.Player.Audio.Effects;
 using YukkuriMovieMaker.Plugin.Effects;
+using EffekseerForYMM4;
 
 namespace EffekseerForYMM4.EffekseerAudioEffect
 {
@@ -11,51 +12,51 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
     /// 音声エフェクト
     /// 音声エフェクトには必ず[AudioEffect]属性を設定してください。
     /// </summary>
-    [AudioEffect("Effekseer音声エフェクト", ["エフェクト"], ["Effekseer"])]
+    [AudioEffect(nameof(Translate.Plugin_AudioEffect_Name), ["エフェクト"], ["Effekseer"], ResourceType = typeof(Translate))]
     public class EffekseerAudioEffect : AudioEffectBase
     {
         /// <summary>
         /// エフェクトの名前
         /// </summary>
-        public override string Label => "Effekseer音声エフェクト";
+        public override string Label => Translate.Plugin_AudioEffect_Name;
 
-        [Display(GroupName = "エフェクト", Name = "ファイル", Description = "エフェクトファイル")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_File_Name), Description = nameof(Translate.Common_File_Desc), ResourceType = typeof(Translate))]
         [FileSelector(YukkuriMovieMaker.Settings.FileGroupType.None)]
         public string FilePath { get => filePath; set => Set(ref filePath, value); }
         string filePath = "";
 
-        [Display(GroupName = "エフェクト", Name = "音量", Description = "音量を調整します")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Audio_Volume_Name), Description = nameof(Translate.Audio_Volume_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F0", "%", 0, 100)]
         public Animation Volume { get; } = new Animation(100, 0, 1000);
 
-        [Display(GroupName = "エフェクト", Name = "ループ", Description = "エフェクトをループ再生します")]
+        [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_Loop_Name), Description = nameof(Translate.Audio_Loop_Desc), ResourceType = typeof(Translate))]
         [ToggleSlider]
         public bool IsLoop { get => isLoop; set => Set(ref isLoop, value); }
         bool isLoop = true;
 
-        [Display(GroupName = "カメラ", Name = "X", Description = "カメラのX座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosX { get; } = new Animation(0, -10000, 10000);
+        public Animation CamPosX { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "カメラ", Name = "Y", Description = "カメラのY座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Y_Name), Description = nameof(Translate.Camera_Y_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosY { get; } = new Animation(0, -10000, 10000);
+        public Animation CamPosY { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "カメラ", Name = "Z", Description = "カメラのZ座標")]
+        [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Z_Name), Description = nameof(Translate.Camera_Z_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation CamPosZ { get; } = new Animation(20, -10000, 10000);
+        public Animation CamPosZ { get; } = new Animation(20, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置X", Description = "エフェクト位置X")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionX_Name), Description = nameof(Translate.Transform_PositionX_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosX { get; } = new Animation(0, -10000, 10000);
+        public Animation PosX { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置Y", Description = "エフェクト位置Y")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionY_Name), Description = nameof(Translate.Transform_PositionY_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosY { get; } = new Animation(0, -10000, 10000);
+        public Animation PosY { get; } = new Animation(0, -100000.0, 100000.0);
 
-        [Display(GroupName = "変形", Name = "位置Z", Description = "エフェクト位置Z")]
+        [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionZ_Name), Description = nameof(Translate.Transform_PositionZ_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "m", -50, 50)]
-        public Animation PosZ { get; } = new Animation(0, -10000, 10000);
+        public Animation PosZ { get; } = new Animation(0, -100000.0, 100000.0);
 
         /// <summary>
         /// 音声エフェクトを作成する

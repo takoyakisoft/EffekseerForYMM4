@@ -68,6 +68,22 @@ namespace EffekseerForNative {
         return true;
     }
 
+    System::String^ EffekseerRenderer::LastErrorMessage::get()
+    {
+        if (!m_impl)
+        {
+            return nullptr;
+        }
+
+        auto message = m_impl->GetLastErrorMessage();
+        if (message.empty())
+        {
+            return nullptr;
+        }
+
+        return gcnew System::String(message.c_str());
+    }
+
     void EffekseerRenderer::Render()
     {
         if (m_impl)

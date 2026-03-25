@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using EffekseerForYMM4.Commons;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Audio;
 using YukkuriMovieMaker.Player.Audio.Effects;
@@ -9,6 +10,8 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
 {
     internal class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
     {
+        private const int EffekseerFps = 60;
+        private const int MaxReplaySteps = 600;
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         public delegate int LoadSoundDelegate([MarshalAs(UnmanagedType.LPWStr)] string path);
 
@@ -36,9 +39,12 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
         private UnloadSoundDelegate? unloadSoundDel;
         private PlaySoundDelegate? playSoundDel;
 
-        private string loadedFilePath = null;
+        private string? loadedFilePath;
         private double currentFrame = 0;
         private bool isInitialized = false;
+        private long lastTimelineFrame = 0;
+        private bool hasLastTimelineFrame = false;
+        private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
 
         //出力サンプリングレート。リサンプリング処理をしない場合はInputのHzをそのまま返す。
         public override int Hz => Input?.Hz ?? 44100;
@@ -56,19 +62,8 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
         protected override void seek(long position)
         {
             Input?.Seek(position);
-            
-            if (nativeRenderer != null)
-            {
-                nativeRenderer.Reset();
-                
-                // シーク後、エフェクトを最初から再生し直す
-                // ※厳密なシーク位置の再現はUpdateの空回しが必要で重いため、
-                //   音声プレビューとしては「頭出し再生」で妥協するのが一般的です。
-                if (!string.IsNullOrEmpty(loadedFilePath))
-                {
-                    nativeRenderer.PlayEffect(loadedFilePath, 0, 0, 0);
-                }
-            }
+            hasLastTimelineFrame = false;
+            currentFrame = 0;
         }
 
         //エフェクトを適用する
@@ -89,35 +84,57 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
             }
 
             if (nativeRenderer == null || mixer == null) return count;
+            var renderer = nativeRenderer;
+            var soundMixer = mixer;
 
             // Positionから現在のエフェクトフレームを計算（巻き戻し対応）
             long totalSampleFrames = (long)(duration.TotalSeconds * Hz);
             long currentSampleFrame = Position / 2; // Position is total samples (stereo), so divide by 2
-            double targetFrame = (double)currentSampleFrame / Hz * 60.0; // 60fps換算
+            double targetFrame = (double)currentSampleFrame / Hz * EffekseerFps;
+            long timelineFrame = (long)Math.Round((double)currentSampleFrame * EffekseerFps / Hz);
             
             // ファイル読み込み判定
             if (loadedFilePath != item.FilePath)
             {
                 if (!string.IsNullOrEmpty(item.FilePath))
                 {
-                    var ext = System.IO.Path.GetExtension(item.FilePath).ToLower();
-                    if ((ext == ".efk" || ext == ".efkefc") && nativeRenderer.LoadEffect(item.FilePath))
+                    var ext = Path.GetExtension(item.FilePath).ToLowerInvariant();
+                    if (ext != ".efk" && ext != ".efkefc")
                     {
                         loadedFilePath = item.FilePath;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, string.Format(Translate.Error_InvalidEffectExtension, ".efk, .efkefc"));
+                    }
+                    else if (!File.Exists(item.FilePath))
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, Translate.Error_EffectFileNotFound);
+                    }
+                    else if (renderer.LoadEffect(item.FilePath))
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.Reset();
                         currentFrame = 0; // 新しいファイル読み込み時にリセット
+                        hasLastTimelineFrame = false;
+                    }
+                    else
+                    {
+                        loadedFilePath = item.FilePath;
+                        loadErrorNotifier.ShowIfNeeded(item.FilePath, renderer.LastErrorMessage ?? Translate.Error_EffectFilesMayBeInvalid);
                     }
                 }
                 else
                 {
-                    nativeRenderer.Reset();
+                    renderer.Reset();
                     currentFrame = 0;
+                    hasLastTimelineFrame = false;
+                    loadErrorNotifier.Reset();
                 }
                 loadedFilePath = item.FilePath;
             }
 
             if (!string.IsNullOrEmpty(loadedFilePath))
             {
-                int totalFrames = nativeRenderer.GetTotalFrame();
+                int totalFrames = renderer.GetTotalFrame();
                 
                 // ループ処理
                 if (item.IsLoop && totalFrames > 0 && totalFrames < int.MaxValue)
@@ -125,24 +142,27 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
                     targetFrame = targetFrame % totalFrames;
                 }
                 
-                // 巻き戻し検出：targetFrameがcurrentFrameより小さい場合はReset
-                if (targetFrame < currentFrame)
+                bool requiresReplay = RequiresReplay(timelineFrame);
+                if (!requiresReplay && item.IsLoop && totalFrames > 0 && targetFrame < currentFrame)
                 {
-                    nativeRenderer.Reset();
-                    currentFrame = 0;
+                    requiresReplay = true;
                 }
 
                 // Update Emitter Transform
                 float ex = (float)item.PosX.GetValue(currentSampleFrame, totalSampleFrames, Hz);
                 float ey = (float)item.PosY.GetValue(currentSampleFrame, totalSampleFrames, Hz);
                 float ez = (float)item.PosZ.GetValue(currentSampleFrame, totalSampleFrames, Hz);
-                nativeRenderer.SetLocation(ex, ey, ez);
+                renderer.SetLocation(ex, ey, ez);
 
-                // 差分だけUpdate
-                float delta = (float)(targetFrame - currentFrame);
-                if (delta > 0)
+                if (requiresReplay)
                 {
-                    nativeRenderer.Update(delta);
+                    ReplayRendererToTargetFrame(targetFrame);
+                }
+
+                float delta = (float)(targetFrame - currentFrame);
+                if (!requiresReplay && delta > 0)
+                {
+                    renderer.Update(delta);
                     currentFrame = targetFrame;
                 }
 
@@ -152,14 +172,14 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
                 float cy = (float)item.CamPosY.GetValue(currentSampleFrame, totalSampleFrames, Hz);
                 float cz = (float)item.CamPosZ.GetValue(currentSampleFrame, totalSampleFrames, Hz);
                 
-                nativeRenderer.SetCameraLookAt(cx, cy, cz, 0, 0, 0, 0, 1, 0);
+                renderer.SetCameraLookAt(cx, cy, cz, 0, 0, 0, 0, 1, 0);
                 
                 // Also update listener position for sound mixer
-                mixer?.SetListenerPosition(cx, cy, cz);
+                soundMixer.SetListenerPosition(cx, cy, cz);
             }
 
             // Mix Effekseer sound
-            mixer.Mix(destBuffer, offset, count);
+            soundMixer.Mix(destBuffer, offset, count);
 
             // Apply Master Volume from item parameters (if using Animatable)
             // item.Volume.GetValue returns 0-100?
@@ -215,7 +235,7 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
             });
             
             unloadSoundDel = new UnloadSoundDelegate(mixer!.UnloadSound);
-            playSoundDel = new PlaySoundDelegate(mixer!.PlaySound);
+            playSoundDel = new PlaySoundDelegate(mixer.PlaySound);
 
             nativeRenderer.SetSoundCallback(
                 Marshal.GetFunctionPointerForDelegate(loadSoundDel),
@@ -227,6 +247,47 @@ namespace EffekseerForYMM4.EffekseerAudioEffect
             nativeRenderer.SetCameraLookAt(0, 0, 20, 0, 0, 0, 0, 1, 0);
 
             isInitialized = true;
+        }
+
+        private bool RequiresReplay(long timelineFrame)
+        {
+            if (!hasLastTimelineFrame)
+            {
+                lastTimelineFrame = timelineFrame;
+                hasLastTimelineFrame = true;
+                return true;
+            }
+
+            var deltaFrames = timelineFrame - lastTimelineFrame;
+            lastTimelineFrame = timelineFrame;
+            return deltaFrames < 0 || deltaFrames > 1;
+        }
+
+        private void ReplayRendererToTargetFrame(double targetFrame)
+        {
+            if (nativeRenderer == null)
+            {
+                return;
+            }
+
+            nativeRenderer.Reset();
+            currentFrame = 0;
+
+            if (targetFrame <= 0)
+            {
+                return;
+            }
+
+            var replayStep = Math.Max(1.0, targetFrame / MaxReplaySteps);
+            var replayed = 0.0;
+            while (replayed < targetFrame)
+            {
+                var next = Math.Min(targetFrame, replayed + replayStep);
+                nativeRenderer.Update((float)(next - replayed));
+                replayed = next;
+            }
+
+            currentFrame = targetFrame;
         }
 
         protected override void Dispose(bool disposing)

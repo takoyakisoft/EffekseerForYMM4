@@ -17,6 +17,7 @@ namespace EffekseerForNative {
 
             bool Initialize(IntPtr device, IntPtr context, int width, int height);
             bool LoadEffect(System::String^ path);
+            property System::String^ LastErrorMessage { System::String^ get(); }
             void Render();
             void Update(float deltaFrames);
             void SetSoundCallback(System::IntPtr loadSound, System::IntPtr unloadSound, System::IntPtr playSound);

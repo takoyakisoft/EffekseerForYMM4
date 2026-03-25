@@ -39,6 +39,7 @@ public:
     void SetMaxDurationSeconds(int seconds);
     const std::wstring& GetLastPlayedKey() const;
     int GetTotalFrame(const std::wstring& key) const;
+    const std::wstring& GetLastErrorMessage() const;
 
 private:
     struct ActiveEffect
@@ -71,4 +72,5 @@ private:
     float rotationZ_ = 0.0f;
     int maxDurationSeconds_ = 0;
     std::vector<ActiveEffect> active_;
+    std::wstring lastErrorMessage_;
 };

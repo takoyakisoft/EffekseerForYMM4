@@ -249,7 +249,7 @@ namespace EffekseerForYMM4
 
     public static class WaveReader
     {
-        public static EffekseerSound Load(string path)
+        public static EffekseerSound? Load(string path)
         {
             try
             {
