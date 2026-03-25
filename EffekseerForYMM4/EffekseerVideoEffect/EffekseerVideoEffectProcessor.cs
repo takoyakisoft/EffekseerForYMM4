@@ -160,7 +160,7 @@ namespace EffekseerForYMM4
                         int tFrames = nativeRenderer.GetTotalFrame();
                         if (tFrames > 0 && tFrames < int.MaxValue)
                         {
-                            _duration = TimeSpan.FromSeconds((double)tFrames / safeFps);
+                            _duration = TimeSpan.FromSeconds((double)tFrames / EffekseerFps);
                         }
                     }
                     else
@@ -417,8 +417,12 @@ namespace EffekseerForYMM4
             transformEffect?.Dispose();
             compositeEffect?.Dispose();
 
-            nativeRenderer?.Destroy();
-            nativeRenderer = null;
+            if (nativeRenderer != null)
+            {
+                nativeRenderer.Destroy();
+                nativeRenderer.Dispose();
+                nativeRenderer = null;
+            }
 
 
             GC.SuppressFinalize(this);
