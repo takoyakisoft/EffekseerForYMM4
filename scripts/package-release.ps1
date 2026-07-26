@@ -67,8 +67,8 @@ foreach ($relativePath in $forbiddenFiles) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    $projectXml = [xml](Get-Content -LiteralPath (Join-Path $root "EffekseerForYMM4\EffekseerForYMM4.csproj") -Raw)
-    $Version = [string]$projectXml.Project.PropertyGroup.Version
+    $targetsXml = [xml](Get-Content -LiteralPath (Join-Path $root "Directory.Build.targets") -Raw)
+    $Version = [string]$targetsXml.Project.PropertyGroup.EffekseerForYMM4Version
 }
 if ([string]::IsNullOrWhiteSpace($Version)) {
     throw "Package version could not be determined."

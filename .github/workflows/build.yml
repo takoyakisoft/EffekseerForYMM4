@@ -15,6 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           submodules: recursive
 
       - name: Setup .NET
@@ -24,6 +25,27 @@ jobs:
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
+
+      - name: Validate release version
+        shell: pwsh
+        run: |
+          $targets = [xml](Get-Content -LiteralPath ".\Directory.Build.targets" -Raw)
+          $version = [string]$targets.Project.PropertyGroup.EffekseerForYMM4Version
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw "EffekseerForYMM4Version was not found in Directory.Build.targets."
+          }
+          if ("${{ github.ref_type }}" -eq "tag") {
+            if ("${{ github.ref_name }}" -ne "v$version") {
+              throw "Tag/version mismatch. Tag=${{ github.ref_name }} Version=$version"
+            }
+
+            git fetch origin main --no-tags
+            git merge-base --is-ancestor $env:GITHUB_SHA origin/main
+            if ($LASTEXITCODE -ne 0) {
+              throw "Release tag must point to a commit merged into main."
+            }
+          }
+          "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Download latest YMM4
         shell: pwsh
@@ -72,16 +94,7 @@ jobs:
 
       - name: Create BOOTH package
         shell: pwsh
-        run: |
-          $project = [xml](Get-Content -LiteralPath ".\EffekseerForYMM4\EffekseerForYMM4.csproj" -Raw)
-          $version = [string]$project.Project.PropertyGroup.Version
-          if ([string]::IsNullOrWhiteSpace($version)) {
-            throw "Version was not found in EffekseerForYMM4.csproj."
-          }
-          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$version") {
-            throw "Tag/version mismatch. Tag=${{ github.ref_name }} Version=$version"
-          }
-          .\scripts\package-release.ps1 -YMM4DirPath "$env:YMM4_DIR" -Version $version -OutputDirectory ".\artifacts"
+        run: .\scripts\package-release.ps1 -YMM4DirPath "$env:YMM4_DIR" -Version "$env:PACKAGE_VERSION" -OutputDirectory ".\artifacts"
 
       - name: Upload BOOTH package
         uses: actions/upload-artifact@v4

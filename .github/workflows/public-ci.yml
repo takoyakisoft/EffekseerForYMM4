@@ -1,0 +1,63 @@
+name: public-ci
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Check patch whitespace
+        shell: pwsh
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+
+      - name: Check C# formatting
+        shell: pwsh
+        run: dotnet format whitespace . --folder --verify-no-changes --include .\EffekseerForYMM4 .\EffekseerForYMM4.Tests
+
+      - name: Validate repository files
+        shell: pwsh
+        run: |
+          $xmlFiles = @(
+            ".\Directory.Build.targets",
+            ".\EffekseerForYMM4\EffekseerForYMM4.csproj",
+            ".\EffekseerForNative\EffekseerForNative.vcxproj"
+          )
+          foreach ($file in $xmlFiles) {
+            try {
+              [xml](Get-Content -LiteralPath $file -Raw) | Out-Null
+            }
+            catch {
+              throw "Invalid XML: $file`n$_"
+            }
+          }
+
+          $parseErrors = @()
+          Get-ChildItem -LiteralPath ".\scripts" -Filter "*.ps1" -File | ForEach-Object {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName,
+              [ref]$tokens,
+              [ref]$errors) | Out-Null
+            $parseErrors += $errors
+          }
+          if ($parseErrors.Count -ne 0) {
+            throw ($parseErrors | Out-String)
+          }
+
+          $targets = [xml](Get-Content -LiteralPath ".\Directory.Build.targets" -Raw)
+          $version = [string]$targets.Project.PropertyGroup.EffekseerForYMM4Version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "EffekseerForYMM4Version must be a three-part version. Actual=$version"
+          }
