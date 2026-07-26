@@ -47,6 +47,22 @@ public sealed class NativeAssemblyLayoutTests
         Assert.Contains("The MIT License (MIT)", thirdPartyNotices, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void PackageUsesAnExplicitPluginFileAllowlist()
+    {
+        var root = FindRepositoryRoot();
+        var project = File.ReadAllText(Path.Combine(root, "EffekseerForYMM4", "EffekseerForYMM4.csproj"));
+        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "package-release.ps1"));
+
+        Assert.Contains("<Private>false</Private>", project, StringComparison.Ordinal);
+        Assert.Contains("$supportedCultures", packageScript, StringComparison.Ordinal);
+        Assert.Contains("YMME package entries do not match the allowlist", packageScript, StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "Get-ChildItem -LiteralPath $sourcePluginDirectory -Recurse",
+            packageScript,
+            StringComparison.Ordinal);
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);

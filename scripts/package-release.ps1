@@ -52,10 +52,25 @@ $requiredFiles = @(
     "EffekseerForYMM4.dll",
     "EffekseerForNative.dll"
 )
+$supportedCultures = @(
+    "ar-sa",
+    "en-us",
+    "es-es",
+    "id-id",
+    "ko-kr",
+    "zh-cn",
+    "zh-tw"
+)
 foreach ($relativePath in $requiredFiles) {
     $requiredPath = Join-Path $sourcePluginDirectory $relativePath
     if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
         throw "Required plugin file was not found: $requiredPath"
+    }
+}
+foreach ($culture in $supportedCultures) {
+    $resourcePath = Join-Path $sourcePluginDirectory "$culture\EffekseerForYMM4.resources.dll"
+    if (-not (Test-Path -LiteralPath $resourcePath -PathType Leaf)) {
+        throw "Required translation resource was not found: $resourcePath"
     }
 }
 
@@ -104,13 +119,14 @@ New-Item -ItemType Directory -Force -Path $packageRoot | Out-Null
 Copy-Item -LiteralPath (Join-Path $sourcePluginDirectory "EffekseerForYMM4.dll") -Destination $packageRoot -Force
 Copy-Item -LiteralPath (Join-Path $sourcePluginDirectory "EffekseerForNative.dll") -Destination $packageRoot -Force
 
-Get-ChildItem -LiteralPath $sourcePluginDirectory -Recurse -File -Filter "EffekseerForYMM4.resources.dll" |
-    ForEach-Object {
-        $relativePath = Get-RelativePathFromBase -BasePath $sourcePluginDirectory -FullPath $_.FullName
-        $destinationPath = Join-Path $packageRoot $relativePath
-        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destinationPath) | Out-Null
-        Copy-Item -LiteralPath $_.FullName -Destination $destinationPath -Force
-    }
+foreach ($culture in $supportedCultures) {
+    $destinationDirectory = Join-Path $packageRoot $culture
+    New-Item -ItemType Directory -Force -Path $destinationDirectory | Out-Null
+    Copy-Item `
+        -LiteralPath (Join-Path $sourcePluginDirectory "$culture\EffekseerForYMM4.resources.dll") `
+        -Destination $destinationDirectory `
+        -Force
+}
 
 $packageReadmePath = Join-Path $packageRoot "Readme.txt"
 [System.IO.File]::WriteAllText(
@@ -162,17 +178,21 @@ Move-Item -LiteralPath $temporaryZipPath -Destination $ymmePath -Force
 
 $ymmeArchive = [System.IO.Compression.ZipFile]::OpenRead($ymmePath)
 try {
-    $requiredEntries = @(
+    $expectedEntries = @(
         "EffekseerForYMM4/EffekseerForYMM4.dll",
         "EffekseerForYMM4/EffekseerForNative.dll",
         "EffekseerForYMM4/Readme.txt",
         "EffekseerForYMM4/LICENSE.txt",
         "EffekseerForYMM4/THIRD_PARTY_NOTICES.txt"
     )
-    foreach ($entry in $requiredEntries) {
-        if (-not ($ymmeArchive.Entries | Where-Object { $_.FullName -eq $entry })) {
-            throw "Required ymme entry was not found: $entry"
-        }
+    $expectedEntries += $supportedCultures |
+        ForEach-Object { "EffekseerForYMM4/$_/EffekseerForYMM4.resources.dll" }
+    $actualEntries = @($ymmeArchive.Entries |
+        Where-Object { -not [string]::IsNullOrEmpty($_.Name) } |
+        ForEach-Object { $_.FullName })
+    if (@($actualEntries | Where-Object { $expectedEntries -notcontains $_ }).Count -ne 0 -or
+        @($expectedEntries | Where-Object { $actualEntries -notcontains $_ }).Count -ne 0) {
+        throw "YMME package entries do not match the allowlist. Expected=$($expectedEntries -join ', ') Actual=$($actualEntries -join ', ')"
     }
 }
 finally {
