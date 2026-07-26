@@ -1,219 +1,121 @@
 #include "EffectsManager.h"
-#include "PathUtils.h"
 
-#include <filesystem>
-#include <chrono>
-#include <mutex>
+#include <functional>
+#include <string>
 #include <Windows.h>
 
 namespace
 {
-    std::mutex g_effekseerLogMutex;
-    std::string g_lastEffekseerErrorUtf8;
+    thread_local std::string lastEffekseerErrorUtf8;
+
+    std::u16string ToUtf16PathString(const std::filesystem::path& path)
+    {
+        static_assert(
+            sizeof(std::filesystem::path::value_type) == sizeof(char16_t),
+            "Windows paths must use UTF-16.");
+        const auto& native = path.native();
+        return {native.begin(), native.end()};
+    }
 
     std::wstring Utf8ToWide(const std::string& value)
     {
         if (value.empty())
         {
-            return L"";
+            return {};
         }
 
-        auto length = MultiByteToWideChar(CP_UTF8, 0, value.c_str(), -1, nullptr, 0);
+        const auto length = MultiByteToWideChar(
+            CP_UTF8,
+            MB_ERR_INVALID_CHARS,
+            value.data(),
+            static_cast<int>(value.size()),
+            nullptr,
+            0);
         if (length <= 0)
         {
-            return L"";
+            return {};
         }
 
-        std::wstring result(length, L'\0');
-        MultiByteToWideChar(CP_UTF8, 0, value.c_str(), -1, result.data(), length);
-        if (!result.empty() && result.back() == L'\0')
-        {
-            result.pop_back();
-        }
+        std::wstring result(static_cast<size_t>(length), L'\0');
+        MultiByteToWideChar(
+            CP_UTF8,
+            MB_ERR_INVALID_CHARS,
+            value.data(),
+            static_cast<int>(value.size()),
+            result.data(),
+            length);
         return result;
-    }
-
-    void ClearLastEffekseerError()
-    {
-        std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
-        g_lastEffekseerErrorUtf8.clear();
-    }
-
-    std::wstring ConsumeLastEffekseerError()
-    {
-        std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
-        auto message = Utf8ToWide(g_lastEffekseerErrorUtf8);
-        g_lastEffekseerErrorUtf8.clear();
-        return message;
     }
 }
 
 bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* context)
 {
+    if (device == nullptr || context == nullptr)
+    {
+        return false;
+    }
+
     Effekseer::SetLogger([](Effekseer::LogType logType, const std::string& message)
         {
-            if (logType != Effekseer::LogType::Error && logType != Effekseer::LogType::Warning)
+            if (logType == Effekseer::LogType::Error || logType == Effekseer::LogType::Warning)
             {
-                return;
+                lastEffekseerErrorUtf8 = message;
             }
-
-            std::lock_guard<std::mutex> lock(g_effekseerLogMutex);
-            g_lastEffekseerErrorUtf8 = message;
         });
 
-    if (device != nullptr && context != nullptr)
+    renderer_ = ::EffekseerRendererDX11::Renderer::Create(
+        device,
+        context,
+        2000,
+        D3D11_COMPARISON_LESS_EQUAL,
+        false);
+    if (renderer_.Get() == nullptr)
     {
-        renderer_ = ::EffekseerRendererDX11::Renderer::Create(device, context, 2000, D3D11_COMPARISON_LESS_EQUAL, false);
-        if (renderer_.Get() == nullptr) return false;
+        return false;
     }
 
     manager_ = ::Effekseer::Manager::Create(2000);
-    if (manager_.Get() == nullptr) return false;
-
-    if (renderer_.Get() != nullptr)
+    if (manager_.Get() == nullptr)
     {
-        manager_->SetSpriteRenderer(renderer_->CreateSpriteRenderer());
-        manager_->SetRibbonRenderer(renderer_->CreateRibbonRenderer());
-        manager_->SetRingRenderer(renderer_->CreateRingRenderer());
-        manager_->SetTrackRenderer(renderer_->CreateTrackRenderer());
-        manager_->SetModelRenderer(renderer_->CreateModelRenderer());
-
-        manager_->SetTextureLoader(renderer_->CreateTextureLoader());
-        manager_->SetModelLoader(renderer_->CreateModelLoader());
-        manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
+        renderer_.Reset();
+        return false;
     }
-    else
-    {
-        // Headless mode: dummy loaders
-        // We need minimal loaders to avoid crashes during effect loading
-        class DummyTextureLoader : public Effekseer::TextureLoader {
-        public:
-            Effekseer::TextureRef Load(const char16_t* path, Effekseer::TextureType textureType) override { return nullptr; }
-            Effekseer::TextureRef Load(const void* data, int32_t size, Effekseer::TextureType textureType, bool isMipMapEnabled) override { return nullptr; }
-            void Unload(Effekseer::TextureRef data) override {}
-        };
-        class DummyModelLoader : public Effekseer::ModelLoader {
-        public:
-            Effekseer::ModelRef Load(const char16_t* path) override { return nullptr; }
-            Effekseer::ModelRef Load(const void* data, int32_t size) override { return nullptr; }
-            void Unload(Effekseer::ModelRef data) override {}
-        };
-        class DummyMaterialLoader : public Effekseer::MaterialLoader {
-        public:
-            Effekseer::MaterialRef Load(const char16_t* path) override { return nullptr; }
-            Effekseer::MaterialRef Load(const void* data, int32_t size, Effekseer::MaterialFileType fileType) override { return nullptr; }
-            void Unload(Effekseer::MaterialRef data) override {}
-        };
-        class DummyCurveLoader : public Effekseer::CurveLoader {
-        public:
-            Effekseer::CurveRef Load(const char16_t* path) override { return nullptr; }
-            Effekseer::CurveRef Load(const void* data, int32_t size) override { return nullptr; }
-            void Unload(Effekseer::CurveRef data) override {}
-        };
 
-        manager_->SetTextureLoader(Effekseer::MakeRefPtr<DummyTextureLoader>());
-        manager_->SetModelLoader(Effekseer::MakeRefPtr<DummyModelLoader>());
-        manager_->SetMaterialLoader(Effekseer::MakeRefPtr<DummyMaterialLoader>());
-        manager_->SetCurveLoader(Effekseer::MakeRefPtr<DummyCurveLoader>());
-    }
-   
+    manager_->SetSpriteRenderer(renderer_->CreateSpriteRenderer());
+    manager_->SetRibbonRenderer(renderer_->CreateRibbonRenderer());
+    manager_->SetRingRenderer(renderer_->CreateRingRenderer());
+    manager_->SetTrackRenderer(renderer_->CreateTrackRenderer());
+    manager_->SetModelRenderer(renderer_->CreateModelRenderer());
+    manager_->SetTextureLoader(renderer_->CreateTextureLoader());
+    manager_->SetModelLoader(renderer_->CreateModelLoader());
+    manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
     manager_->SetCoordinateSystem(::Effekseer::CoordinateSystem::RH);
 
-    if (renderer_.Get() != nullptr)
-    {
-        SetCamera(cameraDistance_);
-    }
-    return true; 
-}
-
-void EffectsManager::SetSoundCallback(EffekseerForNative::LoadSoundFunc loadSound, EffekseerForNative::UnloadSoundFunc unloadSound, EffekseerForNative::PlaySoundFunc playSound)
-{
-    if (manager_ != nullptr)
-    {
-        auto setting = manager_->GetSetting();
-        if (setting != nullptr)
-        {
-            auto loader = Effekseer::MakeRefPtr<EffekseerForNative::CustomSoundLoader>(loadSound, unloadSound);
-            setting->SetSoundLoader(loader);
-        }
-
-        auto player = Effekseer::MakeRefPtr<EffekseerForNative::CustomSoundPlayer>(playSound);
-        manager_->SetSoundPlayer(player);
-    }
+    SetProjectionPerspective(90.0f, 1920, 1080, 1.0f, 2000.0f);
+    SetCameraLookAt(0.0f, 0.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    return true;
 }
 
 void EffectsManager::Shutdown()
 {
-    effects_.clear();
+    effect_.Reset();
     manager_.Reset();
     renderer_.Reset();
+    activeHandle_ = -1;
 }
 
-void EffectsManager::Update(float deltaSeconds)
+bool EffectsManager::LoadEffect(const std::filesystem::path& path)
 {
-    if (manager_.Get() == nullptr) return;
-    float deltaFrames = deltaSeconds * 60.0f;
-    manager_->Update(deltaFrames);
-    if (renderer_.Get() != nullptr)
+    if (manager_.Get() == nullptr)
     {
-        renderer_->SetTime(renderer_->GetTime() + deltaSeconds);
+        return false;
     }
 
-    // Stop effects by duration or term
-    for (size_t i = 0; i < active_.size();)
-    {
-        auto& a = active_[i];
-        if (!manager_->Exists(a.handle))
-        {
-            active_.erase(active_.begin() + i);
-            continue;
-        }
-
-        a.elapsedTime += deltaSeconds;
-        double elapsed = a.elapsedTime;
-
-        if (maxDurationSeconds_ > 0 && elapsed >= (double)maxDurationSeconds_)
-        {
-            manager_->StopEffect(a.handle);
-            active_.erase(active_.begin() + i);
-            continue;
-        }
-
-        if (a.termMax > 0 && a.termMax < INT_MAX)
-        {
-            double elapsedFrames = elapsed * 60.0 * speed_;
-            if (elapsedFrames >= a.termMax)
-            {
-                manager_->StopEffect(a.handle);
-                active_.erase(active_.begin() + i);
-                continue;
-            }
-        }
-        ++i;
-    }
-}
-
-void EffectsManager::Draw()
-{
-    if (manager_.Get() == nullptr) return;
-    if (renderer_.Get() == nullptr) return;
-
-    renderer_->SetProjectionMatrix(projection_);
-    renderer_->SetCameraMatrix(camera_);
-    renderer_->BeginRendering();
-    manager_->Draw();
-    renderer_->EndRendering();
-}
-
-bool EffectsManager::LoadEffect(const std::wstring& key, const std::filesystem::path& path)
-{
     lastErrorMessage_.clear();
-    ClearLastEffekseerError();
+    lastEffekseerErrorUtf8.clear();
 
-    if (manager_.Get() == nullptr) return false;
-    const auto effectPath = EffekseerForNative::PathUtils::ToUtf16PathString(path);
-    const auto directoryPath = EffekseerForNative::PathUtils::ToUtf16PathString(path.parent_path());
-
+    const auto effectPath = ToUtf16PathString(path);
+    const auto directoryPath = ToUtf16PathString(path.parent_path());
     auto effect = ::Effekseer::Effect::Create(
         manager_->GetSetting(),
         effectPath.c_str(),
@@ -221,101 +123,153 @@ bool EffectsManager::LoadEffect(const std::wstring& key, const std::filesystem::
         directoryPath.empty() ? nullptr : directoryPath.c_str());
     if (effect == nullptr)
     {
-        lastErrorMessage_ = ConsumeLastEffekseerError();
+        lastErrorMessage_ = Utf8ToWide(lastEffekseerErrorUtf8);
         if (lastErrorMessage_.empty())
         {
             lastErrorMessage_ = L"Failed to load the Effekseer effect file.";
         }
         return false;
     }
-    effects_[key] = effect;
 
+    manager_->StopAllEffects();
+    effect_ = effect;
+    randomSeed_ = static_cast<int32_t>(
+        std::hash<std::filesystem::path::string_type>{}(path.native()) & 0x7fffffff);
+    PlayLoadedEffect();
     return true;
 }
 
-void EffectsManager::PlayEffect(const std::wstring& key, float x, float y, float z)
+void EffectsManager::Restart()
 {
-    if (manager_.Get() == nullptr) return;
-    auto it = effects_.find(key);
-    if (it == effects_.end()) return;
-    auto handle = manager_->Play(it->second, x, y, z);
-    lastPlayedKey_ = key;
-    auto seed = static_cast<int32_t>(std::hash<std::wstring>{}(key) & 0x7fffffff);
-    manager_->SetRandomSeed(handle, seed);
-    manager_->SetSpeed(handle, speed_);
-
-    int32_t termMax = 0;
-    if (it->second != nullptr)
+    if (manager_.Get() == nullptr || effect_ == nullptr)
     {
-        auto term = it->second->CalculateTerm();
-        termMax = term.TermMax;
+        return;
     }
 
-    ActiveEffect a;
-    a.handle = handle;
-    a.elapsedTime = 0.0;
-    a.termMax = termMax;
-    a.key = key;
-    active_.push_back(a);
-    
-    // Apply current settings
-    manager_->SetSpeed(handle, speed_);
-    manager_->SetScale(handle, scale_, scale_, scale_);
-    manager_->SetLocation(handle, locationX_, locationY_, locationZ_);
-    manager_->SetRotation(handle, rotationX_, rotationY_, rotationZ_);
+    manager_->StopAllEffects();
+    PlayLoadedEffect();
 }
 
-
-void EffectsManager::StopAll()
+void EffectsManager::PlayLoadedEffect()
 {
-    if (manager_.Get()) manager_->StopAllEffects();
-    active_.clear();
+    activeHandle_ = manager_->Play(effect_, 0.0f, 0.0f, 0.0f);
+    manager_->SetRandomSeed(activeHandle_, randomSeed_);
+    manager_->SetScale(activeHandle_, scale_, scale_, scale_);
+    manager_->SetLocation(activeHandle_, locationX_, locationY_, locationZ_);
+    manager_->SetRotation(activeHandle_, rotationX_, rotationY_, rotationZ_);
 }
 
-void EffectsManager::SetProjection(int width, int height)
+bool EffectsManager::HasActiveEffect() const
 {
-    SetProjectionPerspective(90.0f, width, height, 1.0f, 2000.0f);
+    return manager_.Get() != nullptr &&
+        activeHandle_ >= 0 &&
+        manager_->Exists(activeHandle_);
 }
 
-void EffectsManager::SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal)
+void EffectsManager::Update(float deltaSeconds)
 {
-    screenWidth_ = width;
-    screenHeight_ = height;
-    projection_.PerspectiveFovRH(fov / 180.0f * 3.14159f, (float)width / (float)height, nearVal, farVal);
-}
-
-void EffectsManager::SetProjectionOrthographic(float width, float height, float nearVal, float farVal)
-{
-    screenWidth_ = (int)width;
-    screenHeight_ = (int)height;
-    projection_.OrthographicRH(width, height, nearVal, farVal);
-}
-
-void EffectsManager::SetCamera(float distance)
-{
-    cameraDistance_ = distance;
-    ::Effekseer::Vector3D pos(0.0f, 0.0f, cameraDistance_);
-    ::Effekseer::Vector3D target(0.0f, 0.0f, 0.0f);
-    ::Effekseer::Vector3D up(0.0f, 1.0f, 0.0f);
-    camera_.LookAtRH(pos, target, up);
-}
-
-void EffectsManager::SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ)
-{
-    ::Effekseer::Vector3D pos(posX, posY, posZ);
-    ::Effekseer::Vector3D target(targetX, targetY, targetZ);
-    ::Effekseer::Vector3D up(upX, upY, upZ);
-    camera_.LookAtRH(pos, target, up);
-}
-
-void EffectsManager::SetSpeed(float speed)
-{
-    speed_ = speed;
-    if (manager_.Get() == nullptr) return;
-    for (auto& a : active_)
+    if (manager_.Get() == nullptr)
     {
-        manager_->SetSpeed(a.handle, speed_);
+        return;
     }
+
+    manager_->Update(deltaSeconds * 60.0f);
+    renderer_->SetTime(renderer_->GetTime() + deltaSeconds);
+}
+
+void EffectsManager::Draw(
+    ID3D11RenderTargetView* renderTarget,
+    ID3D11DepthStencilView* depthStencil,
+    int width,
+    int height)
+{
+    if (manager_.Get() == nullptr ||
+        renderer_.Get() == nullptr ||
+        renderTarget == nullptr ||
+        depthStencil == nullptr)
+    {
+        return;
+    }
+
+    auto* context = renderer_->GetContext();
+    ID3D11RenderTargetView* previousRenderTarget = nullptr;
+    ID3D11DepthStencilView* previousDepthStencil = nullptr;
+    context->OMGetRenderTargets(1, &previousRenderTarget, &previousDepthStencil);
+
+    constexpr float clearColor[4] = {};
+    context->ClearRenderTargetView(renderTarget, clearColor);
+    context->ClearDepthStencilView(
+        depthStencil,
+        D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+        1.0f,
+        0);
+    context->OMSetRenderTargets(1, &renderTarget, depthStencil);
+
+    const D3D11_VIEWPORT viewport{
+        0.0f,
+        0.0f,
+        static_cast<float>(width),
+        static_cast<float>(height),
+        0.0f,
+        1.0f,
+    };
+    context->RSSetViewports(1, &viewport);
+
+    renderer_->SetProjectionMatrix(projection_);
+    renderer_->SetCameraMatrix(camera_);
+    renderer_->BeginRendering();
+    manager_->Draw();
+    renderer_->EndRendering();
+
+    context->OMSetRenderTargets(1, &previousRenderTarget, previousDepthStencil);
+    if (previousRenderTarget != nullptr)
+    {
+        previousRenderTarget->Release();
+    }
+    if (previousDepthStencil != nullptr)
+    {
+        previousDepthStencil->Release();
+    }
+}
+
+void EffectsManager::SetProjectionPerspective(
+    float fov,
+    int width,
+    int height,
+    float nearValue,
+    float farValue)
+{
+    projection_.PerspectiveFovRH(
+        fov / 180.0f * 3.14159265358979323846f,
+        static_cast<float>(width) / static_cast<float>(height),
+        nearValue,
+        farValue);
+}
+
+void EffectsManager::SetProjectionOrthographic(
+    float width,
+    float height,
+    float nearValue,
+    float farValue)
+{
+    projection_.OrthographicRH(width, height, nearValue, farValue);
+}
+
+void EffectsManager::SetCameraLookAt(
+    float positionX,
+    float positionY,
+    float positionZ,
+    float targetX,
+    float targetY,
+    float targetZ,
+    float upX,
+    float upY,
+    float upZ)
+{
+    camera_.LookAtRH(
+        ::Effekseer::Vector3D(positionX, positionY, positionZ),
+        ::Effekseer::Vector3D(targetX, targetY, targetZ),
+        ::Effekseer::Vector3D(upX, upY, upZ));
 }
 
 void EffectsManager::SetLocation(float x, float y, float z)
@@ -323,10 +277,9 @@ void EffectsManager::SetLocation(float x, float y, float z)
     locationX_ = x;
     locationY_ = y;
     locationZ_ = z;
-    if (manager_.Get() == nullptr) return;
-    for (auto& a : active_)
+    if (HasActiveEffect())
     {
-        manager_->SetLocation(a.handle, locationX_, locationY_, locationZ_);
+        manager_->SetLocation(activeHandle_, x, y, z);
     }
 }
 
@@ -335,42 +288,24 @@ void EffectsManager::SetRotation(float x, float y, float z)
     rotationX_ = x;
     rotationY_ = y;
     rotationZ_ = z;
-    if (manager_.Get() == nullptr) return;
-    for (auto& a : active_)
+    if (HasActiveEffect())
     {
-        manager_->SetRotation(a.handle, rotationX_, rotationY_, rotationZ_);
+        manager_->SetRotation(activeHandle_, x, y, z);
     }
 }
 
 void EffectsManager::SetScale(float scale)
 {
     scale_ = scale;
-    if (manager_.Get() == nullptr) return;
-    for (auto& a : active_)
+    if (HasActiveEffect())
     {
-        manager_->SetScale(a.handle, scale_, scale_, scale_);
+        manager_->SetScale(activeHandle_, scale, scale, scale);
     }
 }
 
-
-void EffectsManager::SetMaxDurationSeconds(int seconds)
+int EffectsManager::GetTotalFrame() const
 {
-    maxDurationSeconds_ = seconds;
-}
-
-const std::wstring& EffectsManager::GetLastPlayedKey() const
-{
-    return lastPlayedKey_;
-}
-
-
-int EffectsManager::GetTotalFrame(const std::wstring& key) const
-{
-    auto it = effects_.find(key);
-    if (it == effects_.end() || it->second == nullptr) return 0;
-    
-    auto term = it->second->CalculateTerm();
-    return term.TermMax;
+    return effect_ == nullptr ? 0 : effect_->CalculateTerm().TermMax;
 }
 
 const std::wstring& EffectsManager::GetLastErrorMessage() const

@@ -2,14 +2,9 @@
 
 #include <filesystem>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 
 #include <Effekseer.h>
 #include <EffekseerRendererDX11.h>
-#include "EffekseerSound.h"
-
 
 class EffectsManager
 {
@@ -17,53 +12,45 @@ public:
     bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context);
     void Shutdown();
 
-    void SetSoundCallback(EffekseerForNative::LoadSoundFunc loadSound, EffekseerForNative::UnloadSoundFunc unloadSound, EffekseerForNative::PlaySoundFunc playSound);
-
-
+    bool LoadEffect(const std::filesystem::path& path);
+    void Restart();
     void Update(float deltaSeconds);
-    void Draw();
+    void Draw(
+        ID3D11RenderTargetView* renderTarget,
+        ID3D11DepthStencilView* depthStencil,
+        int width,
+        int height);
 
-    bool LoadEffect(const std::wstring& key, const std::filesystem::path& path);
-    void PlayEffect(const std::wstring& key, float x, float y, float z = 0.0f);
-
-    void StopAll();
-
-    void SetProjection(int width, int height);
-    void SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal);
-    void SetProjectionOrthographic(float width, float height, float nearVal, float farVal);
-    void SetCamera(float distance);
-    void SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
+    void SetProjectionPerspective(float fov, int width, int height, float nearValue, float farValue);
+    void SetProjectionOrthographic(float width, float height, float nearValue, float farValue);
+    void SetCameraLookAt(
+        float positionX,
+        float positionY,
+        float positionZ,
+        float targetX,
+        float targetY,
+        float targetZ,
+        float upX,
+        float upY,
+        float upZ);
     void SetLocation(float x, float y, float z);
     void SetRotation(float x, float y, float z);
-    void SetSpeed(float speed);
     void SetScale(float scale);
-    void SetMaxDurationSeconds(int seconds);
-    const std::wstring& GetLastPlayedKey() const;
-    int GetTotalFrame(const std::wstring& key) const;
+
+    int GetTotalFrame() const;
     const std::wstring& GetLastErrorMessage() const;
 
 private:
-    struct ActiveEffect
-    {
-        ::Effekseer::Handle handle = -1;
-        double elapsedTime = 0.0;
-        int32_t termMax = 0;
-        std::wstring key;
-    };
-
+    void PlayLoadedEffect();
+    bool HasActiveEffect() const;
 
     ::Effekseer::ManagerRef manager_;
     ::EffekseerRendererDX11::RendererRef renderer_;
-
-    std::unordered_map<std::wstring, ::Effekseer::EffectRef> effects_;
-    std::wstring lastPlayedKey_;
+    ::Effekseer::EffectRef effect_;
+    ::Effekseer::Handle activeHandle_ = -1;
 
     ::Effekseer::Matrix44 projection_;
     ::Effekseer::Matrix44 camera_;
-    float cameraDistance_ = 50.0f;
-    int screenWidth_ = 1920;
-    int screenHeight_ = 1080;
-    float speed_ = 1.0f;
     float scale_ = 1.0f;
     float locationX_ = 0.0f;
     float locationY_ = 0.0f;
@@ -71,7 +58,6 @@ private:
     float rotationX_ = 0.0f;
     float rotationY_ = 0.0f;
     float rotationZ_ = 0.0f;
-    int maxDurationSeconds_ = 0;
-    std::vector<ActiveEffect> active_;
+    int32_t randomSeed_ = 0;
     std::wstring lastErrorMessage_;
 };

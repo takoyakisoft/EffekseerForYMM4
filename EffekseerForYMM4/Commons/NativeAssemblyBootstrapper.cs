@@ -11,7 +11,6 @@ internal static class NativeAssemblyBootstrapper
 {
     internal const string NativeLibraryName = "EffekseerForNative";
     private const string NativeLibraryFileName = $"{NativeLibraryName}.dll";
-    private static readonly object SyncRoot = new();
     private static readonly string PluginDirectory =
         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
     private static readonly string PayloadDirectory = Path.Combine(PluginDirectory, "nativepayload");
@@ -20,24 +19,11 @@ internal static class NativeAssemblyBootstrapper
         "YukkuriMovieMaker",
         "PluginCache",
         "EffekseerForYMM4");
-    private static bool isInitialized;
-
     [SuppressMessage("Usage", "CA2255:ModuleInitializer 属性はライブラリ コードで使用しないでください", Justification = "The native C ABI resolver must be registered before the first P/Invoke call.")]
     [ModuleInitializer]
-    internal static void Initialize() => EnsureInitialized();
-
-    internal static void EnsureInitialized()
+    internal static void Initialize()
     {
-        lock (SyncRoot)
-        {
-            if (isInitialized)
-            {
-                return;
-            }
-
-            NativeLibrary.SetDllImportResolver(typeof(NativeAssemblyBootstrapper).Assembly, ResolveNativeLibrary);
-            isInitialized = true;
-        }
+        NativeLibrary.SetDllImportResolver(typeof(NativeAssemblyBootstrapper).Assembly, ResolveNativeLibrary);
     }
 
     private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)

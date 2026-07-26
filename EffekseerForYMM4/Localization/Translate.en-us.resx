@@ -60,7 +60,6 @@
   </resheader>
 <data name="CurrentCulture" xml:space="preserve"><value>en-us</value></data>
 <data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>Effekseer Video Effect</value></data>
-<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer Audio Effect</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>Effect</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>Camera</value></data>
 <data name="Group_Transform" xml:space="preserve"><value>Transform</value></data>
@@ -68,11 +67,8 @@
 <data name="Common_File_Desc" xml:space="preserve"><value>Effect file</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>Loop</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>Loop the effect playback.</value></data>
-<data name="Audio_Loop_Desc" xml:space="preserve"><value>Loop the effect playback.</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>Screen Size</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>Render to match the screen size.</value></data>
-<data name="Audio_Volume_Name" xml:space="preserve"><value>Volume</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>Adjust the volume.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
 <data name="Camera_X_Desc" xml:space="preserve"><value>Camera X position</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>

@@ -60,7 +60,6 @@
   </resheader>
 <data name="CurrentCulture" xml:space="preserve"><value>zh-tw</value></data>
 <data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>Effekseer 視訊效果</value></data>
-<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer 音訊效果</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>效果</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>相機</value></data>
 <data name="Group_Transform" xml:space="preserve"><value>變形</value></data>
@@ -68,11 +67,8 @@
 <data name="Common_File_Desc" xml:space="preserve"><value>效果檔案</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>循環</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>循環播放效果。</value></data>
-<data name="Audio_Loop_Desc" xml:space="preserve"><value>循環播放效果。</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>螢幕尺寸</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>依螢幕尺寸進行渲染。</value></data>
-<data name="Audio_Volume_Name" xml:space="preserve"><value>音量</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>調整音量。</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
 <data name="Camera_X_Desc" xml:space="preserve"><value>相機 X 座標</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>

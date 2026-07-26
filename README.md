@@ -21,8 +21,7 @@ EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生する�
 ## 使い方
 
 1. 映像エフェクトに「Effekseerビデオエフェクト」が追加されます。
-2. 音声エフェクトに「Effekseer音声エフェクト」が追加されます。
-3. エフェクトファイル（.efkefc, .efk）を選択して再生します。
+2. エフェクトファイル（.efkefc, .efk）を選択して再生します。
 
 ### エフェクトファイルの入手と作成
 
@@ -34,7 +33,7 @@ EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生する�
 **注意：**
 `.efkproj` はEffekseerのプロジェクトファイルであり、直接読み込むことはできません。
 Effekseerでファイルを開き、メニューの「ファイル」>「エクスポート」>「標準形式」でEffekseerファイル(\_.efk)を選択して保存してください。
-この際、**保存先は必ず`.efkproj`と同じフォルダにしてください**。別の場所に保存すると、テクスチャや音声ファイルへの相対パスが参照できなくなり、正しく表示・再生されません。
+この際、**保存先は必ず`.efkproj`と同じフォルダにしてください**。別の場所に保存すると、テクスチャファイルへの相対パスが参照できなくなり、正しく表示されません。
 
 ## 動作環境
 
@@ -45,12 +44,9 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
 
 ### ソリューション構成
 
-- `EffekseerNativeCore`
-  - 純粋ネイティブC++の静的ライブラリです。
-  - Effekseer本体とネイティブ実装をビルドします。
 - `EffekseerForNative`
   - 純粋ネイティブC++のC ABI DLLです。
-  - `EffekseerNativeCore` を参照し、C#側から`LibraryImport`で利用するDLLを生成します。
+  - Effekseer本体、DX11レンダラー、C ABI境界を1プロジェクトでビルドします。
 - `EffekseerForYMM4`
   - YMM4 プラグイン本体です。
   - UI、ローカライズ、ファイルコピー、ネイティブDLL展開を担当します。
@@ -61,12 +57,13 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
 
 通常の開発・ビルドで必要なのは以下です。
 
-- `EffekseerNativeCore`
 - `EffekseerForNative`
 - `EffekseerForYMM4`
 - `YukkuriMovieMaker.Generator`
 
 `EffekseerForYMM4.Tests` は必要なときだけビルドすれば十分です。
+
+描画にはYMM4のDirect3D 11デバイスとImmediate Contextを借用します。ネイティブ側はCOM参照を保持しますが、デバイス自体は作成・所有しません。通常の連続描画ホットパスではmanaged heap allocationや明示的なロックを行いません。
 
 ### ビルド構成
 

@@ -1,6 +1,5 @@
 Key,comment,ja-jp,en-us,zh-cn,zh-tw,ko-kr,es-es,ar-sa,id-id
 Plugin_VideoEffect_Name,plugin name,Effekseerビデオエフェクト,Effekseer Video Effect,Effekseer 视频效果,Effekseer 視訊效果,Effekseer 비디오 효과,Efecto de video Effekseer,تأثير فيديو Effekseer,Efek Video Effekseer
-Plugin_AudioEffect_Name,plugin name,Effekseer音声エフェクト,Effekseer Audio Effect,Effekseer 音频效果,Effekseer 音訊效果,Effekseer 오디오 효과,Efecto de audio Effekseer,تأثير صوت Effekseer,Efek Audio Effekseer
 Group_Effect,group,エフェクト,Effect,效果,效果,효과,Efecto,التأثير,Efek
 Group_Camera,group,カメラ,Camera,相机,相機,카메라,Cámara,الكاميرا,Kamera
 Group_Transform,group,変形,Transform,变换,變形,변형,Transformar,التحويل,Transformasi
@@ -8,11 +7,8 @@ Common_File_Name,name,ファイル,File,文件,檔案,파일,Archivo,ملف,File
 Common_File_Desc,desc,エフェクトファイル,Effect file,效果文件,效果檔案,효과 파일,Archivo de efecto,ملف التأثير,File efek
 Common_Loop_Name,name,ループ,Loop,循环,循環,반복,Bucle,تكرار,Loop
 Video_Loop_Desc,desc,エフェクトをループ再生する,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
-Audio_Loop_Desc,desc,エフェクトをループ再生します,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
 Video_ScreenSize_Name,name,スクリーンサイズ,Screen Size,屏幕尺寸,螢幕尺寸,화면 크기,Tamaño de pantalla,حجم الشاشة,Ukuran Layar
 Video_ScreenSize_Desc,desc,スクリーンサイズに合わせてレンダリングする,Render to match the screen size.,按屏幕尺寸进行渲染。,依螢幕尺寸進行渲染。,화면 크기에 맞춰 렌더링합니다.,Renderiza ajustándose al tamaño de la pantalla.,يعرض بما يتوافق مع حجم الشاشة.,Render sesuai ukuran layar.
-Audio_Volume_Name,name,音量,Volume,音量,音量,볼륨,Volumen,مستوى الصوت,Volume
-Audio_Volume_Desc,desc,音量を調整します,Adjust the volume.,调整音量。,調整音量。,볼륨을 조절합니다.,Ajusta el volumen.,يضبط مستوى الصوت.,Menyesuaikan volume.
 Camera_X_Name,name,X,X,X,X,X,X,X,X
 Camera_X_Desc,desc,カメラのX座標,Camera X position,相机 X 坐标,相機 X 座標,카메라 X 좌표,Posición X de la cámara,موضع X للكاميرا,Posisi X kamera
 Camera_Y_Name,name,Y,Y,Y,Y,Y,Y,Y,Y

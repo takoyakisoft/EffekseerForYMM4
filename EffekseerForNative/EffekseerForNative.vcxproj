@@ -71,7 +71,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -88,23 +88,33 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Core\EffectsManager.h" />
     <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
-    <ClInclude Include="src\Wrapper\NativePathBridge.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Core\EffectsManager.cpp" />
     <ClCompile Include="src\Wrapper\EffekseerRenderer.cpp" />
-    <ClCompile Include="src\Wrapper\NativePathBridge.cpp" />
+    <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\**\*.cpp">
+      <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererCommon\**\*.cpp">
+      <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerRendererDX11\**\*.cpp">
+      <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="vendor\effekseer\src\EffekseerMaterialCompiler\**\*.cpp">
+      <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EffekseerNativeCore\EffekseerNativeCore.vcxproj">
-      <Project>{F53DB1A5-D7A0-44F0-9B57-7E8D8A4E2A5C}</Project>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
+    <ClCompile Update="vendor\effekseer\src\EffekseerRendererCommon\ModelLoader.cpp">
+      <ObjectFileName>$(IntDir)RendererCommon_%(Filename).obj</ObjectFileName>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
