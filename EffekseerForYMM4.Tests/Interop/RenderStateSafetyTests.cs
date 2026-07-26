@@ -5,7 +5,7 @@ namespace EffekseerForYMM4.Tests;
 public sealed class RenderStateSafetyTests
 {
     [Fact]
-    public void VideoProcessorSerializesSharedImmediateContextRendering()
+    public void VideoProcessorKeepsSimulationOutsideSharedGraphicsContextLock()
     {
         var root = FindRepositoryRoot();
         var processorPath = Path.Combine(
@@ -16,7 +16,10 @@ public sealed class RenderStateSafetyTests
         var source = File.ReadAllText(processorPath);
 
         Assert.Contains("private static readonly object RenderLock = new();", source, StringComparison.Ordinal);
-        Assert.Contains("lock (RenderLock)", source, StringComparison.Ordinal);
+        var animationIndex = source.IndexOf("double animFrame", StringComparison.Ordinal);
+        Assert.True(animationIndex >= 0);
+        var renderLockIndex = source.IndexOf("lock (RenderLock)", animationIndex, StringComparison.Ordinal);
+        Assert.True(renderLockIndex > animationIndex);
     }
 
     [Fact]
@@ -35,6 +38,53 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("OMGetRenderTargets", source, StringComparison.Ordinal);
         Assert.Contains("RSGetViewports", source, StringComparison.Ordinal);
         Assert.Contains("RSSetViewports", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PlaybackUsesBoundedThreeStateAccessModel()
+    {
+        var root = FindRepositoryRoot();
+        var processorPath = Path.Combine(
+            root,
+            "EffekseerForYMM4",
+            "EffekseerVideoEffect",
+            "EffekseerVideoEffectProcessor.cs");
+        var source = File.ReadAllText(processorPath);
+
+        Assert.Contains("enum PlaybackAccessKind", source, StringComparison.Ordinal);
+        Assert.Contains("PlaybackAccessKind.Initial", source, StringComparison.Ordinal);
+        Assert.Contains("PlaybackAccessKind.Continuous", source, StringComparison.Ordinal);
+        Assert.Contains("PlaybackAccessKind.Random", source, StringComparison.Ordinal);
+        Assert.Contains("targetFrame <= MaxSimulationAdvanceFrames", source, StringComparison.Ordinal);
+        Assert.Contains("nativeRenderer?.Reset();", source, StringComparison.Ordinal);
+        Assert.Contains("delta <= MaxSimulationAdvanceFrames", source, StringComparison.Ordinal);
+        Assert.Contains("hasAppliedCamera", source, StringComparison.Ordinal);
+        Assert.Contains("hasAppliedProjection", source, StringComparison.Ordinal);
+        Assert.Contains("hasAppliedTransform", source, StringComparison.Ordinal);
+
+        var restartStart = source.IndexOf("private void RestartPlaybackAt", StringComparison.Ordinal);
+        var resetTrackingStart = source.IndexOf("private void ResetPlaybackTracking", StringComparison.Ordinal);
+        Assert.True(restartStart >= 0);
+        Assert.True(resetTrackingStart > restartStart);
+        var restartMethod = source[restartStart..resetTrackingStart];
+        Assert.DoesNotContain("AdvanceRenderer", restartMethod, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void NativeRendererCachesEffectTermAndResetsRendererTime()
+    {
+        var root = FindRepositoryRoot();
+        var sourcePath = Path.Combine(
+            root,
+            "EffekseerForNative",
+            "src",
+            "Core",
+            "EffectsManager.cpp");
+        var source = File.ReadAllText(sourcePath);
+
+        Assert.Contains("totalFrame_ = effect_->CalculateTerm().TermMax;", source, StringComparison.Ordinal);
+        Assert.Contains("return totalFrame_;", source, StringComparison.Ordinal);
+        Assert.Contains("renderer_->SetTime(0.0f);", source, StringComparison.Ordinal);
     }
 
     [Fact]

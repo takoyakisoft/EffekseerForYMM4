@@ -13,6 +13,16 @@ namespace EffekseerForYMM4
     partial class EffekseerVideoEffectProcessor : IVideoEffectProcessor
     {
         private const double EffekseerFps = 60.0;
+        private const float MaxSimulationAdvanceFrames = 8.0f;
+        private const float DefaultCameraZ = 20.0f;
+
+        private enum PlaybackAccessKind
+        {
+            Initial,
+            Continuous,
+            Random,
+        }
+
         bool isFirst = true;
         readonly EffekseerVideoEffect item;
 
@@ -38,7 +48,28 @@ namespace EffekseerForYMM4
 
         private string? loadedFilePath = null;
         private bool hasLoadedEffect;
+        private int loadedTotalFrames;
+        private bool hasPreviousItemFrame;
+        private long previousItemFrame;
         private double renderedFrame;
+
+        private bool hasAppliedCamera;
+        private float appliedCamX;
+        private float appliedCamY;
+        private float appliedCamZ;
+        private bool hasAppliedProjection;
+        private ProjectionMode appliedProjectionMode;
+        private float appliedProjectionValue;
+        private int appliedProjectionWidth;
+        private int appliedProjectionHeight;
+        private bool hasAppliedTransform;
+        private float appliedPosX;
+        private float appliedPosY;
+        private float appliedPosZ;
+        private float appliedRotX;
+        private float appliedRotY;
+        private float appliedRotZ;
+        private float appliedScale;
         private ID2D1Image? inputImage;
         private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
         private static readonly object RenderLock = new();
@@ -119,19 +150,26 @@ namespace EffekseerForYMM4
             if (isFirst)
             {
                 nativeRenderer = new EffekseerForNative.EffekseerRenderer();
-                if (!nativeRenderer.Initialize(d3dDevice.NativePointer, d3dDevice.ImmediateContext.NativePointer, width, height))
+                lock (RenderLock)
                 {
-                    nativeRenderer.Dispose();
-                    nativeRenderer = null;
-                    return effectDescription.DrawDescription;
-                }
+                    if (!nativeRenderer.Initialize(d3dDevice.NativePointer, d3dDevice.ImmediateContext.NativePointer, width, height))
+                    {
+                        nativeRenderer.Dispose();
+                        nativeRenderer = null;
+                        return effectDescription.DrawDescription;
+                    }
 
+                    CreateResources(width, height);
+                }
                 isFirst = false;
-                CreateResources(width, height);
             }
 
             if (loadedFilePath != item.FilePath)
             {
+                ResetPlaybackTracking();
+                loadedTotalFrames = 0;
+                _duration = TimeSpan.Zero;
+
                 if (nativeRenderer == null)
                 {
                     return effectDescription.DrawDescription;
@@ -139,8 +177,9 @@ namespace EffekseerForYMM4
 
                 if (!string.IsNullOrEmpty(item.FilePath))
                 {
-                    var ext = System.IO.Path.GetExtension(item.FilePath).ToLowerInvariant();
-                    if (ext != ".efk" && ext != ".efkefc")
+                    var ext = System.IO.Path.GetExtension(item.FilePath);
+                    if (!string.Equals(ext, ".efk", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(ext, ".efkefc", StringComparison.OrdinalIgnoreCase))
                     {
                         loadedFilePath = item.FilePath;
                         hasLoadedEffect = false;
@@ -152,16 +191,15 @@ namespace EffekseerForYMM4
                         hasLoadedEffect = false;
                         loadErrorNotifier.ShowIfNeeded(item.FilePath, Translate.Error_EffectFileNotFound);
                     }
-                    else if (nativeRenderer.LoadEffect(item.FilePath))
+                    else if (TryLoadEffect(item.FilePath))
                     {
                         loadedFilePath = item.FilePath;
                         hasLoadedEffect = true;
-                        renderedFrame = 0;
                         loadErrorNotifier.Reset();
-                        int tFrames = nativeRenderer.GetTotalFrame();
-                        if (tFrames > 0 && tFrames < int.MaxValue)
+                        loadedTotalFrames = nativeRenderer.GetTotalFrame();
+                        if (loadedTotalFrames > 0 && loadedTotalFrames < int.MaxValue)
                         {
-                            _duration = TimeSpan.FromSeconds((double)tFrames / EffekseerFps);
+                            _duration = TimeSpan.FromSeconds((double)loadedTotalFrames / EffekseerFps);
                         }
                     }
                     else
@@ -184,65 +222,66 @@ namespace EffekseerForYMM4
                 return effectDescription.DrawDescription;
             }
 
-            int totalFrames = nativeRenderer.GetTotalFrame();
             double targetFrame = Math.Max(0, effectDescription.ItemPosition.Time.TotalSeconds * EffekseerFps);
 
-            if (item.IsLoop && totalFrames > 0 && totalFrames < int.MaxValue)
+            if (item.IsLoop && loadedTotalFrames > 0 && loadedTotalFrames < int.MaxValue)
             {
-                targetFrame %= totalFrames;
+                targetFrame %= loadedTotalFrames;
                 if (targetFrame < 0)
-                    targetFrame += totalFrames;
+                    targetFrame += loadedTotalFrames;
             }
 
-            lock (RenderLock)
+            double animFrame = frame;
+            float camX = (float)item.CamPosX.GetValue((long)animFrame, length, safeFps);
+            float camY = (float)item.CamPosY.GetValue((long)animFrame, length, safeFps);
+            float camZ = item.ProjectionMode == ProjectionMode.Perspective
+                ? (float)item.CamPosZ.GetValue((long)animFrame, length, safeFps)
+                : DefaultCameraZ;
+            float posX = (float)item.PosX.GetValue((long)animFrame, length, safeFps);
+            float posY = (float)item.PosY.GetValue((long)animFrame, length, safeFps);
+            float posZ = (float)item.PosZ.GetValue((long)animFrame, length, safeFps);
+            float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+            float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+            float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+            float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
+            float scale = scalePercent <= 0f ? 0f : Math.Max(scalePercent / 100.0f, 0.0001f);
+
+            ApplyCamera(camX, camY, camZ);
+
+            if (item.ProjectionMode == ProjectionMode.Orthographic)
             {
-                double animFrame = frame;
-                float camX = (float)item.CamPosX.GetValue((long)animFrame, length, safeFps);
-                float camY = (float)item.CamPosY.GetValue((long)animFrame, length, safeFps);
-                float camZ = (float)item.CamPosZ.GetValue((long)animFrame, length, safeFps);
-                float posX = (float)item.PosX.GetValue((long)animFrame, length, safeFps);
-                float posY = (float)item.PosY.GetValue((long)animFrame, length, safeFps);
-                float posZ = (float)item.PosZ.GetValue((long)animFrame, length, safeFps);
-                float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-                float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-                float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-                float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
-                float scale = scalePercent <= 0f ? 0f : Math.Max(scalePercent / 100.0f, 0.0001f);
-
-                nativeRenderer.SetCameraLookAt(
-                    camX, camY, camZ,
-                    camX, camY, 0,
-                    0, 1, 0);
-
+                var orthographicHeight = Math.Max(
+                    0.001f,
+                    (float)item.OrthographicSize.GetValue((long)animFrame, length, safeFps));
+                ApplyOrthographicProjection(orthographicHeight, width, height);
+            }
+            else
+            {
                 float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
-                if (item.ProjectionMode == ProjectionMode.Orthographic)
-                {
-                    var orthographicHeight = Math.Max(
-                        0.001f,
-                        (float)item.OrthographicSize.GetValue((long)animFrame, length, safeFps));
-                    var orthographicWidth = orthographicHeight * width / Math.Max(1.0f, height);
-                    nativeRenderer.SetProjectionOrthographic(orthographicWidth, orthographicHeight, 1.0f, 2000.0f);
-                }
-                else
-                {
-                    nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
-                }
-                nativeRenderer.SetLocation(posX, posY, posZ);
-                nativeRenderer.SetRotation(rotX, rotY, rotZ);
-                nativeRenderer.SetScale(scale);
+                ApplyPerspectiveProjection(fov, width, height);
+            }
+            ApplyTransform(posX, posY, posZ, rotX, rotY, rotZ, scale);
 
-                if (targetFrame < renderedFrame)
-                {
-                    ReplayRendererToTargetFrame(targetFrame);
-                }
-                else
-                {
+            var currentItemFrame = (long)frame;
+            switch (ClassifyPlaybackAccess(currentItemFrame, targetFrame))
+            {
+                case PlaybackAccessKind.Initial:
+                    InitializePlayback(targetFrame);
+                    break;
+                case PlaybackAccessKind.Continuous:
                     AdvanceRenderer((float)(targetFrame - renderedFrame));
                     renderedFrame = targetFrame;
-                }
+                    break;
+                case PlaybackAccessKind.Random:
+                    RestartPlaybackAt(targetFrame);
+                    break;
+            }
+            previousItemFrame = currentItemFrame;
+            hasPreviousItemFrame = true;
 
-                transformEffect.TransformMatrix = Matrix3x2.CreateTranslation(-width / 2f, -height / 2f);
-                if (renderTargetView != null && depthStencilView != null)
+            if (renderTargetView != null && depthStencilView != null)
+            {
+                lock (RenderLock)
                 {
                     nativeRenderer.Render(
                         renderTargetView.NativePointer,
@@ -255,6 +294,107 @@ namespace EffekseerForYMM4
             return effectDescription.DrawDescription;
         }
 
+        private bool TryLoadEffect(string path)
+        {
+            lock (RenderLock)
+            {
+                return nativeRenderer?.LoadEffect(path) == true;
+            }
+        }
+
+        private void ApplyCamera(float camX, float camY, float camZ)
+        {
+            if (hasAppliedCamera &&
+                appliedCamX == camX &&
+                appliedCamY == camY &&
+                appliedCamZ == camZ)
+            {
+                return;
+            }
+
+            nativeRenderer?.SetCameraLookAt(
+                camX, camY, camZ,
+                camX, camY, 0,
+                0, 1, 0);
+            hasAppliedCamera = true;
+            appliedCamX = camX;
+            appliedCamY = camY;
+            appliedCamZ = camZ;
+        }
+
+        private void ApplyPerspectiveProjection(float fov, int width, int height)
+        {
+            if (hasAppliedProjection &&
+                appliedProjectionMode == ProjectionMode.Perspective &&
+                appliedProjectionValue == fov &&
+                appliedProjectionWidth == width &&
+                appliedProjectionHeight == height)
+            {
+                return;
+            }
+
+            nativeRenderer?.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
+            hasAppliedProjection = true;
+            appliedProjectionMode = ProjectionMode.Perspective;
+            appliedProjectionValue = fov;
+            appliedProjectionWidth = width;
+            appliedProjectionHeight = height;
+        }
+
+        private void ApplyOrthographicProjection(float orthographicHeight, int width, int height)
+        {
+            if (hasAppliedProjection &&
+                appliedProjectionMode == ProjectionMode.Orthographic &&
+                appliedProjectionValue == orthographicHeight &&
+                appliedProjectionWidth == width &&
+                appliedProjectionHeight == height)
+            {
+                return;
+            }
+
+            var orthographicWidth = orthographicHeight * width / Math.Max(1.0f, height);
+            nativeRenderer?.SetProjectionOrthographic(orthographicWidth, orthographicHeight, 1.0f, 2000.0f);
+            hasAppliedProjection = true;
+            appliedProjectionMode = ProjectionMode.Orthographic;
+            appliedProjectionValue = orthographicHeight;
+            appliedProjectionWidth = width;
+            appliedProjectionHeight = height;
+        }
+
+        private void ApplyTransform(
+            float posX,
+            float posY,
+            float posZ,
+            float rotX,
+            float rotY,
+            float rotZ,
+            float scale)
+        {
+            if (hasAppliedTransform &&
+                appliedPosX == posX &&
+                appliedPosY == posY &&
+                appliedPosZ == posZ &&
+                appliedRotX == rotX &&
+                appliedRotY == rotY &&
+                appliedRotZ == rotZ &&
+                appliedScale == scale)
+            {
+                return;
+            }
+
+            nativeRenderer?.SetLocation(posX, posY, posZ);
+            nativeRenderer?.SetRotation(rotX, rotY, rotZ);
+            nativeRenderer?.SetScale(scale);
+            hasAppliedTransform = true;
+            appliedPosX = posX;
+            appliedPosY = posY;
+            appliedPosZ = posZ;
+            appliedRotX = rotX;
+            appliedRotY = rotY;
+            appliedRotZ = rotZ;
+            appliedScale = scale;
+        }
+
         private void AdvanceRenderer(float delta)
         {
             if (nativeRenderer == null)
@@ -263,6 +403,7 @@ namespace EffekseerForYMM4
             if (delta <= 0)
                 return;
 
+            delta = MathF.Min(delta, MaxSimulationAdvanceFrames);
             int wholeSteps = (int)MathF.Floor(delta);
             for (int i = 0; i < wholeSteps; i++)
             {
@@ -276,19 +417,43 @@ namespace EffekseerForYMM4
             }
         }
 
-        private void ReplayRendererToTargetFrame(double targetFrame)
+        private PlaybackAccessKind ClassifyPlaybackAccess(long currentItemFrame, double targetFrame)
         {
-            if (nativeRenderer == null)
-                return;
+            if (!hasPreviousItemFrame)
+                return PlaybackAccessKind.Initial;
 
-            nativeRenderer.Reset();
-            renderedFrame = 0;
+            var delta = targetFrame - renderedFrame;
+            if ((currentItemFrame == previousItemFrame || currentItemFrame == previousItemFrame + 1) &&
+                delta >= 0 &&
+                delta <= MaxSimulationAdvanceFrames)
+            {
+                return PlaybackAccessKind.Continuous;
+            }
 
-            if (targetFrame <= 0)
-                return;
+            return PlaybackAccessKind.Random;
+        }
 
-            AdvanceRenderer((float)targetFrame);
+        private void InitializePlayback(double targetFrame)
+        {
+            if (targetFrame > 0 && targetFrame <= MaxSimulationAdvanceFrames)
+            {
+                AdvanceRenderer((float)targetFrame);
+            }
+
             renderedFrame = targetFrame;
+        }
+
+        private void RestartPlaybackAt(double targetFrame)
+        {
+            nativeRenderer?.Reset();
+            renderedFrame = targetFrame;
+        }
+
+        private void ResetPlaybackTracking()
+        {
+            hasPreviousItemFrame = false;
+            previousItemFrame = 0;
+            renderedFrame = 0;
         }
 
         private void CreateResources(int _width, int _height)
@@ -338,6 +503,7 @@ namespace EffekseerForYMM4
             });
 
             transformEffect.SetInput(0, bitmap, true);
+            transformEffect.TransformMatrix = Matrix3x2.CreateTranslation(-_width / 2f, -_height / 2f);
         }
 
         private void DisposeResources()

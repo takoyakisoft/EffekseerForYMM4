@@ -78,15 +78,15 @@ namespace EffekseerForYMM4
         public Animation CamPosY { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Z_Name), Description = nameof(Translate.Camera_Z_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F1", "px", -500, 500)]
         public Animation CamPosZ { get; } = new Animation(20, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_Fov_Name), Description = nameof(Translate.Video_Fov_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F0", "°", 1, 179)]
+        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F0", "°", 1, 179)]
         public Animation Fov { get; } = new Animation(90, 1, 179);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_OrthographicSize_Name), Description = nameof(Translate.Video_OrthographicSize_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", 0.1, 10)]
+        [ProjectionAnimationSlider(ProjectionMode.Orthographic, "F1", "", 0.1, 10)]
         public Animation OrthographicSize { get; } = new Animation(10, 0.001, 100000);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_Scale_Name), Description = nameof(Translate.Transform_Scale_Desc), ResourceType = typeof(Translate))]

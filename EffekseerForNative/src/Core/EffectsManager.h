@@ -59,5 +59,6 @@ private:
     float rotationY_ = 0.0f;
     float rotationZ_ = 0.0f;
     int32_t randomSeed_ = 0;
+    int totalFrame_ = 0;
     std::wstring lastErrorMessage_;
 };

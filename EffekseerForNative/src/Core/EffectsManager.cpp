@@ -103,6 +103,7 @@ void EffectsManager::Shutdown()
     manager_.Reset();
     renderer_.Reset();
     activeHandle_ = -1;
+    totalFrame_ = 0;
 }
 
 bool EffectsManager::LoadEffect(const std::filesystem::path& path)
@@ -140,8 +141,10 @@ bool EffectsManager::LoadEffect(const std::filesystem::path& path)
 
     manager_->StopAllEffects();
     effect_ = effect;
+    totalFrame_ = effect_->CalculateTerm().TermMax;
     randomSeed_ = static_cast<int32_t>(
         std::hash<std::filesystem::path::string_type>{}(path.native()) & 0x7fffffff);
+    renderer_->SetTime(0.0f);
     PlayLoadedEffect();
     return true;
 }
@@ -154,6 +157,7 @@ void EffectsManager::Restart()
     }
 
     manager_->StopAllEffects();
+    renderer_->SetTime(0.0f);
     PlayLoadedEffect();
 }
 
@@ -330,7 +334,7 @@ void EffectsManager::SetScale(float scale)
 
 int EffectsManager::GetTotalFrame() const
 {
-    return effect_ == nullptr ? 0 : effect_->CalculateTerm().TermMax;
+    return totalFrame_;
 }
 
 const std::wstring& EffectsManager::GetLastErrorMessage() const
