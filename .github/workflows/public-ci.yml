@@ -19,7 +19,7 @@ jobs:
 
       - name: Check patch whitespace
         shell: pwsh
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD" -- . ":(exclude)EffekseerForNative/vendor/effekseer/**"
 
       - name: Check C# formatting
         shell: pwsh
