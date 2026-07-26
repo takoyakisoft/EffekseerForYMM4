@@ -93,11 +93,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\EffectsManager.h" />
+    <ClInclude Include="src\Core\EffekseerSound.h" />
     <ClInclude Include="src\Core\WindowsString.h" />
     <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\EffectsManager.cpp" />
+    <ClCompile Include="src\Core\EffekseerSound.cpp" />
     <ClCompile Include="src\Wrapper\EffekseerRenderer.cpp" />
     <ClCompile Include="vendor\effekseer\src\Effekseer\Effekseer\**\*.cpp">
       <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>

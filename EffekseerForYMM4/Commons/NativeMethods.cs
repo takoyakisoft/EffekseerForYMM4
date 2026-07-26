@@ -40,6 +40,14 @@ internal static partial class NativeMethods
     internal static partial void RendererUpdate(IntPtr handle, float deltaFrames);
 
     [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+    [LibraryImport(LibraryName, EntryPoint = "effekseer_renderer_set_sound_callbacks")]
+    internal static partial void RendererSetSoundCallbacks(
+        IntPtr handle,
+        IntPtr loadSound,
+        IntPtr unloadSound,
+        IntPtr playSound);
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
     [LibraryImport(LibraryName, EntryPoint = "effekseer_renderer_set_projection_perspective")]
     internal static partial void RendererSetProjectionPerspective(IntPtr handle, float fov, int width, int height, float nearValue, float farValue);
 

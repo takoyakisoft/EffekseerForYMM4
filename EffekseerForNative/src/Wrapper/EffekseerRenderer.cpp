@@ -148,6 +148,21 @@ void effekseer_renderer_update(EffekseerRendererHandle handle, float deltaFrames
     }
 }
 
+void effekseer_renderer_set_sound_callbacks(
+    EffekseerRendererHandle handle,
+    void* loadSound,
+    void* unloadSound,
+    void* playSound)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetSoundCallbacks(
+            reinterpret_cast<EffekseerForNative::LoadSoundFunc>(loadSound),
+            reinterpret_cast<EffekseerForNative::UnloadSoundFunc>(unloadSound),
+            reinterpret_cast<EffekseerForNative::PlaySoundFunc>(playSound));
+    }
+}
+
 void effekseer_renderer_set_projection_perspective(
     EffekseerRendererHandle handle,
     float fov,

@@ -83,8 +83,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="UnicodeFileIoTests.cpp" />
-    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\Effekseer\Effekseer\Effekseer.DefaultFile.cpp" />
+    <ClCompile Include="UnicodeFileIoTests.cpp">
+      <DisableSpecificWarnings>4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\Effekseer\Effekseer\Effekseer.DefaultFile.cpp">
+      <DisableSpecificWarnings>4100;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

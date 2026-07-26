@@ -53,9 +53,9 @@ namespace
 bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* context)
 {
     lastErrorMessage_.clear();
-    if (device == nullptr || context == nullptr)
+    if ((device == nullptr) != (context == nullptr))
     {
-        lastErrorMessage_ = L"Direct3D 11 device or immediate context was null.";
+        lastErrorMessage_ = L"Direct3D 11 device and immediate context must either both be set or both be null.";
         return false;
     }
 
@@ -67,16 +67,19 @@ bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* conte
             }
         });
 
-    renderer_ = ::EffekseerRendererDX11::Renderer::Create(
-        device,
-        context,
-        2000,
-        D3D11_COMPARISON_LESS_EQUAL,
-        false);
-    if (renderer_.Get() == nullptr)
+    if (device != nullptr)
     {
-        lastErrorMessage_ = L"Failed to create the Effekseer Direct3D 11 renderer.";
-        return false;
+        renderer_ = ::EffekseerRendererDX11::Renderer::Create(
+            device,
+            context,
+            2000,
+            D3D11_COMPARISON_LESS_EQUAL,
+            false);
+        if (renderer_.Get() == nullptr)
+        {
+            lastErrorMessage_ = L"Failed to create the Effekseer Direct3D 11 renderer.";
+            return false;
+        }
     }
 
     manager_ = ::Effekseer::Manager::Create(2000);
@@ -87,19 +90,44 @@ bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* conte
         return false;
     }
 
-    manager_->SetSpriteRenderer(renderer_->CreateSpriteRenderer());
-    manager_->SetRibbonRenderer(renderer_->CreateRibbonRenderer());
-    manager_->SetRingRenderer(renderer_->CreateRingRenderer());
-    manager_->SetTrackRenderer(renderer_->CreateTrackRenderer());
-    manager_->SetModelRenderer(renderer_->CreateModelRenderer());
-    manager_->SetTextureLoader(renderer_->CreateTextureLoader());
-    manager_->SetModelLoader(renderer_->CreateModelLoader());
-    manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
+    if (renderer_ != nullptr)
+    {
+        manager_->SetSpriteRenderer(renderer_->CreateSpriteRenderer());
+        manager_->SetRibbonRenderer(renderer_->CreateRibbonRenderer());
+        manager_->SetRingRenderer(renderer_->CreateRingRenderer());
+        manager_->SetTrackRenderer(renderer_->CreateTrackRenderer());
+        manager_->SetModelRenderer(renderer_->CreateModelRenderer());
+        manager_->SetTextureLoader(renderer_->CreateTextureLoader());
+        manager_->SetModelLoader(renderer_->CreateModelLoader());
+        manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
+    }
     manager_->SetCoordinateSystem(::Effekseer::CoordinateSystem::RH);
 
     SetProjectionPerspective(90.0f, 1920, 1080, 1.0f, 2000.0f);
     SetCameraLookAt(0.0f, 0.0f, 20.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
     return true;
+}
+
+void EffectsManager::SetSoundCallbacks(
+    EffekseerForNative::LoadSoundFunc loadSound,
+    EffekseerForNative::UnloadSoundFunc unloadSound,
+    EffekseerForNative::PlaySoundFunc playSound)
+{
+    if (manager_ == nullptr)
+    {
+        return;
+    }
+
+    auto setting = manager_->GetSetting();
+    if (setting != nullptr)
+    {
+        setting->SetSoundLoader(
+            ::Effekseer::MakeRefPtr<EffekseerForNative::CustomSoundLoader>(
+                loadSound,
+                unloadSound));
+    }
+    manager_->SetSoundPlayer(
+        ::Effekseer::MakeRefPtr<EffekseerForNative::CustomSoundPlayer>(playSound));
 }
 
 void EffectsManager::Shutdown()
@@ -149,7 +177,10 @@ bool EffectsManager::LoadEffect(const std::filesystem::path& path)
     totalFrame_ = effect_->CalculateTerm().TermMax;
     randomSeed_ = static_cast<int32_t>(
         std::hash<std::filesystem::path::string_type>{}(path.native()) & 0x7fffffff);
-    renderer_->SetTime(0.0f);
+    if (renderer_ != nullptr)
+    {
+        renderer_->SetTime(0.0f);
+    }
     PlayLoadedEffect();
     return true;
 }
@@ -162,7 +193,10 @@ void EffectsManager::Restart()
     }
 
     manager_->StopAllEffects();
-    renderer_->SetTime(0.0f);
+    if (renderer_ != nullptr)
+    {
+        renderer_->SetTime(0.0f);
+    }
     PlayLoadedEffect();
 }
 
@@ -190,7 +224,10 @@ void EffectsManager::Update(float deltaSeconds)
     }
 
     manager_->Update(deltaSeconds * 60.0f);
-    renderer_->SetTime(renderer_->GetTime() + deltaSeconds);
+    if (renderer_ != nullptr)
+    {
+        renderer_->SetTime(renderer_->GetTime() + deltaSeconds);
+    }
 }
 
 void EffectsManager::Draw(

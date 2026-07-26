@@ -60,6 +60,7 @@
   </resheader>
 <data name="CurrentCulture" xml:space="preserve"><value>ko-kr</value></data>
 <data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>Effekseer 비디오 효과</value></data>
+<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer 오디오 효과</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>효과</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>카메라</value></data>
 <data name="Group_Transform" xml:space="preserve"><value>변형</value></data>
@@ -67,6 +68,9 @@
 <data name="Common_File_Desc" xml:space="preserve"><value>효과 파일</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>반복</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>효과를 반복 재생합니다.</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>볼륨</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>Effekseer 사운드 볼륨</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>효과 영상과 소리를 반복 재생합니다.</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>화면 크기</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>화면 크기에 맞춰 렌더링합니다.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>

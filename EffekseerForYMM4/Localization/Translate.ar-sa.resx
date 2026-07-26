@@ -60,6 +60,7 @@
   </resheader>
 <data name="CurrentCulture" xml:space="preserve"><value>ar-sa</value></data>
 <data name="Plugin_VideoEffect_Name" xml:space="preserve"><value>تأثير فيديو Effekseer</value></data>
+<data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>تأثير صوت Effekseer</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>التأثير</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>الكاميرا</value></data>
 <data name="Group_Transform" xml:space="preserve"><value>التحويل</value></data>
@@ -67,6 +68,9 @@
 <data name="Common_File_Desc" xml:space="preserve"><value>ملف التأثير</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>تكرار</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>يشغل التأثير بشكل متكرر.</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>مستوى الصوت</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>مستوى صوت Effekseer</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>يشغل صورة التأثير وصوته بشكل متكرر.</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>حجم الشاشة</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>يعرض بما يتوافق مع حجم الشاشة.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>

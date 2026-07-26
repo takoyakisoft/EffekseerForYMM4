@@ -59,6 +59,8 @@ public sealed class EffekseerRenderer : IDisposable
     public void Render(IntPtr renderTarget, IntPtr depthStencil, int width, int height) =>
         NativeMethods.RendererRender(GetHandle(), renderTarget, depthStencil, width, height);
     public void Update(float deltaFrames) => NativeMethods.RendererUpdate(GetHandle(), deltaFrames);
+    public void SetSoundCallbacks(IntPtr loadSound, IntPtr unloadSound, IntPtr playSound) =>
+        NativeMethods.RendererSetSoundCallbacks(GetHandle(), loadSound, unloadSound, playSound);
     public void SetProjectionPerspective(float fov, int width, int height, float nearValue, float farValue) =>
         NativeMethods.RendererSetProjectionPerspective(GetHandle(), fov, width, height, nearValue, farValue);
     public void SetProjectionOrthographic(float width, float height, float nearValue, float farValue) =>

@@ -5,11 +5,16 @@
 
 #include <Effekseer.h>
 #include <EffekseerRendererDX11.h>
+#include "EffekseerSound.h"
 
 class EffectsManager
 {
 public:
     bool Initialize(ID3D11Device* device, ID3D11DeviceContext* context);
+    void SetSoundCallbacks(
+        EffekseerForNative::LoadSoundFunc loadSound,
+        EffekseerForNative::UnloadSoundFunc unloadSound,
+        EffekseerForNative::PlaySoundFunc playSound);
     void Shutdown();
 
     bool LoadEffect(const std::filesystem::path& path);

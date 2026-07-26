@@ -67,6 +67,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Resources\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <Target Name="PrepareNativeTestPayload" AfterTargets="Build">
     <RemoveDir Directories="$(TargetDir)nativepayload" Condition="Exists('$(TargetDir)nativepayload')" />
     <Copy
