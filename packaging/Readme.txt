@@ -1,12 +1,12 @@
 EffekseerForYMM4
 ================
 
-バージョン: 1.2.0
+バージョン: {VERSION}
 
 EffekseerForYMM4 は、Effekseer のエフェクトを動画編集ソフト
 「ゆっくりMovieMaker4 / YMM4」で再生するためのプラグインです。
 
-v1.2.0 の主な変更
+v{VERSION} の主な変更
 ------------------
 
 ・GitHub Releases に加えて BOOTH 向けの配布 ZIP を整備
@@ -28,7 +28,7 @@ v1.2.0 の主な変更
 ----------------
 
 1. 配布 ZIP を展開します。
-2. 「EffekseerForYMM4-v1.2.0.ymme」を開き、YMM4 の案内に従って
+2. 「EffekseerForYMM4-v{VERSION}.ymme」を開き、YMM4 の案内に従って
    プラグインをインストールします。
 3. YMM4 が起動中の場合は再起動します。
 
@@ -64,7 +64,8 @@ Effekseer の「ファイル」→「エクスポート」→「標準形式」�
 
 EffekseerForYMM4 は MIT License で公開されています。
 同梱する Effekseer も MIT License です。
-詳細はプラグインに同梱される LICENSE.txt を確認してください。
+本プラグインのライセンスは LICENSE.txt、Effekseer の著作権表示と
+ライセンス条項は THIRD_PARTY_NOTICES.txt を確認してください。
 
 関連リンク
 ----------
