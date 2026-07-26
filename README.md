@@ -87,8 +87,8 @@ Effekseerでプロジェクトを開き、「ファイル」→「エクスポ�
 
 - 翻訳リソースはビルド時に`ar-sa`、`en-us`、`es-es`、`id-id`、`ko-kr`、`zh-cn`、`zh-tw`の`EffekseerForYMM4.resources.dll`として出力されます。
 - ネイティブDLLはプラグインフォルダ直下に`EffekseerForNative.dll`として配置し、その場所から直接読み込みます。
-- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`と`Readme.txt`のみを格納します。
-- `ymme`にはプラグインDLL、ネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`を格納します。
+- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`、`Readme.txt`、`THIRD_PARTY_NOTICES.txt`を格納します。
+- `ymme`にはプラグインDLL、ネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`、`THIRD_PARTY_NOTICES.txt`を格納します。
 
 ### ビルド前提
 
@@ -98,7 +98,7 @@ Effekseerでプロジェクトを開き、「ファイル」→「エクスポ�
 
 ## ライセンス
 
-このソフトウェアはMITライセンスの下で公開されています。
+このソフトウェアはMITライセンスの下で公開されています。Effekseerを含む第三者コンポーネントの著作権表示とライセンス条項は`THIRD_PARTY_NOTICES.txt`を参照してください。
 
 ### 使用ライブラリ・関連ソフトウェア
 
