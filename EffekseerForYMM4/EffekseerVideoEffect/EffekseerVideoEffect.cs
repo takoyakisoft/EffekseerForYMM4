@@ -70,15 +70,15 @@ namespace EffekseerForYMM4
         public bool ShouldSerializeProjection() => false;
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [AnimationSlider("F1", "", -500, 500)]
         public Animation CamPosX { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Y_Name), Description = nameof(Translate.Camera_Y_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [AnimationSlider("F1", "", -500, 500)]
         public Animation CamPosY { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Z_Name), Description = nameof(Translate.Camera_Z_Desc), ResourceType = typeof(Translate))]
-        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F1", "px", -500, 500)]
+        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F1", "", -500, 500)]
         public Animation CamPosZ { get; } = new Animation(20, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_Fov_Name), Description = nameof(Translate.Video_Fov_Desc), ResourceType = typeof(Translate))]
@@ -94,15 +94,15 @@ namespace EffekseerForYMM4
         public Animation Scale { get; } = new Animation(100.0, 0.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionX_Name), Description = nameof(Translate.Transform_PositionX_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [AnimationSlider("F1", "", -500, 500)]
         public Animation PosX { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionY_Name), Description = nameof(Translate.Transform_PositionY_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [AnimationSlider("F1", "", -500, 500)]
         public Animation PosY { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionZ_Name), Description = nameof(Translate.Transform_PositionZ_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "px", -500, 500)]
+        [AnimationSlider("F1", "", -500, 500)]
         public Animation PosZ { get; } = new Animation(0, -100000.0, 100000.0);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationX_Name), Description = nameof(Translate.Transform_RotationX_Desc), ResourceType = typeof(Translate))]
