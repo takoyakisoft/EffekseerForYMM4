@@ -39,6 +39,7 @@ public:
 
     int GetTotalFrame() const;
     const std::wstring& GetLastErrorMessage() const;
+    void SetLastErrorMessage(std::wstring message);
 
 private:
     void PlayLoadedEffect();

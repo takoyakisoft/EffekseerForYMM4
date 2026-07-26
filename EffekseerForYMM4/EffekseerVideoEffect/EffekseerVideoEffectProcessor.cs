@@ -4,6 +4,7 @@ using Vortice.Direct2D1;
 using Vortice.Direct3D11;
 using Vortice.DXGI;
 using EffekseerForYMM4.Commons;
+using EffekseerForYMM4.Diagnostics;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Player.Video;
 using YukkuriMovieMaker.Plugin.Effects;
@@ -73,6 +74,7 @@ namespace EffekseerForYMM4
         private ID2D1Image? inputImage;
         private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
         private static readonly object RenderLock = new();
+        private string? lastUpdateErrorKey;
 
         public EffekseerVideoEffectProcessor(IGraphicsDevicesAndContext devices, EffekseerVideoEffect item)
         {
@@ -87,6 +89,7 @@ namespace EffekseerForYMM4
             compositeEffect.SetInput(1, transformEffect.Output, true);
 
             Output = compositeEffect.Output;
+            PluginLog.Information("Video effect processor created");
         }
 
         /// <summary>
@@ -114,6 +117,29 @@ namespace EffekseerForYMM4
         /// <param name="effectDescription">エフェクトの描画に必要な各種設定項目</param>
         /// <returns>描画関連の設定項目</returns>
         public DrawDescription Update(EffectDescription effectDescription)
+        {
+            try
+            {
+                var result = UpdateCore(effectDescription);
+                lastUpdateErrorKey = null;
+                return result;
+            }
+            catch (Exception exception)
+            {
+                var errorKey = $"{exception.GetType().FullName}|{exception.HResult}|{exception.Message}";
+                if (!string.Equals(lastUpdateErrorKey, errorKey, StringComparison.Ordinal))
+                {
+                    lastUpdateErrorKey = errorKey;
+                    PluginLog.Error(
+                        $"Video effect update failed. path={item.FilePath}, frame={effectDescription.ItemPosition.Frame}",
+                        exception);
+                }
+
+                throw;
+            }
+        }
+
+        private DrawDescription UpdateCore(EffectDescription effectDescription)
         {
             if (inputImage == null)
                 return effectDescription.DrawDescription;
@@ -154,6 +180,8 @@ namespace EffekseerForYMM4
                 {
                     if (!nativeRenderer.Initialize(d3dDevice.NativePointer, d3dDevice.ImmediateContext.NativePointer, width, height))
                     {
+                        PluginLog.Warning(
+                            $"Native renderer initialization failed. width={width}, height={height}, detail={nativeRenderer.LastErrorMessage}");
                         nativeRenderer.Dispose();
                         nativeRenderer = null;
                         return effectDescription.DrawDescription;
@@ -201,6 +229,8 @@ namespace EffekseerForYMM4
                         {
                             _duration = TimeSpan.FromSeconds((double)loadedTotalFrames / EffekseerFps);
                         }
+                        PluginLog.Information(
+                            $"Effect loaded. path={item.FilePath}, totalFrames={loadedTotalFrames}");
                     }
                     else
                     {
@@ -536,6 +566,7 @@ namespace EffekseerForYMM4
 
         public void Dispose()
         {
+            PluginLog.Information("Video effect processor disposing");
             DisposeResources();
 
             compositeEffect?.SetInput(0, null, true);

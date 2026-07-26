@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include <string>
+#include <utility>
 #include <Windows.h>
 
 namespace
@@ -51,8 +52,10 @@ namespace
 
 bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* context)
 {
+    lastErrorMessage_.clear();
     if (device == nullptr || context == nullptr)
     {
+        lastErrorMessage_ = L"Direct3D 11 device or immediate context was null.";
         return false;
     }
 
@@ -72,12 +75,14 @@ bool EffectsManager::Initialize(ID3D11Device* device, ID3D11DeviceContext* conte
         false);
     if (renderer_.Get() == nullptr)
     {
+        lastErrorMessage_ = L"Failed to create the Effekseer Direct3D 11 renderer.";
         return false;
     }
 
     manager_ = ::Effekseer::Manager::Create(2000);
     if (manager_.Get() == nullptr)
     {
+        lastErrorMessage_ = L"Failed to create the Effekseer manager.";
         renderer_.Reset();
         return false;
     }
@@ -340,4 +345,9 @@ int EffectsManager::GetTotalFrame() const
 const std::wstring& EffectsManager::GetLastErrorMessage() const
 {
     return lastErrorMessage_;
+}
+
+void EffectsManager::SetLastErrorMessage(std::wstring message)
+{
+    lastErrorMessage_ = std::move(message);
 }

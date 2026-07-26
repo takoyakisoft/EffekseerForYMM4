@@ -1,4 +1,5 @@
 using System.Windows;
+using EffekseerForYMM4.Diagnostics;
 
 namespace EffekseerForYMM4.Commons
 {
@@ -24,6 +25,7 @@ namespace EffekseerForYMM4.Commons
             }
 
             lastShownErrorKey = errorKey;
+            PluginLog.Warning($"Effect load failed. path={safePath}, detail={safeDetail}");
 
             MessageBox.Show(
                 $"{Translate.Error_EffectLoadFailed_Title}\n\n{Translate.Error_TargetPath_Label}: {safePath}\n\n{safeDetail}\n\n{Translate.Error_CheckEffectFiles}",

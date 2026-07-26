@@ -7,11 +7,16 @@
 		<UseWPF>true</UseWPF>
 		<Platforms>x64</Platforms>
 		<PlatformTarget>x64</PlatformTarget>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
 		<!--Pdb内にソースコードのフルパスを含めない-->
 		<RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\'))</RepoRoot>
 		<PathMap>$(RepoRoot)=.</PathMap>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="EffekseerForYMM4.Tests" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="YukkuriMovieMaker.Controls">

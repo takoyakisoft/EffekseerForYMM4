@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <new>
 #include <string>
@@ -91,8 +92,18 @@ int32_t effekseer_renderer_load_effect(
         const auto path = ToPath(pathUtf8);
         return !path.empty() && manager->LoadEffect(path) ? 1 : 0;
     }
+    catch (const std::exception& exception)
+    {
+        auto detail = EffekseerForYMM4::WindowsString::Utf8ToWide(exception.what());
+        manager->SetLastErrorMessage(
+            detail.empty()
+                ? L"An exception occurred while resolving the effect file path."
+                : L"An exception occurred while loading the effect file: " + detail);
+        return 0;
+    }
     catch (...)
     {
+        manager->SetLastErrorMessage(L"An unknown exception occurred while loading the effect file.");
         return 0;
     }
 }

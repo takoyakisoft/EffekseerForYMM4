@@ -3,13 +3,14 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using EffekseerForYMM4.Diagnostics;
 
 namespace EffekseerForYMM4.Commons;
 
 internal static class NativeAssemblyBootstrapper
 {
     internal const string NativeLibraryName = "EffekseerForNative";
-    private const string NativeLibraryFileName = $"{NativeLibraryName}.dll";
+    internal const string NativeLibraryFileName = $"{NativeLibraryName}.dll";
     private static readonly string PluginDirectory =
         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
 
@@ -17,7 +18,16 @@ internal static class NativeAssemblyBootstrapper
     [ModuleInitializer]
     internal static void Initialize()
     {
-        NativeLibrary.SetDllImportResolver(typeof(NativeAssemblyBootstrapper).Assembly, ResolveNativeLibrary);
+        PluginLog.Initialize();
+        try
+        {
+            NativeLibrary.SetDllImportResolver(typeof(NativeAssemblyBootstrapper).Assembly, ResolveNativeLibrary);
+        }
+        catch (Exception exception)
+        {
+            PluginLog.Error("Native library resolver registration failed", exception);
+            throw;
+        }
     }
 
     private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
@@ -32,13 +42,20 @@ internal static class NativeAssemblyBootstrapper
         var pluginPath = Path.Combine(PluginDirectory, NativeLibraryFileName);
         if (NativeLibrary.TryLoad(pluginPath, out var pluginHandle))
         {
+            PluginLog.Information($"Native library loaded. path={pluginPath}");
             return pluginHandle;
         }
 
         var developmentPath = Path.Combine(AppContext.BaseDirectory, NativeLibraryFileName);
-        return !string.Equals(pluginPath, developmentPath, StringComparison.OrdinalIgnoreCase) &&
-            NativeLibrary.TryLoad(developmentPath, out var developmentHandle)
-            ? developmentHandle
-            : IntPtr.Zero;
+        if (!string.Equals(pluginPath, developmentPath, StringComparison.OrdinalIgnoreCase) &&
+            NativeLibrary.TryLoad(developmentPath, out var developmentHandle))
+        {
+            PluginLog.Information($"Native library loaded from development path. path={developmentPath}");
+            return developmentHandle;
+        }
+
+        PluginLog.Warning(
+            $"Native library could not be loaded. pluginPath={pluginPath}, developmentPath={developmentPath}");
+        return IntPtr.Zero;
     }
 }

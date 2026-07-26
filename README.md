@@ -87,6 +87,8 @@ Effekseerでプロジェクトを開き、「ファイル」→「エクスポ�
 
 - 翻訳リソースはビルド時に`ar-sa`、`en-us`、`es-es`、`id-id`、`ko-kr`、`zh-cn`、`zh-tw`の`EffekseerForYMM4.resources.dll`として出力されます。
 - ネイティブDLLはプラグインフォルダ直下に`EffekseerForNative.dll`として配置し、その場所から直接読み込みます。
+- 診断ログはプラグインフォルダ直下の`EffekseerForYMM4.log`へ出力します。単一ファイルが2MBを超えると古い行を削除して末尾約1MBを保持します。
+- Releaseビルドの既定レベルはWarning、DebugビルドはInformationです。必要な場合は環境変数`EFFEKSEERFORYMM4_LOG_LEVEL`で変更できます。
 - BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`、`Readme.txt`、`THIRD_PARTY_NOTICES.txt`を格納します。
 - `ymme`にはプラグインDLL、ネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`、`THIRD_PARTY_NOTICES.txt`を格納します。
 

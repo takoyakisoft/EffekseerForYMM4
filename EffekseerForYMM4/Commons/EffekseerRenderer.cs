@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using EffekseerForYMM4.Commons;
+using EffekseerForYMM4.Diagnostics;
 
 namespace EffekseerForNative;
 
@@ -12,6 +13,7 @@ public sealed class EffekseerRenderer : IDisposable
         handle = NativeMethods.RendererCreate();
         if (handle == IntPtr.Zero)
         {
+            PluginLog.Error("Native renderer creation failed");
             throw new InvalidOperationException("Effekseer native renderer could not be created.");
         }
     }
