@@ -29,13 +29,17 @@ function Get-RelativePathFromBase {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$readmePath = Join-Path $root "packaging\Readme.txt"
+$readmeTemplatePath = Join-Path $root "packaging\Readme.txt"
 $licensePath = Join-Path $root "LICENSE.txt"
-if (-not (Test-Path -LiteralPath $readmePath -PathType Leaf)) {
-    throw "Readme.txt was not found: $readmePath"
+$thirdPartyNoticesPath = Join-Path $root "packaging\THIRD_PARTY_NOTICES.txt"
+if (-not (Test-Path -LiteralPath $readmeTemplatePath -PathType Leaf)) {
+    throw "Readme.txt was not found: $readmeTemplatePath"
 }
 if (-not (Test-Path -LiteralPath $licensePath -PathType Leaf)) {
     throw "LICENSE.txt was not found: $licensePath"
+}
+if (-not (Test-Path -LiteralPath $thirdPartyNoticesPath -PathType Leaf)) {
+    throw "THIRD_PARTY_NOTICES.txt was not found: $thirdPartyNoticesPath"
 }
 
 $ymm4Dir = [System.IO.Path]::GetFullPath($YMM4DirPath)
@@ -76,6 +80,15 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
     throw "Package version could not be determined."
 }
 
+$readmeTemplate = Get-Content -LiteralPath $readmeTemplatePath -Raw
+if (-not $readmeTemplate.Contains("{VERSION}")) {
+    throw "Readme.txt must contain the {VERSION} placeholder."
+}
+$renderedReadme = $readmeTemplate.Replace("{VERSION}", $Version)
+if ($renderedReadme.Contains("{VERSION}")) {
+    throw "Readme.txt still contains an unresolved {VERSION} placeholder."
+}
+
 $outputDir = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
     $OutputDirectory
 }
@@ -99,8 +112,13 @@ Get-ChildItem -LiteralPath $sourcePluginDirectory -Recurse -File -Filter "Effeks
         Copy-Item -LiteralPath $_.FullName -Destination $destinationPath -Force
     }
 
-Copy-Item -LiteralPath $readmePath -Destination (Join-Path $packageRoot "Readme.txt") -Force
+$packageReadmePath = Join-Path $packageRoot "Readme.txt"
+[System.IO.File]::WriteAllText(
+    $packageReadmePath,
+    $renderedReadme,
+    [System.Text.UTF8Encoding]::new($false))
 Copy-Item -LiteralPath $licensePath -Destination (Join-Path $packageRoot "LICENSE.txt") -Force
+Copy-Item -LiteralPath $thirdPartyNoticesPath -Destination (Join-Path $packageRoot "THIRD_PARTY_NOTICES.txt") -Force
 
 Get-ChildItem -LiteralPath $packageRoot -Recurse -File -Force |
     Where-Object { $_.Extension -in @(".pdb", ".exp", ".lib") -or $_.Name.EndsWith(".pdb.bin", [System.StringComparison]::OrdinalIgnoreCase) } |
@@ -148,7 +166,8 @@ try {
         "EffekseerForYMM4/EffekseerForYMM4.dll",
         "EffekseerForYMM4/EffekseerForNative.dll",
         "EffekseerForYMM4/Readme.txt",
-        "EffekseerForYMM4/LICENSE.txt"
+        "EffekseerForYMM4/LICENSE.txt",
+        "EffekseerForYMM4/THIRD_PARTY_NOTICES.txt"
     )
     foreach ($entry in $requiredEntries) {
         if (-not ($ymmeArchive.Entries | Where-Object { $_.FullName -eq $entry })) {
@@ -162,7 +181,8 @@ finally {
 
 New-Item -ItemType Directory -Force -Path $boothStageRoot | Out-Null
 Copy-Item -LiteralPath $ymmePath -Destination (Join-Path $boothStageRoot $ymmeFileName) -Force
-Copy-Item -LiteralPath $readmePath -Destination (Join-Path $boothStageRoot "Readme.txt") -Force
+Copy-Item -LiteralPath $packageReadmePath -Destination (Join-Path $boothStageRoot "Readme.txt") -Force
+Copy-Item -LiteralPath $thirdPartyNoticesPath -Destination (Join-Path $boothStageRoot "THIRD_PARTY_NOTICES.txt") -Force
 [System.IO.Compression.ZipFile]::CreateFromDirectory(
     $boothStageRoot,
     $boothZipPath,
@@ -174,10 +194,10 @@ try {
     $entries = @($boothArchive.Entries |
         Where-Object { -not [string]::IsNullOrEmpty($_.Name) } |
         ForEach-Object { $_.FullName })
-    $expectedEntries = @($ymmeFileName, "Readme.txt")
+    $expectedEntries = @($ymmeFileName, "Readme.txt", "THIRD_PARTY_NOTICES.txt")
     if (@($entries | Where-Object { $expectedEntries -notcontains $_ }).Count -ne 0 -or
         @($expectedEntries | Where-Object { $entries -notcontains $_ }).Count -ne 0) {
-        throw "BOOTH package must contain only $ymmeFileName and Readme.txt. Actual=$($entries -join ', ')"
+        throw "BOOTH package contains unexpected entries. Expected=$($expectedEntries -join ', ') Actual=$($entries -join ', ')"
     }
 }
 finally {
