@@ -16,7 +16,7 @@ EffekseerForYMM4 は、Effekseer のエフェクトを動画編集ソフト
 ----------------
 
 1. 配布 ZIP を展開します。
-2. 「EffekseerForYMM4.ymme」を開き、YMM4 の案内に従って
+2. 「EffekseerForYMM4-vX.Y.Z.ymme」を開き、YMM4 の案内に従って
    プラグインをインストールします。
 3. YMM4 が起動中の場合は再起動します。
 

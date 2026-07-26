@@ -6,7 +6,7 @@
 
 ![Image](assets/EffekseerForYMM4.png)
 
-EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生するためのプラグインです。
+Effekseerで作成したエフェクトを、ゆっくりMovieMaker4（YMM4）上で再生・合成するためのプラグインです。
 
 <p align="center">
   <img src="assets/sample.gif" width="100%" alt="sample">
@@ -14,31 +14,37 @@ EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生する�
 
 ## インストール方法
 
-1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)またはBOOTHから最新の`EffekseerForYMM4.zip`をダウンロードします。
-2. zipを展開し、`EffekseerForYMM4.ymme`を開きます。
+1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)またはBOOTHから最新の`EffekseerForYMM4-vX.Y.Z.zip`をダウンロードします。
+2. zipを展開し、`EffekseerForYMM4-vX.Y.Z.ymme`を開きます。
 3. YMM4の案内に従ってプラグインをインストールします。
+4. YMM4が起動中の場合は再起動します。
 
 ## 使い方
 
 1. 映像エフェクトに「Effekseerビデオエフェクト」が追加されます。
-2. エフェクトファイル（.efkefc, .efk）を選択して再生します。
+2. エフェクトファイル（`.efkefc` / `.efk`）を選択して再生します。
 
 ### エフェクトファイルの入手と作成
 
-エフェクトファイル（.efkefc, .efk）は、Effekseerツールを使用して作成・編集できます。
-以下のリンクからツールをダウンロードし、同梱されている`Sample`フォルダ内のエフェクトを使用するか、ご自身で作成してください。
+エフェクトファイル（`.efkefc` / `.efk`）は、Effekseerを使用して作成・編集できます。
 
-[Effekseer 1.7.3.0 (Windows版)](https://github.com/effekseer/Effekseer/releases/download/1.7.3.0/Effekseer1.7.3.0Win.zip)
+以下からEffekseerをダウンロードし、同梱されている`Sample`フォルダ内のエフェクトを使用するか、ご自身でエフェクトを作成してください。
+
+[Effekseer 1.7.3.0（Windows版）](https://github.com/effekseer/Effekseer/releases/download/1.7.3.0/Effekseer1.7.3.0Win.zip)
 
 **注意：**
-`.efkproj` はEffekseerのプロジェクトファイルであり、直接読み込むことはできません。
-Effekseerでファイルを開き、メニューの「ファイル」>「エクスポート」>「標準形式」でEffekseerファイル(\_.efk)を選択して保存してください。
-この際、**保存先は必ず`.efkproj`と同じフォルダにしてください**。別の場所に保存すると、テクスチャファイルへの相対パスが参照できなくなり、正しく表示されません。
+
+`.efkproj`はEffekseerのプロジェクトファイルのため、本プラグインから直接読み込むことはできません。
+
+Effekseerでプロジェクトを開き、「ファイル」→「エクスポート」→「標準形式」からEffekseerファイル（`*.efk`）として保存してください。
+
+参照するテクスチャを正しく読み込むため、書き出し先は`.efkproj`と同じフォルダーを推奨します。別の場所に保存した場合、テクスチャへの相対パスが解決できず、正しく表示されないことがあります。
 
 ## 動作環境
 
 - YukkuriMovieMaker4 v4.49.0.2
-- Windows 11 (64bit)
+- Windows 11（64bit）
+- DirectX 11対応のグラフィックス環境
 
 ## 開発者向け
 
@@ -48,48 +54,47 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
   - 純粋ネイティブC++のC ABI DLLです。
   - Effekseer本体、DX11レンダラー、C ABI境界を1プロジェクトでビルドします。
 - `EffekseerForYMM4`
-  - YMM4 プラグイン本体です。
-  - UI、ローカライズ、ファイルコピー、ネイティブDLL呼び出しを担当します。
+  - YMM4プラグイン本体です。
+  - UI、ローカライズ、エフェクト描画、ネイティブDLL呼び出しを担当します。
 - `YukkuriMovieMaker.Generator`
-  - 翻訳CSVから `resx` とクラスを生成するソースジェネレーターです。
+  - 翻訳CSVから`resx`とクラスを生成するソースジェネレーターです。
+- `EffekseerForYMM4.Tests`
+  - プラグインの回帰テストを格納するテストプロジェクトです。
+  - 通常のプラグインビルドには必要ありません。
 
-### 開発時に必要なプロジェクト
+### 描画処理
 
-通常の開発・ビルドで必要なのは以下です。
+描画にはYMM4のDirect3D 11デバイスとImmediate Contextを借用します。
 
-- `EffekseerForNative`
-- `EffekseerForYMM4`
-- `YukkuriMovieMaker.Generator`
-
-`EffekseerForYMM4.Tests` は必要なときだけビルドすれば十分です。
-
-描画にはYMM4のDirect3D 11デバイスとImmediate Contextを借用します。ネイティブ側はCOM参照を保持しますが、デバイス自体は作成・所有しません。通常の連続描画ホットパスではmanaged heap allocationを行いません。共有Immediate Contextを使用する描画区間はプロセッサ側で直列化し、ネイティブ描画後にRenderTargetとViewportを描画前の状態へ復元します。
+ネイティブ側はデバイスとImmediate ContextのCOM参照を保持しますが、デバイス自体は作成・所有しません。通常の連続描画ホットパスではmanaged heap allocationを行いません。共有Immediate Contextを使用する描画区間はC#側で直列化し、ネイティブ描画後にRenderTargetとViewportを描画前の状態へ復元します。
 
 ### ビルド構成
 
-- 通常は `Debug|x64` を使用します。
-- 配布物の確認や GitHub Actions と同じ条件での確認は `Release|x64` を使用します。
-- このリポジトリでは実行対象を `x64` に固定しています。
+- 通常の開発では`Debug|x64`を使用します。
+- 配布物の確認やGitHub Actionsと同じ条件で確認する場合は`Release|x64`を使用します。
+- このリポジトリでは実行対象を`x64`に固定しています。
 
-### 配布用ファイルについて
+### 配布用ファイル
 
-- 翻訳ファイルはビルド時に `ar-sa`, `en-us`, `es-es`, `id-id`, `ko-kr`, `zh-cn`, `zh-tw` の `EffekseerForYMM4.resources.dll` として出力されます。
-- ネイティブDLLはプラグインフォルダ直下に `EffekseerForNative.dll` として配置され、その場所から直接読み込みます。
-- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4.ymme`と`Readme.txt`が含まれます。
+- 翻訳リソースはビルド時に`ar-sa`、`en-us`、`es-es`、`id-id`、`ko-kr`、`zh-cn`、`zh-tw`の`EffekseerForYMM4.resources.dll`として出力されます。
+- ネイティブDLLはプラグインフォルダ直下に`EffekseerForNative.dll`として配置し、その場所から直接読み込みます。
+- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`と`Readme.txt`のみを格納します。
+- `ymme`にはプラグインDLL、ネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`を格納します。
 
 ### ビルド前提
 
-- `Directory.Build.props` に `YMM4DirPath` を設定すると、ビルド後に YMM4 の `user/plugin/EffekseerForYMM4` へ自動コピーされます。
-- GitHub Actions は最新の通常版YMM4を取得し、`Release|x64`でビルドしてBOOTH配布用zipを作成します。
+- `Directory.Build.props`に`YMM4DirPath`を設定すると、ビルド後にYMM4の`user/plugin/EffekseerForYMM4`へプラグインが自動コピーされます。
+- GitHub Actionsでは最新の通常版YMM4を取得し、`Release|x64`でビルドしてBOOTH配布用zipを生成します。
+- リリースバージョンは`Directory.Build.targets`の`EffekseerForYMM4Version`で管理します。
 
 ## ライセンス
 
 このソフトウェアはMITライセンスの下で公開されています。
 
-### 使用ライブラリ
+### 使用ライブラリ・関連ソフトウェア
 
-- **Effekseer** (v1.7.3.0) - MIT License
-- **YukkuriMovieMaker4** (v4.49.0.2)
+- **Effekseer**（v1.7.3.0）- MIT License
+- **YukkuriMovieMaker4**（v4.49.0.2）
 
 ### 謝辞
 
