@@ -63,22 +63,22 @@
 <data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer 音訊效果</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>效果</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>相機</value></data>
-<data name="Group_Transform" xml:space="preserve"><value>變形</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>描繪</value></data>
 <data name="Common_File_Name" xml:space="preserve"><value>檔案</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>效果檔案</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>循環</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>循環播放效果。</value></data>
 <data name="Audio_Volume_Name" xml:space="preserve"><value>音量</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>Effekseer 音訊音量</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>音量</value></data>
 <data name="Audio_Loop_Desc" xml:space="preserve"><value>循環播放效果影像與聲音。</value></data>
-<data name="Video_ScreenSize_Name" xml:space="preserve"><value>螢幕尺寸</value></data>
-<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>依螢幕尺寸進行渲染。</value></data>
+<data name="Video_ScreenSize_Name" xml:space="preserve"><value>畫面尺寸</value></data>
+<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>依畫面尺寸進行渲染。</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
-<data name="Camera_X_Desc" xml:space="preserve"><value>相機 X 座標</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>攝像機位置（水平）</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Camera_Y_Desc" xml:space="preserve"><value>相機 Y 座標</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>攝像機位置（垂直）</value></data>
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Camera_Z_Desc" xml:space="preserve"><value>相機 Z 座標</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>攝像機位置（深度）</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>視野角</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>視野角（度）</value></data>
 <data name="Video_Projection_Name" xml:space="preserve"><value>投影</value></data>
@@ -87,20 +87,20 @@
 <data name="Video_Projection_Orthographic" xml:space="preserve"><value>正交投影</value></data>
 <data name="Video_OrthographicSize_Name" xml:space="preserve"><value>正交尺寸</value></data>
 <data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>正交投影時的顯示範圍。</value></data>
-<data name="Transform_Scale_Name" xml:space="preserve"><value>縮放率</value></data>
-<data name="Transform_Scale_Desc" xml:space="preserve"><value>整體效果的縮放率</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>放大率</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>放大率</value></data>
 <data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
-<data name="Transform_PositionX_Desc" xml:space="preserve"><value>效果位置 X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>描繪位置（水平）</value></data>
 <data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Transform_PositionY_Desc" xml:space="preserve"><value>效果位置 Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>描繪位置（垂直）</value></data>
 <data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>效果位置 Z</value></data>
-<data name="Transform_RotationX_Name" xml:space="preserve"><value>旋轉 X</value></data>
-<data name="Transform_RotationX_Desc" xml:space="preserve"><value>效果旋轉 X</value></data>
-<data name="Transform_RotationY_Name" xml:space="preserve"><value>旋轉 Y</value></data>
-<data name="Transform_RotationY_Desc" xml:space="preserve"><value>效果旋轉 Y</value></data>
-<data name="Transform_RotationZ_Name" xml:space="preserve"><value>旋轉 Z</value></data>
-<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>效果旋轉 Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>繪圖位置（深度）</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>X軸</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>垂直方向，相對X軸的回轉角度</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>Y軸</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>水平方向，相對Y軸的回轉角度</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Z軸</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>相對平面、Z軸方向的旋轉角度</value></data>
 <data name="Error_DialogTitle" xml:space="preserve"><value>錯誤</value></data>
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>載入 Effekseer 檔案失敗</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>目標路徑</value></data>

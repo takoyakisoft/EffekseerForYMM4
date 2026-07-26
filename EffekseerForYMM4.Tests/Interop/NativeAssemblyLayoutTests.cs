@@ -23,7 +23,7 @@ public sealed class NativeAssemblyLayoutTests
         var root = FindRepositoryRoot();
         var project = File.ReadAllText(Path.Combine(root, "EffekseerForYMM4", "EffekseerForYMM4.csproj"));
         var testProject = File.ReadAllText(Path.Combine(root, "EffekseerForYMM4.Tests", "EffekseerForYMM4.Tests.csproj"));
-        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "package-release.ps1"));
+        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "dev.ps1"));
 
         Assert.Contains("DestinationFiles=\"$(TargetDir)EffekseerForNative.dll\"", project, StringComparison.Ordinal);
         Assert.Contains("DestinationFiles=\"$(TargetDir)EffekseerForNative.dll\"", testProject, StringComparison.Ordinal);
@@ -33,18 +33,19 @@ public sealed class NativeAssemblyLayoutTests
     }
 
     [Fact]
-    public void PackageRendersVersionAndIncludesThirdPartyNotices()
+    public void PackageRendersVersionAndIncludesLicenseDirectory()
     {
         var root = FindRepositoryRoot();
-        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "package-release.ps1"));
+        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "dev.ps1"));
         var packageReadme = File.ReadAllText(Path.Combine(root, "packaging", "Readme.txt"));
-        var thirdPartyNotices = File.ReadAllText(Path.Combine(root, "packaging", "THIRD_PARTY_NOTICES.txt"));
+        var effekseerLicense = File.ReadAllText(Path.Combine(root, "LICENSES", "Effekseer.txt"));
 
         Assert.Contains("{VERSION}", packageReadme, StringComparison.Ordinal);
-        Assert.Contains("Replace(\"{VERSION}\", $Version)", packageScript, StringComparison.Ordinal);
-        Assert.Contains("THIRD_PARTY_NOTICES.txt", packageScript, StringComparison.Ordinal);
-        Assert.Contains("Copyright (c) 2011 Effekseer Project", thirdPartyNotices, StringComparison.Ordinal);
-        Assert.Contains("The MIT License (MIT)", thirdPartyNotices, StringComparison.Ordinal);
+        Assert.Contains("Replace(\"{VERSION}\", $version)", packageScript, StringComparison.Ordinal);
+        Assert.Contains("Join-Path $root \"LICENSES\"", packageScript, StringComparison.Ordinal);
+        Assert.DoesNotContain("packaging\\THIRD_PARTY_NOTICES.txt", packageScript, StringComparison.Ordinal);
+        Assert.Contains("Copyright (c) 2011 Effekseer Project", effekseerLicense, StringComparison.Ordinal);
+        Assert.Contains("The MIT License (MIT)", effekseerLicense, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -52,7 +53,7 @@ public sealed class NativeAssemblyLayoutTests
     {
         var root = FindRepositoryRoot();
         var project = File.ReadAllText(Path.Combine(root, "EffekseerForYMM4", "EffekseerForYMM4.csproj"));
-        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "package-release.ps1"));
+        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "dev.ps1"));
 
         Assert.Contains("<Private>false</Private>", project, StringComparison.Ordinal);
         Assert.Contains("$supportedCultures", packageScript, StringComparison.Ordinal);

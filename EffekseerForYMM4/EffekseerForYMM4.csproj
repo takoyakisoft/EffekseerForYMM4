@@ -74,7 +74,7 @@
 	</Target>
 
 	<!--ビルド後にYMM4のプラグインフォルダにdllをコピーする-->
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(YMM4DirPath)' != ''">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(YMM4DirPath)' != '' And '$(SkipPluginDeploy)' != 'true'">
 		<Exec
 			Condition="Exists('$(YMM4DirPath)')"
 			Command="mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;rmdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\nativepayload&quot; /S /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;rmdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native&quot; /S /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;for %%F in (&quot;$(TargetDir)*.*&quot;) do (&#xD;&#xA;  copy &quot;%%~fF&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\&quot; /Y &gt; NUL&#xD;&#xA;)&#xD;&#xA;for /d %%D in (&quot;$(TargetDir)*&quot;) do (&#xD;&#xA;  mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;  xcopy &quot;%%~fD\*&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD\&quot; /Y /I /S /E &gt; NUL&#xD;&#xA;)" />

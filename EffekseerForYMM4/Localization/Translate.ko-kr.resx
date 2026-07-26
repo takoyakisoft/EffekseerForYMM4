@@ -63,22 +63,22 @@
 <data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer 오디오 효과</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>효과</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>카메라</value></data>
-<data name="Group_Transform" xml:space="preserve"><value>변형</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>그리기</value></data>
 <data name="Common_File_Name" xml:space="preserve"><value>파일</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>효과 파일</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>반복</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>효과를 반복 재생합니다.</value></data>
-<data name="Audio_Volume_Name" xml:space="preserve"><value>볼륨</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>Effekseer 사운드 볼륨</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>음량</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>음량</value></data>
 <data name="Audio_Loop_Desc" xml:space="preserve"><value>효과 영상과 소리를 반복 재생합니다.</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>화면 크기</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>화면 크기에 맞춰 렌더링합니다.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
-<data name="Camera_X_Desc" xml:space="preserve"><value>카메라 X 좌표</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>카메라 위치（가로 방향）</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Camera_Y_Desc" xml:space="preserve"><value>카메라 Y 좌표</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>카메라 위치（세로 방향）</value></data>
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Camera_Z_Desc" xml:space="preserve"><value>카메라 Z 좌표</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>카메라 위치（깊이）</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>시야각</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>시야각(도)</value></data>
 <data name="Video_Projection_Name" xml:space="preserve"><value>투영</value></data>
@@ -87,20 +87,20 @@
 <data name="Video_Projection_Orthographic" xml:space="preserve"><value>직교 투영</value></data>
 <data name="Video_OrthographicSize_Name" xml:space="preserve"><value>직교 크기</value></data>
 <data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>직교 투영 시 표시 범위입니다.</value></data>
-<data name="Transform_Scale_Name" xml:space="preserve"><value>배율</value></data>
-<data name="Transform_Scale_Desc" xml:space="preserve"><value>효과 전체의 배율</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>확대율</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>확대율</value></data>
 <data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
-<data name="Transform_PositionX_Desc" xml:space="preserve"><value>효과 위치 X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>그리기 위치(가로)</value></data>
 <data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Transform_PositionY_Desc" xml:space="preserve"><value>효과 위치 Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>그리기 위치(세로)</value></data>
 <data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>효과 위치 Z</value></data>
-<data name="Transform_RotationX_Name" xml:space="preserve"><value>회전 X</value></data>
-<data name="Transform_RotationX_Desc" xml:space="preserve"><value>효과 회전 X</value></data>
-<data name="Transform_RotationY_Name" xml:space="preserve"><value>회전 Y</value></data>
-<data name="Transform_RotationY_Desc" xml:space="preserve"><value>효과 회전 Y</value></data>
-<data name="Transform_RotationZ_Name" xml:space="preserve"><value>회전 Z</value></data>
-<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>효과 회전 Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>그리기 위치（깊이）</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>X축</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>세로방향, X축에 대한 회전각</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>Y축</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>가로 방향, Y축에 대한 회전 각도</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Z축</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>평면 방향, Z축에 대한 회전 각도</value></data>
 <data name="Error_DialogTitle" xml:space="preserve"><value>오류</value></data>
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>Effekseer 파일을 불러오지 못했습니다</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>대상 경로</value></data>

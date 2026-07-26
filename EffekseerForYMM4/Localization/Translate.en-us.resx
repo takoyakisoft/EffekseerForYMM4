@@ -63,22 +63,22 @@
 <data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Effekseer Audio Effect</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>Effect</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>Camera</value></data>
-<data name="Group_Transform" xml:space="preserve"><value>Transform</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>Drawing</value></data>
 <data name="Common_File_Name" xml:space="preserve"><value>File</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>Effect file</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>Loop</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>Loop the effect playback.</value></data>
 <data name="Audio_Volume_Name" xml:space="preserve"><value>Volume</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>Effekseer sound volume</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>Volume</value></data>
 <data name="Audio_Loop_Desc" xml:space="preserve"><value>Loop the effect video and sound.</value></data>
-<data name="Video_ScreenSize_Name" xml:space="preserve"><value>Screen Size</value></data>
+<data name="Video_ScreenSize_Name" xml:space="preserve"><value>Screen size</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>Render to match the screen size.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
-<data name="Camera_X_Desc" xml:space="preserve"><value>Camera X position</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>Camera position (horizontal)</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Camera_Y_Desc" xml:space="preserve"><value>Camera Y position</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>Camera position (vertical)</value></data>
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Camera_Z_Desc" xml:space="preserve"><value>Camera Z position</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>Camera position (depth)</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>Field of View</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>Field of view (degrees)</value></data>
 <data name="Video_Projection_Name" xml:space="preserve"><value>Projection</value></data>
@@ -87,20 +87,20 @@
 <data name="Video_Projection_Orthographic" xml:space="preserve"><value>Orthographic</value></data>
 <data name="Video_OrthographicSize_Name" xml:space="preserve"><value>Orthographic Size</value></data>
 <data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>Visible range for orthographic projection.</value></data>
-<data name="Transform_Scale_Name" xml:space="preserve"><value>Scale</value></data>
-<data name="Transform_Scale_Desc" xml:space="preserve"><value>Scale of the entire effect</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>Zoom</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>Zoom</value></data>
 <data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
-<data name="Transform_PositionX_Desc" xml:space="preserve"><value>Effect position X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>Drawing position (horizontal)</value></data>
 <data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Transform_PositionY_Desc" xml:space="preserve"><value>Effect position Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>Drawing position (vertical)</value></data>
 <data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Effect position Z</value></data>
-<data name="Transform_RotationX_Name" xml:space="preserve"><value>Rotation X</value></data>
-<data name="Transform_RotationX_Desc" xml:space="preserve"><value>Effect rotation X</value></data>
-<data name="Transform_RotationY_Name" xml:space="preserve"><value>Rotation Y</value></data>
-<data name="Transform_RotationY_Desc" xml:space="preserve"><value>Effect rotation Y</value></data>
-<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Rotation Z</value></data>
-<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>Effect rotation Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Drawing position (depth)</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>X axis</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>Vertical, angle of rotation relative to X-axis</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>Y axis</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>Horizontal, angle of rotation about Y-axis</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Z axis</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>Planar direction, rotation angle relative to Z-axis</value></data>
 <data name="Error_DialogTitle" xml:space="preserve"><value>Error</value></data>
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>Failed to load the Effekseer file</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>Target Path</value></data>

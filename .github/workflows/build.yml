@@ -79,38 +79,20 @@ jobs:
           <Project>
             <PropertyGroup>
               <YMM4DirPath>$env:YMM4_DIR\</YMM4DirPath>
+              <DotnetPath>$((Get-Command dotnet).Source)</DotnetPath>
+              <MSBuildPath>$((Get-Command msbuild).Source)</MSBuildPath>
             </PropertyGroup>
           </Project>
           "@
           Set-Content -Path "Directory.Build.props" -Value $content
 
-      - name: Restore NuGet packages
+      - name: Run managed and Native tests
         shell: pwsh
-        run: dotnet restore .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj
-
-      - name: Build plugin
-        shell: pwsh
-        run: msbuild .\EffekseerForYMM4\EffekseerForYMM4.csproj /m /p:Configuration=Release /p:Platform=x64
-
-      - name: Build managed tests
-        shell: pwsh
-        run: msbuild .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj /m /p:Configuration=Release /p:Platform=x64
-
-      - name: Run managed tests
-        shell: pwsh
-        run: dotnet test .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj --configuration Release --no-build --no-restore -p:Platform=x64
-
-      - name: Build native Unicode file I/O test
-        shell: pwsh
-        run: msbuild .\EffekseerForNative.Tests\EffekseerForNative.Tests.vcxproj /m /p:Configuration=Release /p:Platform=x64
-
-      - name: Run native Unicode file I/O test
-        shell: pwsh
-        run: .\EffekseerForNative.Tests\bin\Release\EffekseerForNative.Tests.exe
+        run: .\scripts\dev.ps1 test
 
       - name: Create BOOTH package
         shell: pwsh
-        run: .\scripts\package-release.ps1 -YMM4DirPath "$env:YMM4_DIR" -Version "$env:PACKAGE_VERSION" -OutputDirectory ".\artifacts"
+        run: .\scripts\dev.ps1 publish
 
       - name: Upload BOOTH package
         uses: actions/upload-artifact@v4

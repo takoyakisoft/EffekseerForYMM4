@@ -90,18 +90,28 @@ Effekseerでプロジェクトを開き、「ファイル」→「エクスポ�
 - ネイティブDLLはプラグインフォルダ直下に`EffekseerForNative.dll`として配置し、その場所から直接読み込みます。
 - 診断ログはプラグインフォルダ直下の`EffekseerForYMM4.log`へ出力します。単一ファイルが2MBを超えると古い行を削除して末尾約1MBを保持します。
 - Releaseビルドの既定レベルはWarning、DebugビルドはInformationです。必要な場合は環境変数`EFFEKSEERFORYMM4_LOG_LEVEL`で変更できます。
-- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`、`Readme.txt`、`THIRD_PARTY_NOTICES.txt`を格納します。
-- `ymme`にはプラグインDLL、動作に必要なネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`、`THIRD_PARTY_NOTICES.txt`だけを格納します。YMM4本体が提供するDLLは同梱しません。
+- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4-vX.Y.Z.ymme`と`Readme.txt`を格納します。
+- `ymme`にはプラグインDLL、動作に必要なネイティブDLL、翻訳リソース、`Readme.txt`、`LICENSE.txt`、`LICENSES`フォルダーだけを格納します。YMM4本体が提供するDLLは同梱しません。
 
 ### ビルド前提
 
-- `Directory.Build.props`に`YMM4DirPath`を設定すると、ビルド後にYMM4の`user/plugin/EffekseerForYMM4`へプラグインが自動コピーされます。
+- `Directory.Build.props.sample`を`Directory.Build.props`へコピーし、`YMM4DirPath`、`DotnetPath`、`MSBuildPath`、`ClangFormatPath`をローカル環境に合わせます。
+- `.\scripts\dev.ps1`でNativeを含むReleaseビルドとYMM4への配置を行います。
+- `test`、`format`、`lint`、`publish`を第1引数に指定すると、テスト、整形と自動修正、リントと自動修正、BOOTH配布用zip生成を実行します。
 - GitHub Actionsでは最新の通常版YMM4を取得し、`Release|x64`でビルドしてBOOTH配布用zipを生成します。
 - リリースバージョンは`Directory.Build.targets`の`EffekseerForYMM4Version`で管理します。
 
+```powershell
+.\scripts\dev.ps1
+.\scripts\dev.ps1 test
+.\scripts\dev.ps1 format
+.\scripts\dev.ps1 lint
+.\scripts\dev.ps1 publish
+```
+
 ## ライセンス
 
-このソフトウェアはMITライセンスの下で公開されています。Effekseerを含む第三者コンポーネントの著作権表示とライセンス条項は`THIRD_PARTY_NOTICES.txt`を参照してください。
+このソフトウェアはMITライセンスの下で公開されています。Effekseerを含む第三者コンポーネントの著作権表示とライセンス条項は`LICENSES`フォルダーを参照してください。
 
 ### 使用ライブラリ・関連ソフトウェア
 

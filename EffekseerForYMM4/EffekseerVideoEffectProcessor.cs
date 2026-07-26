@@ -297,7 +297,10 @@ namespace EffekseerForYMM4
             }
             else
             {
-                float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
+                float fov = Math.Clamp(
+                    (float)item.Fov.GetValue((long)animFrame, length, safeFps),
+                    1.0f,
+                    179.0f);
                 ApplyPerspectiveProjection(fov, width, height);
             }
             ApplyTransform(posX, posY, posZ, rotX, rotY, rotZ, scale);

@@ -67,8 +67,8 @@ Effekseer の「ファイル」→「エクスポート」→「標準形式」�
 
 EffekseerForYMM4 は MIT License で公開されています。
 同梱する Effekseer も MIT License です。
-本プラグインのライセンスは LICENSE.txt、Effekseer の著作権表示と
-ライセンス条項は THIRD_PARTY_NOTICES.txt を確認してください。
+本プラグインのライセンスは LICENSE.txt、第三者ライセンスは
+LICENSES フォルダーを確認してください。
 
 関連リンク
 ----------

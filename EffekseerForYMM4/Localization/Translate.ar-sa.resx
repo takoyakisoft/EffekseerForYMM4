@@ -63,22 +63,22 @@
 <data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>تأثير صوت Effekseer</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>التأثير</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>الكاميرا</value></data>
-<data name="Group_Transform" xml:space="preserve"><value>التحويل</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>رسم</value></data>
 <data name="Common_File_Name" xml:space="preserve"><value>ملف</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>ملف التأثير</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>تكرار</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>يشغل التأثير بشكل متكرر.</value></data>
-<data name="Audio_Volume_Name" xml:space="preserve"><value>مستوى الصوت</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>مستوى صوت Effekseer</value></data>
+<data name="Audio_Volume_Name" xml:space="preserve"><value>الصوت</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>مستوى الصوت</value></data>
 <data name="Audio_Loop_Desc" xml:space="preserve"><value>يشغل صورة التأثير وصوته بشكل متكرر.</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>حجم الشاشة</value></data>
 <data name="Video_ScreenSize_Desc" xml:space="preserve"><value>يعرض بما يتوافق مع حجم الشاشة.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
-<data name="Camera_X_Desc" xml:space="preserve"><value>موضع X للكاميرا</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>موضع الكاميرا (أفقي)</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Camera_Y_Desc" xml:space="preserve"><value>موضع Y للكاميرا</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>موضع الكاميرا (عمودي)</value></data>
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Camera_Z_Desc" xml:space="preserve"><value>موضع Z للكاميرا</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>موضع الكاميرا (العمق)</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>زاوية الرؤية</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>زاوية الرؤية (درجة)</value></data>
 <data name="Video_Projection_Name" xml:space="preserve"><value>الإسقاط</value></data>
@@ -87,20 +87,20 @@
 <data name="Video_Projection_Orthographic" xml:space="preserve"><value>إسقاط متعامد</value></data>
 <data name="Video_OrthographicSize_Name" xml:space="preserve"><value>حجم الإسقاط المتعامد</value></data>
 <data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>نطاق العرض عند الإسقاط المتعامد.</value></data>
-<data name="Transform_Scale_Name" xml:space="preserve"><value>المقياس</value></data>
-<data name="Transform_Scale_Desc" xml:space="preserve"><value>مقياس التأثير بالكامل</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>معدل التكبير</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>معدل التكبير</value></data>
 <data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
-<data name="Transform_PositionX_Desc" xml:space="preserve"><value>موضع التأثير X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>موضع الرسم (أفقي)</value></data>
 <data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Transform_PositionY_Desc" xml:space="preserve"><value>موضع التأثير Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>موضع الرسم (عمودي)</value></data>
 <data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>موضع التأثير Z</value></data>
-<data name="Transform_RotationX_Name" xml:space="preserve"><value>دوران X</value></data>
-<data name="Transform_RotationX_Desc" xml:space="preserve"><value>دوران التأثير X</value></data>
-<data name="Transform_RotationY_Name" xml:space="preserve"><value>دوران Y</value></data>
-<data name="Transform_RotationY_Desc" xml:space="preserve"><value>دوران التأثير Y</value></data>
-<data name="Transform_RotationZ_Name" xml:space="preserve"><value>دوران Z</value></data>
-<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>دوران التأثير Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>موضع الرسم (العمق)</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>محور X</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>زاوية الدوران العمودية بالنسبة لمحور X</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>محور Y</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>الاتجاه الأفقي، زاوية الدوران حول المحور Y</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>محور Z</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>الاتجاه المستوي، زاوية الدوران بالنسبة لمحور Z</value></data>
 <data name="Error_DialogTitle" xml:space="preserve"><value>خطأ</value></data>
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>تعذر تحميل ملف Effekseer</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>المسار الهدف</value></data>

@@ -20,7 +20,7 @@ public sealed class ProjectionModeUiTests
         var processorSource = File.ReadAllText(processorPath);
 
         Assert.Contains(
-            "[ProjectionAnimationSlider(ProjectionMode.Perspective, \"F1\", \"\", -500, 500)]",
+            "[ProjectionAnimationSlider(ProjectionMode.Perspective, \"F1\", \"px\", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]",
             parameterSource,
             StringComparison.Ordinal);
         Assert.Contains(
@@ -31,10 +31,14 @@ public sealed class ProjectionModeUiTests
             "[ProjectionAnimationSlider(ProjectionMode.Orthographic, \"F1\", \"\", 0.1, 10)]",
             parameterSource,
             StringComparison.Ordinal);
-        Assert.DoesNotContain("\"px\"", parameterSource, StringComparison.Ordinal);
+        Assert.Contains("\"px\"", parameterSource, StringComparison.Ordinal);
         Assert.Contains("private const float DefaultCameraZ = 20.0f;", processorSource, StringComparison.Ordinal);
         Assert.Contains(
             "float camZ = item.ProjectionMode == ProjectionMode.Perspective",
+            processorSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "float fov = Math.Clamp(",
             processorSource,
             StringComparison.Ordinal);
     }

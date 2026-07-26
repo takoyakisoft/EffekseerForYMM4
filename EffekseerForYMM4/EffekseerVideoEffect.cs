@@ -70,52 +70,88 @@ namespace EffekseerForYMM4
         public bool ShouldSerializeProjection() => false;
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", -500, 500)]
-        public Animation CamPosX { get; } = new Animation(0, -100000.0, 100000.0);
+        [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation CamPosX { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Y_Name), Description = nameof(Translate.Camera_Y_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", -500, 500)]
-        public Animation CamPosY { get; } = new Animation(0, -100000.0, 100000.0);
+        [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation CamPosY { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_Z_Name), Description = nameof(Translate.Camera_Z_Desc), ResourceType = typeof(Translate))]
-        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F1", "", -500, 500)]
-        public Animation CamPosZ { get; } = new Animation(20, -100000.0, 100000.0);
+        [ProjectionAnimationSlider(ProjectionMode.Perspective, "F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation CamPosZ { get; } = new Animation(
+            20,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_Fov_Name), Description = nameof(Translate.Video_Fov_Desc), ResourceType = typeof(Translate))]
         [ProjectionAnimationSlider(ProjectionMode.Perspective, "F0", "°", 1, 179)]
-        public Animation Fov { get; } = new Animation(90, 1, 179);
+        public Animation Fov { get; } = new Animation(
+            90,
+            EffekseerParameterSettings.PositiveAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_OrthographicSize_Name), Description = nameof(Translate.Video_OrthographicSize_Desc), ResourceType = typeof(Translate))]
         [ProjectionAnimationSlider(ProjectionMode.Orthographic, "F1", "", 0.1, 10)]
-        public Animation OrthographicSize { get; } = new Animation(10, 0.001, 100000);
+        public Animation OrthographicSize { get; } = new Animation(
+            10,
+            EffekseerParameterSettings.PositiveAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_Scale_Name), Description = nameof(Translate.Transform_Scale_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "%", 0, 400)]
-        public Animation Scale { get; } = new Animation(100.0, 0.0, 100000.0);
+        public Animation Scale { get; } = new Animation(
+            100,
+            EffekseerParameterSettings.PositiveAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionX_Name), Description = nameof(Translate.Transform_PositionX_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", -500, 500)]
-        public Animation PosX { get; } = new Animation(0, -100000.0, 100000.0);
+        [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation PosX { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionY_Name), Description = nameof(Translate.Transform_PositionY_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", -500, 500)]
-        public Animation PosY { get; } = new Animation(0, -100000.0, 100000.0);
+        [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation PosY { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_PositionZ_Name), Description = nameof(Translate.Transform_PositionZ_Desc), ResourceType = typeof(Translate))]
-        [AnimationSlider("F1", "", -500, 500)]
-        public Animation PosZ { get; } = new Animation(0, -100000.0, 100000.0);
+        [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
+        public Animation PosZ { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationX_Name), Description = nameof(Translate.Transform_RotationX_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "°", -360, 360)]
-        public Animation RotX { get; } = new Animation(0, -100000.0, 100000.0);
+        public Animation RotX { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationY_Name), Description = nameof(Translate.Transform_RotationY_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "°", -360, 360)]
-        public Animation RotY { get; } = new Animation(0, -100000.0, 100000.0);
+        public Animation RotY { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         [Display(GroupName = nameof(Translate.Group_Transform), Name = nameof(Translate.Transform_RotationZ_Name), Description = nameof(Translate.Transform_RotationZ_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "°", -360, 360)]
-        public Animation RotZ { get; } = new Animation(0, -100000.0, 100000.0);
+        public Animation RotZ { get; } = new Animation(
+            0,
+            EffekseerParameterSettings.SignedAnimationMinimum,
+            EffekseerParameterSettings.AnimationMaximum);
 
         /// <summary>
         /// Exoフィルタを作成する。
