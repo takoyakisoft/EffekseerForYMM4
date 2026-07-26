@@ -7,12 +7,12 @@ Group_Transform,group,描画,Drawing,渲染,描繪,그리기,Dibujar,رسم,Gamb
 Common_File_Name,name,ファイル,File,文件,檔案,파일,Archivo,ملف,File
 Common_File_Desc,desc,エフェクトファイル,Effect file,效果文件,效果檔案,효과 파일,Archivo de efecto,ملف التأثير,File efek
 Common_Loop_Name,name,ループ,Loop,循环,循環,반복,Bucle,تكرار,Loop
-Video_Loop_Desc,desc,エフェクトをループ再生する,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
+Video_Loop_Desc,desc,エフェクトをループ再生します。,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
 Audio_Volume_Name,name,音量,Volume,音量,音量,음량,Volumen,الصوت,Volume
 Audio_Volume_Desc,desc,音量,Volume,音量,音量,음량,Volumen,مستوى الصوت,Volume
-Audio_Loop_Desc,desc,映像と音声をループ再生する,Loop the effect video and sound.,循环播放效果画面和声音。,循環播放效果影像與聲音。,효과 영상과 소리를 반복 재생합니다.,Reproduce en bucle el video y el sonido del efecto.,يشغل صورة التأثير وصوته بشكل متكرر.,Memutar visual dan suara efek secara berulang.
+Audio_Loop_Desc,desc,映像と音声をループ再生します。,Loop the effect video and sound.,循环播放效果画面和声音。,循環播放效果影像與聲音。,효과 영상과 소리를 반복 재생합니다.,Reproduce en bucle el video y el sonido del efecto.,يشغل صورة التأثير وصوته بشكل متكرر.,Memutar visual dan suara efek secara berulang.
 Video_ScreenSize_Name,name,画面サイズ,Screen size,画面尺寸,畫面尺寸,화면 크기,Tamaño de pantalla,حجم الشاشة,Ukuran layar
-Video_ScreenSize_Desc,desc,画面サイズに合わせてレンダリングする,Render to match the screen size.,按画面尺寸进行渲染。,依畫面尺寸進行渲染。,화면 크기에 맞춰 렌더링합니다.,Renderiza ajustándose al tamaño de la pantalla.,يعرض بما يتوافق مع حجم الشاشة.,Render sesuai ukuran layar.
+Video_ScreenSize_Desc,desc,画面サイズに合わせてレンダリングします。,Render to match the screen size.,按画面尺寸进行渲染。,依畫面尺寸進行渲染。,화면 크기에 맞춰 렌더링합니다.,Renderiza ajustándose al tamaño de la pantalla.,يعرض بما يتوافق مع حجم الشاشة.,Render sesuai ukuran layar.
 Camera_X_Name,name,X,X,X,X,X,X,X,X
 Camera_X_Desc,desc,カメラの位置（横方向）,Camera position (horizontal),摄像机位置（水平）,攝像機位置（水平）,카메라 위치（가로 방향）,Posición de la cámara (horizontal),موضع الكاميرا (أفقي),Posisi kamera (horizontal)
 Camera_Y_Name,name,Y,Y,Y,Y,Y,Y,Y,Y
@@ -20,13 +20,13 @@ Camera_Y_Desc,desc,カメラの位置（縦方向）,Camera position (vertical),
 Camera_Z_Name,name,Z,Z,Z,Z,Z,Z,Z,Z
 Camera_Z_Desc,desc,カメラの位置（奥行き）,Camera position (depth),摄像机位置（深度）,攝像機位置（深度）,카메라 위치（깊이）,Posición de la cámara (profundidad),موضع الكاميرا (العمق),Posisi kamera (kedalaman)
 Video_Fov_Name,name,視野角,Field of View,视野角,視野角,시야각,Campo de visión,زاوية الرؤية,Sudut Pandang
-Video_Fov_Desc,desc,視野角(度),Field of view (degrees),视野角（度）,視野角（度）,시야각(도),Campo de visión (grados),زاوية الرؤية (درجة),Sudut pandang (derajat)
+Video_Fov_Desc,desc,視野角（度）,Field of view (degrees),视野角（度）,視野角（度）,시야각(도),Campo de visión (grados),زاوية الرؤية (درجة),Sudut pandang (derajat)
 Video_Projection_Name,name,投影,Projection,投影,投影,투영,Proyección,الإسقاط,Proyeksi
-Video_Projection_Desc,desc,遠近感を付けるか、平面的に表示するかを選びます。,Camera projection mode.,相机的投影方式。,相機的投影方式。,카메라 투영 방식입니다.,Modo de proyección de la cámara.,وضع إسقاط الكاميرا.,Mode proyeksi kamera.
+Video_Projection_Desc,desc,遠近感を付ける透視投影と、平面的に表示する正投影を切り替えます。,Camera projection mode.,相机的投影方式。,相機的投影方式。,카메라 투영 방식입니다.,Modo de proyección de la cámara.,وضع إسقاط الكاميرا.,Mode proyeksi kamera.
 Video_Projection_Perspective,ui,透視投影,Perspective,透视投影,透視投影,원근 투영,Perspectiva,إسقاط منظور,Perspektif
 Video_Projection_Orthographic,ui,正投影,Orthographic,正交投影,正交投影,직교 투영,Ortográfica,إسقاط متعامد,Ortografis
 Video_OrthographicSize_Name,name,正投影サイズ,Orthographic Size,正交尺寸,正交尺寸,직교 크기,Tamaño ortográfico,حجم الإسقاط المتعامد,Ukuran Ortografis
-Video_OrthographicSize_Desc,desc,平面的に表示するときの表示範囲を調整します。,Visible range for orthographic projection.,正交投影时的显示范围。,正交投影時的顯示範圍。,직교 투영 시 표시 범위입니다.,Rango visible para proyección ortográfica.,نطاق العرض عند الإسقاط المتعامد.,Rentang tampilan untuk proyeksi ortografis.
+Video_OrthographicSize_Desc,desc,正投影時の表示範囲を調整します。,Visible range for orthographic projection.,正交投影时的显示范围。,正交投影時的顯示範圍。,직교 투영 시 표시 범위입니다.,Rango visible para proyección ortográfica.,نطاق العرض عند الإسقاط المتعامد.,Rentang tampilan untuk proyeksi ortografis.
 Transform_Scale_Name,name,拡大率,Zoom,缩放率,放大率,확대율,Aumento,معدل التكبير,Pembesaran
 Transform_Scale_Desc,desc,拡大率,Zoom,缩放率,放大率,확대율,Aumento,معدل التكبير,Pembesaran
 Transform_PositionX_Name,name,X,X,X,X,X,X,X,X
@@ -45,6 +45,6 @@ Error_DialogTitle,title,Error,Error,错误,錯誤,오류,Error,خطأ,Error
 Error_EffectLoadFailed_Title,title,Effekseerファイルの読み込みに失敗しました,Failed to load the Effekseer file,加载 Effekseer 文件失败,載入 Effekseer 檔案失敗,Effekseer 파일을 불러오지 못했습니다,No se pudo cargar el archivo de Effekseer,تعذر تحميل ملف Effekseer,Gagal memuat file Effekseer
 Error_TargetPath_Label,label,対象パス,Target Path,目标路径,目標路徑,대상 경로,Ruta de destino,المسار الهدف,Jalur target
 Error_CheckEffectFiles,message,ファイルの種類と内容を確認してください。,Check the file type and contents.,请检查文件类型和内容。,請確認檔案類型與內容。,파일 형식과 내용을 확인하세요.,Comprueba el tipo y el contenido del archivo.,تحقق من نوع الملف ومحتواه.,Periksa jenis dan isi file.
-Error_InvalidEffectExtension,message,対応していない拡張子です。対応拡張子: {0},Unsupported file extension. Supported extensions: {0},不支持的扩展名。支持的扩展名: {0},不支援的副檔名。支援的副檔名: {0},지원하지 않는 확장자입니다. 지원 확장자: {0},Extensión de archivo no compatible. Extensiones compatibles: {0},امتداد ملف غير مدعوم. الامتدادات المدعومة: {0},Ekstensi file tidak didukung. Ekstensi yang didukung: {0}
+Error_InvalidEffectExtension,message,対応していない拡張子です。対応している拡張子：{0},Unsupported file extension. Supported extensions: {0},不支持的扩展名。支持的扩展名: {0},不支援的副檔名。支援的副檔名: {0},지원하지 않는 확장자입니다. 지원 확장자: {0},Extensión de archivo no compatible. Extensiones compatibles: {0},امتداد ملف غير مدعوم. الامتدادات المدعومة: {0},Ekstensi file tidak didukung. Ekstensi yang didukung: {0}
 Error_EffectFileNotFound,message,ファイルが見つかりません。,File not found.,找不到文件。,找不到檔案。,파일을 찾을 수 없습니다.,No se encontró el archivo.,تعذر العثور على الملف.,File tidak ditemukan.
-Error_EffectFilesMayBeInvalid,message,Effekseerファイルが壊れているか、参照ファイルが不足している可能性があります。,The Effekseer file may be invalid or required referenced files may be missing.,Effekseer 文件可能已损坏，或缺少所需的引用文件。,Effekseer 檔案可能已損壞，或缺少必要的參照檔案。,Effekseer 파일이 손상되었거나 필요한 참조 파일이 누락되었을 수 있습니다.,El archivo de Effekseer puede ser inválido o pueden faltar archivos referenciados requeridos.,قد يكون ملف Effekseer غير صالح أو قد تكون الملفات المرجعية المطلوبة مفقودة.,File Effekseer mungkin tidak valid atau file referensi yang dibutuhkan mungkin hilang.
+Error_EffectFilesMayBeInvalid,message,Effekseerファイルが壊れているか、必要な参照ファイルが不足している可能性があります。,The Effekseer file may be invalid or required referenced files may be missing.,Effekseer 文件可能已损坏，或缺少所需的引用文件。,Effekseer 檔案可能已損壞，或缺少必要的參照檔案。,Effekseer 파일이 손상되었거나 필요한 참조 파일이 누락되었을 수 있습니다.,El archivo de Effekseer puede ser inválido o pueden faltar archivos referenciados requeridos.,قد يكون ملف Effekseer غير صالح أو قد تكون الملفات المرجعية المطلوبة مفقودة.,File Effekseer mungkin tidak valid atau file referensi yang dibutuhkan mungkin hilang.

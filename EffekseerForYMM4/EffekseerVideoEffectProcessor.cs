@@ -97,7 +97,7 @@ namespace EffekseerForYMM4
         }
 
         /// <summary>
-        /// エフェクトに入力する映像を設定する
+        /// エフェクトに入力する映像を設定します。
         /// </summary>
         /// <param name="input"></param>
         public void SetInput(ID2D1Image? input)
@@ -107,7 +107,7 @@ namespace EffekseerForYMM4
         }
 
         /// <summary>
-        /// エフェクトに入力する映像をクリアする
+        /// エフェクトに入力する映像をクリアします。
         /// </summary>
         public void ClearInput()
         {
@@ -116,10 +116,10 @@ namespace EffekseerForYMM4
         }
 
         /// <summary>
-        /// エフェクトを更新する
+        /// エフェクトを更新します。
         /// </summary>
-        /// <param name="effectDescription">エフェクトの描画に必要な各種設定項目</param>
-        /// <returns>描画関連の設定項目</returns>
+        /// <param name="effectDescription">エフェクトの描画に必要な各種設定項目。</param>
+        /// <returns>描画関連の設定項目。</returns>
         public DrawDescription Update(EffectDescription effectDescription)
         {
             try

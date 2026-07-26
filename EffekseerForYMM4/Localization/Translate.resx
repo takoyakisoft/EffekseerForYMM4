@@ -67,12 +67,12 @@
 <data name="Common_File_Name" xml:space="preserve"><value>ファイル</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>エフェクトファイル</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>ループ</value></data>
-<data name="Video_Loop_Desc" xml:space="preserve"><value>エフェクトをループ再生する</value></data>
+<data name="Video_Loop_Desc" xml:space="preserve"><value>エフェクトをループ再生します。</value></data>
 <data name="Audio_Volume_Name" xml:space="preserve"><value>音量</value></data>
 <data name="Audio_Volume_Desc" xml:space="preserve"><value>音量</value></data>
-<data name="Audio_Loop_Desc" xml:space="preserve"><value>映像と音声をループ再生する</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>映像と音声をループ再生します。</value></data>
 <data name="Video_ScreenSize_Name" xml:space="preserve"><value>画面サイズ</value></data>
-<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>画面サイズに合わせてレンダリングする</value></data>
+<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>画面サイズに合わせてレンダリングします。</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
 <data name="Camera_X_Desc" xml:space="preserve"><value>カメラの位置（横方向）</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
@@ -80,13 +80,13 @@
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
 <data name="Camera_Z_Desc" xml:space="preserve"><value>カメラの位置（奥行き）</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>視野角</value></data>
-<data name="Video_Fov_Desc" xml:space="preserve"><value>視野角(度)</value></data>
+<data name="Video_Fov_Desc" xml:space="preserve"><value>視野角（度）</value></data>
 <data name="Video_Projection_Name" xml:space="preserve"><value>投影</value></data>
-<data name="Video_Projection_Desc" xml:space="preserve"><value>遠近感を付けるか、平面的に表示するかを選びます。</value></data>
+<data name="Video_Projection_Desc" xml:space="preserve"><value>遠近感を付ける透視投影と、平面的に表示する正投影を切り替えます。</value></data>
 <data name="Video_Projection_Perspective" xml:space="preserve"><value>透視投影</value></data>
 <data name="Video_Projection_Orthographic" xml:space="preserve"><value>正投影</value></data>
 <data name="Video_OrthographicSize_Name" xml:space="preserve"><value>正投影サイズ</value></data>
-<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>平面的に表示するときの表示範囲を調整します。</value></data>
+<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>正投影時の表示範囲を調整します。</value></data>
 <data name="Transform_Scale_Name" xml:space="preserve"><value>拡大率</value></data>
 <data name="Transform_Scale_Desc" xml:space="preserve"><value>拡大率</value></data>
 <data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
@@ -105,7 +105,7 @@
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>Effekseerファイルの読み込みに失敗しました</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>対象パス</value></data>
 <data name="Error_CheckEffectFiles" xml:space="preserve"><value>ファイルの種類と内容を確認してください。</value></data>
-<data name="Error_InvalidEffectExtension" xml:space="preserve"><value>対応していない拡張子です。対応拡張子: {0}</value></data>
+<data name="Error_InvalidEffectExtension" xml:space="preserve"><value>対応していない拡張子です。対応している拡張子：{0}</value></data>
 <data name="Error_EffectFileNotFound" xml:space="preserve"><value>ファイルが見つかりません。</value></data>
-<data name="Error_EffectFilesMayBeInvalid" xml:space="preserve"><value>Effekseerファイルが壊れているか、参照ファイルが不足している可能性があります。</value></data>
+<data name="Error_EffectFilesMayBeInvalid" xml:space="preserve"><value>Effekseerファイルが壊れているか、必要な参照ファイルが不足している可能性があります。</value></data>
 </root>

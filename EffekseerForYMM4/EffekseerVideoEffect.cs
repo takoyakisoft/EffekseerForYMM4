@@ -154,10 +154,10 @@ namespace EffekseerForYMM4
             EffekseerParameterSettings.AnimationMaximum);
 
         /// <summary>
-        /// Exoフィルタを作成する。
+        /// Exoフィルタを作成します。
         /// </summary>
-        /// <param name="keyFrameIndex">キーフレーム番号</param>
-        /// <param name="exoOutputDescription">exo出力に必要な各種情報</param>
+        /// <param name="keyFrameIndex">キーフレーム番号。</param>
+        /// <param name="exoOutputDescription">exo出力に必要な各種情報。</param>
         /// <returns></returns>
         public override IEnumerable<string> CreateExoVideoFilters(int keyFrameIndex, ExoOutputDescription exoOutputDescription)
         {
@@ -165,17 +165,17 @@ namespace EffekseerForYMM4
         }
 
         /// <summary>
-        /// 映像エフェクトを作成する
+        /// 映像エフェクトを作成します。
         /// </summary>
-        /// <param name="devices">デバイス</param>
-        /// <returns>映像エフェクト</returns>
+        /// <param name="devices">デバイス。</param>
+        /// <returns>映像エフェクト。</returns>
         public override IVideoEffectProcessor CreateVideoEffect(IGraphicsDevicesAndContext devices)
         {
             return new EffekseerVideoEffectProcessor(devices, this);
         }
 
         /// <summary>
-        /// クラス内のIAnimatableを列挙する。
+        /// クラス内のIAnimatableを列挙します。
         /// </summary>
         /// <returns></returns>
         protected override IEnumerable<IAnimatable> GetAnimatables() => [CamPosX, CamPosY, CamPosZ, Fov, OrthographicSize, Scale, PosX, PosY, PosZ, RotX, RotY, RotZ];
