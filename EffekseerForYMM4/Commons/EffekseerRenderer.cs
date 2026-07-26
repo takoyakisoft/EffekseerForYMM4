@@ -16,19 +16,34 @@ public sealed class EffekseerRenderer : IDisposable
         }
     }
 
-    public unsafe string? LastErrorMessage
+    public string? LastErrorMessage
     {
         get
         {
-            const int bufferSize = 2048;
-            byte* buffer = stackalloc byte[bufferSize];
-            var required = NativeMethods.RendererGetLastError(
-                GetHandle(),
-                (IntPtr)buffer,
-                bufferSize);
-            return required <= 1
-                ? null
-                : Marshal.PtrToStringUTF8((IntPtr)buffer);
+            var currentHandle = GetHandle();
+            var required = NativeMethods.RendererGetLastError(currentHandle, IntPtr.Zero, 0);
+            while (required > 1)
+            {
+                var buffer = Marshal.AllocHGlobal(required);
+                try
+                {
+                    var actualRequired = NativeMethods.RendererGetLastError(currentHandle, buffer, required);
+                    if (actualRequired <= required)
+                    {
+                        return actualRequired <= 1
+                            ? null
+                            : Marshal.PtrToStringUTF8(buffer);
+                    }
+
+                    required = actualRequired;
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buffer);
+                }
+            }
+
+            return null;
         }
     }
 

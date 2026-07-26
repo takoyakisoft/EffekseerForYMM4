@@ -31,7 +31,8 @@ jobs:
           $xmlFiles = @(
             ".\Directory.Build.targets",
             ".\EffekseerForYMM4\EffekseerForYMM4.csproj",
-            ".\EffekseerForNative\EffekseerForNative.vcxproj"
+            ".\EffekseerForNative\EffekseerForNative.vcxproj",
+            ".\EffekseerForNative.Tests\EffekseerForNative.Tests.vcxproj"
           )
           foreach ($file in $xmlFiles) {
             try {

@@ -29,7 +29,7 @@ function Get-RelativePathFromBase {
 }
 
 $root = Split-Path -Parent $PSScriptRoot
-$readmePath = Join-Path $root "Packaging\Readme.txt"
+$readmePath = Join-Path $root "packaging\Readme.txt"
 $licensePath = Join-Path $root "LICENSE.txt"
 if (-not (Test-Path -LiteralPath $readmePath -PathType Leaf)) {
     throw "Readme.txt was not found: $readmePath"

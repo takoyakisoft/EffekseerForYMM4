@@ -23,7 +23,7 @@ public sealed class UnicodePathInteropTests
 
     [Theory]
     [MemberData(nameof(FileNames))]
-    public void LoadEffect_AcceptsUnicodePathAcrossNativeAbi(string relativePath)
+    public void LoadEffect_ConvertsUnicodePathAcrossNativeAbiWithoutThrowing(string relativePath)
     {
         using var renderer = new EffekseerForNative.EffekseerRenderer();
         var path = Path.Combine(Path.GetTempPath(), relativePath);

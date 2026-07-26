@@ -86,11 +86,27 @@ jobs:
 
       - name: Restore NuGet packages
         shell: pwsh
-        run: dotnet restore .\EffekseerForYMM4\EffekseerForYMM4.csproj
+        run: dotnet restore .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj
 
       - name: Build plugin
         shell: pwsh
         run: msbuild .\EffekseerForYMM4\EffekseerForYMM4.csproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Build managed tests
+        shell: pwsh
+        run: msbuild .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Run managed tests
+        shell: pwsh
+        run: dotnet test .\EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj --configuration Release --no-build --no-restore -p:Platform=x64
+
+      - name: Build native Unicode file I/O test
+        shell: pwsh
+        run: msbuild .\EffekseerForNative.Tests\EffekseerForNative.Tests.vcxproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Run native Unicode file I/O test
+        shell: pwsh
+        run: .\EffekseerForNative.Tests\bin\Release\EffekseerForNative.Tests.exe
 
       - name: Create BOOTH package
         shell: pwsh
