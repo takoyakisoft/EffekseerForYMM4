@@ -6,21 +6,20 @@ using YukkuriMovieMaker.Controls;
 
 namespace EffekseerForYMM4;
 
-internal sealed class ProjectionAnimationSliderAttribute : PropertyEditorAttribute2
+internal sealed class ProjectionAnimationSliderAttribute(
+    ProjectionMode enabledMode,
+    string format,
+    string unit,
+    double sliderMinimum,
+    double sliderMaximum) : PropertyEditorAttribute2
 {
-    private readonly AnimationSliderAttribute innerAttribute;
-    private readonly ProjectionMode enabledMode;
+    private readonly AnimationSliderAttribute innerAttribute = new(format, unit, sliderMinimum, sliderMaximum);
 
-    public ProjectionAnimationSliderAttribute(
-        ProjectionMode enabledMode,
-        string format,
-        string unit,
-        double sliderMinimum,
-        double sliderMaximum)
-    {
-        this.enabledMode = enabledMode;
-        innerAttribute = new AnimationSliderAttribute(format, unit, sliderMinimum, sliderMaximum);
-    }
+    public ProjectionMode EnabledMode { get; } = enabledMode;
+    public string Format { get; } = format;
+    public string Unit { get; } = unit;
+    public double SliderMinimum { get; } = sliderMinimum;
+    public double SliderMaximum { get; } = sliderMaximum;
 
     public override FrameworkElement Create() => innerAttribute.Create();
 
@@ -32,7 +31,7 @@ internal sealed class ProjectionAnimationSliderAttribute : PropertyEditorAttribu
         {
             Mode = BindingMode.OneWay,
             Converter = ProjectionModeEnabledConverter.Instance,
-            ConverterParameter = enabledMode,
+            ConverterParameter = EnabledMode,
         };
 
         foreach (var itemProperty in itemProperties)

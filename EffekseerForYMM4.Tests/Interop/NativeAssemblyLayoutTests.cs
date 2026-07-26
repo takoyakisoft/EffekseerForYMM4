@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace EffekseerForYMM4.Tests;
+namespace EffekseerForYMM4.Tests.Interop;
 
 public sealed class NativeAssemblyLayoutTests
 {

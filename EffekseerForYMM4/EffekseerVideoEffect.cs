@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using EffekseerForYMM4.Commons.CustomPropertyEditor;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Controls;
@@ -26,12 +27,7 @@ namespace EffekseerForYMM4
             };
         }
 
-        public override string Label => Name;
-
-        /// <summary>
-        /// プラグインの名前
-        /// </summary>
-        public string Name => Translate.Plugin_VideoEffect_Name;
+        public override string Label => Translate.Plugin_VideoEffect_Name;
 
         [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_File_Name), Description = nameof(Translate.Common_File_Desc), ResourceType = typeof(Translate))]
         [FileSelector(YukkuriMovieMaker.Settings.FileGroupType.None)]
@@ -67,6 +63,10 @@ namespace EffekseerForYMM4
         }
         ProjectionMode projectionMode = ProjectionMode.Perspective;
 
+        [SuppressMessage(
+            "Performance",
+            "CA1822:Mark members as static",
+            Justification = "ShouldSerialize methods must remain instance methods for serializer convention discovery.")]
         public bool ShouldSerializeProjection() => false;
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]

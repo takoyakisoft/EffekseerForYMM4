@@ -10,7 +10,7 @@ public abstract class CustomComboBoxViewModelBase : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public ObservableCollection<CustomComboBoxValueBase> ItemsSource { get; } = [];
-    public bool IsEnabled => true;
+    public virtual bool IsEnabled => true;
 
     public virtual CustomComboBoxValueBase SelectedValue
     {

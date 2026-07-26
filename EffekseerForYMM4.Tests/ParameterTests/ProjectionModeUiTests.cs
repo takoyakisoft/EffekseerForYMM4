@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace EffekseerForYMM4.Tests;
+namespace EffekseerForYMM4.Tests.ParameterTests;
 
 public sealed class ProjectionModeUiTests
 {
@@ -11,12 +11,10 @@ public sealed class ProjectionModeUiTests
         var parameterPath = Path.Combine(
             root,
             "EffekseerForYMM4",
-            "EffekseerVideoEffect",
             "EffekseerVideoEffect.cs");
         var processorPath = Path.Combine(
             root,
             "EffekseerForYMM4",
-            "EffekseerVideoEffect",
             "EffekseerVideoEffectProcessor.cs");
         var parameterSource = File.ReadAllText(parameterPath);
         var processorSource = File.ReadAllText(processorPath);

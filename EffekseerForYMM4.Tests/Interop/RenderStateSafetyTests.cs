@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace EffekseerForYMM4.Tests;
+namespace EffekseerForYMM4.Tests.Interop;
 
 public sealed class RenderStateSafetyTests
 {
@@ -11,11 +11,10 @@ public sealed class RenderStateSafetyTests
         var processorPath = Path.Combine(
             root,
             "EffekseerForYMM4",
-            "EffekseerVideoEffect",
             "EffekseerVideoEffectProcessor.cs");
         var source = File.ReadAllText(processorPath);
 
-        Assert.Contains("private static readonly object RenderLock = new();", source, StringComparison.Ordinal);
+        Assert.Contains("private static readonly Lock RenderLock = new();", source, StringComparison.Ordinal);
         var animationIndex = source.IndexOf("double animFrame", StringComparison.Ordinal);
         Assert.True(animationIndex >= 0);
         var renderLockIndex = source.IndexOf("lock (RenderLock)", animationIndex, StringComparison.Ordinal);
@@ -47,7 +46,6 @@ public sealed class RenderStateSafetyTests
         var processorPath = Path.Combine(
             root,
             "EffekseerForYMM4",
-            "EffekseerVideoEffect",
             "EffekseerVideoEffectProcessor.cs");
         var source = File.ReadAllText(processorPath);
 

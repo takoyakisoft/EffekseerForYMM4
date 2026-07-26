@@ -6,7 +6,7 @@ namespace EffekseerForYMM4.Diagnostics;
 internal sealed class BoundedLogFile(string path, long maximumBytes, long retainedBytes)
 {
     private static readonly UTF8Encoding Utf8WithoutBom = new(false);
-    private readonly object sync = new();
+    private readonly Lock sync = new();
 
     internal string Path { get; } = path;
 

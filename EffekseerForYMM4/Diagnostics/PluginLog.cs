@@ -25,7 +25,7 @@ internal static class PluginLog
     private const string LogFileName = $"{PluginName}.log";
     private const string LogLevelEnvironmentVariable = "EFFEKSEERFORYMM4_LOG_LEVEL";
 
-    private static readonly object InitializationSync = new();
+    private static readonly Lock InitializationSync = new();
     private static bool initialized;
     private static BoundedLogFile? file;
     private static PluginLogLevel minimumLevel;
@@ -77,7 +77,27 @@ internal static class PluginLog
                 WriteCore(PluginLogLevel.Warning, message, null);
 #endif
             }
-            catch
+            catch (IOException)
+            {
+                file = null;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                file = null;
+            }
+            catch (System.Security.SecurityException)
+            {
+                file = null;
+            }
+            catch (ArgumentException)
+            {
+                file = null;
+            }
+            catch (NotSupportedException)
+            {
+                file = null;
+            }
+            catch (InvalidOperationException)
             {
                 file = null;
             }
@@ -148,7 +168,27 @@ internal static class PluginLog
         {
             file.WriteLine(FormatLine(DateTimeOffset.Now, level, message, exception));
         }
-        catch
+        catch (IOException)
+        {
+            // Diagnostics must never affect rendering or plugin loading.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Diagnostics must never affect rendering or plugin loading.
+        }
+        catch (System.Security.SecurityException)
+        {
+            // Diagnostics must never affect rendering or plugin loading.
+        }
+        catch (ArgumentException)
+        {
+            // Diagnostics must never affect rendering or plugin loading.
+        }
+        catch (NotSupportedException)
+        {
+            // Diagnostics must never affect rendering or plugin loading.
+        }
+        catch (InvalidOperationException)
         {
             // Diagnostics must never affect rendering or plugin loading.
         }

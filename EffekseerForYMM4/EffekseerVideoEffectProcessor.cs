@@ -1,4 +1,7 @@
 using System.Numerics;
+using System.Collections.Concurrent;
+using System.Globalization;
+using System.Text;
 using Vortice.DCommon;
 using Vortice.Direct2D1;
 using Vortice.Direct3D11;
@@ -30,24 +33,24 @@ namespace EffekseerForYMM4
         public ID2D1Image Output { get; private set; }
 
         ID2D1Bitmap1? bitmap;
-        Vortice.Direct2D1.Effects.Composite compositeEffect;
-        Vortice.Direct2D1.Effects.AffineTransform2D transformEffect;
+        readonly Vortice.Direct2D1.Effects.Composite compositeEffect;
+        readonly Vortice.Direct2D1.Effects.AffineTransform2D transformEffect;
 
         private EffekseerForNative.EffekseerRenderer? nativeRenderer;
 
-        private ID3D11Device d3dDevice;
+        private readonly ID3D11Device d3dDevice;
         private ID3D11Texture2D? renderTargetTexture;
         private ID3D11RenderTargetView? renderTargetView;
         private ID3D11Texture2D? depthStencilTexture;
         private ID3D11DepthStencilView? depthStencilView;
-        private IGraphicsDevicesAndContext _devices;
+        private readonly IGraphicsDevicesAndContext _devices;
 
         private TimeSpan _duration = TimeSpan.Zero;
         public TimeSpan Duration => _duration;
-        private int lastWidth = 0;
-        private int lastHeight = 0;
+        private int lastWidth;
+        private int lastHeight;
 
-        private string? loadedFilePath = null;
+        private string? loadedFilePath;
         private bool hasLoadedEffect;
         private int loadedTotalFrames;
         private bool hasPreviousItemFrame;
@@ -73,7 +76,8 @@ namespace EffekseerForYMM4
         private float appliedScale;
         private ID2D1Image? inputImage;
         private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
-        private static readonly object RenderLock = new();
+        private static readonly Lock RenderLock = new();
+        private static readonly ConcurrentDictionary<string, CompositeFormat> MessageFormats = new(StringComparer.Ordinal);
         private string? lastUpdateErrorKey;
 
         public EffekseerVideoEffectProcessor(IGraphicsDevicesAndContext devices, EffekseerVideoEffect item)
@@ -143,9 +147,8 @@ namespace EffekseerForYMM4
         {
             if (inputImage == null)
                 return effectDescription.DrawDescription;
-
-            int width = 0;
-            int height = 0;
+            int width;
+            int height;
             if (item.IsScreenSize)
             {
                 width = (int)Math.Max(1, effectDescription.ScreenSize.Width);
@@ -211,7 +214,14 @@ namespace EffekseerForYMM4
                     {
                         loadedFilePath = item.FilePath;
                         hasLoadedEffect = false;
-                        loadErrorNotifier.ShowIfNeeded(item.FilePath, string.Format(Translate.Error_InvalidEffectExtension, ".efk, .efkefc"));
+                        loadErrorNotifier.ShowIfNeeded(
+                            item.FilePath,
+                            string.Format(
+                                CultureInfo.CurrentCulture,
+                                MessageFormats.GetOrAdd(
+                                    Translate.Error_InvalidEffectExtension,
+                                    static format => CompositeFormat.Parse(format)),
+                                ".efk, .efkefc"));
                     }
                     else if (!System.IO.File.Exists(item.FilePath))
                     {
@@ -575,12 +585,8 @@ namespace EffekseerForYMM4
             Output?.Dispose();
             transformEffect?.Dispose();
             compositeEffect?.Dispose();
-
-            if (nativeRenderer != null)
-            {
-                nativeRenderer.Dispose();
-                nativeRenderer = null;
-            }
+            nativeRenderer?.Dispose();
+            nativeRenderer = null;
 
 
             GC.SuppressFinalize(this);

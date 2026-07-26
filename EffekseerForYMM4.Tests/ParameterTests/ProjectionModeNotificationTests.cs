@@ -1,12 +1,12 @@
 using System.ComponentModel;
 using System.Reflection;
 
-namespace EffekseerForYMM4.Tests;
+namespace EffekseerForYMM4.Tests.ParameterTests;
 
 public sealed class ProjectionModeNotificationTests
 {
     [Fact]
-    public void ComboBoxSelection_NotifiesOwningEffectParameter()
+    public void ComboBoxSelectionNotifiesOwningEffectParameter()
     {
         var effectType = typeof(EffekseerForNative.EffekseerRenderer).Assembly
             .GetType("EffekseerForYMM4.EffekseerVideoEffect", throwOnError: true)!;
@@ -34,7 +34,7 @@ public sealed class ProjectionModeNotificationTests
     }
 
     [Fact]
-    public void SerializedProjectionMode_IsPreservedBeforeComboBoxLoads()
+    public void SerializedProjectionModeIsPreservedBeforeComboBoxLoads()
     {
         var effectType = typeof(EffekseerForNative.EffekseerRenderer).Assembly
             .GetType("EffekseerForYMM4.EffekseerVideoEffect", throwOnError: true)!;

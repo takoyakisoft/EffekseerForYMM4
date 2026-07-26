@@ -2,7 +2,9 @@ using System.Runtime.InteropServices;
 using EffekseerForYMM4.Commons;
 using EffekseerForYMM4.Diagnostics;
 
+#pragma warning disable IDE0130 // The public interop namespace is part of the plugin's compatibility contract.
 namespace EffekseerForNative;
+#pragma warning restore IDE0130
 
 public sealed class EffekseerRenderer : IDisposable
 {

@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 
-namespace EffekseerForYMM4.Tests;
+namespace EffekseerForYMM4.Tests.Interop;
 
 public sealed class UnicodePathInteropTests
 {
@@ -15,15 +15,15 @@ public sealed class UnicodePathInteropTests
         "e\u0301_\u00E9.efkefc",
         Path.Combine("\u65E5\u672C\u8A9E\u30D5\u30A9\u30EB\u30C0", "emoji_\U0001F680.efkefc"),
         Path.Combine(
-            Enumerable
-                .Repeat("long-path-segment", 20)
-                .Append("\u9577\u3044\u30D1\u30B9.efkefc")
-                .ToArray()),
+            [
+                .. Enumerable.Repeat("long-path-segment", 20),
+                "\u9577\u3044\u30D1\u30B9.efkefc",
+            ]),
     ];
 
     [Theory]
     [MemberData(nameof(FileNames))]
-    public void LoadEffect_ConvertsUnicodePathAcrossNativeAbiWithoutThrowing(string relativePath)
+    public void LoadEffectConvertsUnicodePathAcrossNativeAbiWithoutThrowing(string relativePath)
     {
         using var renderer = new EffekseerForNative.EffekseerRenderer();
         var path = Path.Combine(Path.GetTempPath(), relativePath);
