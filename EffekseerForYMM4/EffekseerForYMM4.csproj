@@ -54,17 +54,17 @@
 	</ItemGroup>
 
 	<Target Name="PreparePluginPayload" BeforeTargets="PostBuild">
-		<MakeDir Directories="$(TargetDir)nativepayload" />
-		<Delete Files="$(TargetDir)nativepayload\Ijwhost.bin;$(TargetDir)nativepayload\EffekseerForNative.pdb.bin;$(TargetDir)Ijwhost.dll" />
-		<Copy SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.dll" DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.bin" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.pdb" DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.pdb.bin" SkipUnchangedFiles="true" Condition="'$(Configuration)' == 'Debug' And Exists('$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.pdb')" />
+		<RemoveDir Directories="$(TargetDir)nativepayload" Condition="Exists('$(TargetDir)nativepayload')" />
+		<Delete Files="$(TargetDir)Ijwhost.dll;$(TargetDir)EffekseerForNative.dll;$(TargetDir)EffekseerForNative.pdb" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.dll" DestinationFiles="$(TargetDir)EffekseerForNative.dll" SkipUnchangedFiles="true" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.pdb" DestinationFiles="$(TargetDir)EffekseerForNative.pdb" SkipUnchangedFiles="true" Condition="'$(Configuration)' == 'Debug' And Exists('$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.pdb')" />
 	</Target>
 
 	<!--ビルド後にYMM4のプラグインフォルダにdllをコピーする-->
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(YMM4DirPath)' != ''">
 		<Exec
 			Condition="Exists('$(YMM4DirPath)')"
-			Command="mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\EffekseerForNative.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\EffekseerForNative.pdb&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\nativepayload\Ijwhost.bin&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\nativepayload\EffekseerForNative.pdb.bin&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\EffekseerForNative.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\EffekseerForNative.pdb&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;for %%F in (&quot;$(TargetDir)*.*&quot;) do (&#xD;&#xA;  if /I not &quot;%%~nxF&quot;==&quot;EffekseerForNative.dll&quot; if /I not &quot;%%~nxF&quot;==&quot;EffekseerForNative.pdb&quot; copy &quot;%%~fF&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\&quot; /Y &gt; NUL&#xD;&#xA;)&#xD;&#xA;for /d %%D in (&quot;$(TargetDir)*&quot;) do (&#xD;&#xA;  mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;  xcopy &quot;%%~fD\*&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD\&quot; /Y /I /S /E &gt; NUL&#xD;&#xA;)" />
+			Command="mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;rmdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\nativepayload&quot; /S /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;rmdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\native&quot; /S /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;del &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\Ijwhost.dll&quot; /Q &gt; NUL 2&gt;&amp;1&#xD;&#xA;for %%F in (&quot;$(TargetDir)*.*&quot;) do (&#xD;&#xA;  copy &quot;%%~fF&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\&quot; /Y &gt; NUL&#xD;&#xA;)&#xD;&#xA;for /d %%D in (&quot;$(TargetDir)*&quot;) do (&#xD;&#xA;  mkdir &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD&quot; &gt; NUL 2&gt;&amp;1&#xD;&#xA;  xcopy &quot;%%~fD\*&quot; &quot;$(YMM4DirPath)user\plugin\$(ProjectName)\%%~nxD\&quot; /Y /I /S /E &gt; NUL&#xD;&#xA;)" />
 	</Target>
 
 </Project>

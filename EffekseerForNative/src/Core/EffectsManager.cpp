@@ -1,5 +1,6 @@
 #include "EffectsManager.h"
 
+#include <array>
 #include <functional>
 #include <string>
 #include <Windows.h>
@@ -115,7 +116,13 @@ bool EffectsManager::LoadEffect(const std::filesystem::path& path)
     lastEffekseerErrorUtf8.clear();
 
     const auto effectPath = ToUtf16PathString(path);
-    const auto directoryPath = ToUtf16PathString(path.parent_path());
+    auto directoryPath = ToUtf16PathString(path.parent_path());
+    if (!directoryPath.empty() &&
+        directoryPath.back() != u'\\' &&
+        directoryPath.back() != u'/')
+    {
+        directoryPath.push_back(u'\\');
+    }
     auto effect = ::Effekseer::Effect::Create(
         manager_->GetSetting(),
         effectPath.c_str(),
@@ -192,9 +199,17 @@ void EffectsManager::Draw(
     }
 
     auto* context = renderer_->GetContext();
-    ID3D11RenderTargetView* previousRenderTarget = nullptr;
+
+    std::array<ID3D11RenderTargetView*, D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT> previousRenderTargets{};
     ID3D11DepthStencilView* previousDepthStencil = nullptr;
-    context->OMGetRenderTargets(1, &previousRenderTarget, &previousDepthStencil);
+    context->OMGetRenderTargets(
+        static_cast<UINT>(previousRenderTargets.size()),
+        previousRenderTargets.data(),
+        &previousDepthStencil);
+
+    std::array<D3D11_VIEWPORT, D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE> previousViewports{};
+    UINT previousViewportCount = static_cast<UINT>(previousViewports.size());
+    context->RSGetViewports(&previousViewportCount, previousViewports.data());
 
     constexpr float clearColor[4] = {};
     context->ClearRenderTargetView(renderTarget, clearColor);
@@ -221,10 +236,20 @@ void EffectsManager::Draw(
     manager_->Draw();
     renderer_->EndRendering();
 
-    context->OMSetRenderTargets(1, &previousRenderTarget, previousDepthStencil);
-    if (previousRenderTarget != nullptr)
+    context->RSSetViewports(
+        previousViewportCount,
+        previousViewportCount == 0 ? nullptr : previousViewports.data());
+    context->OMSetRenderTargets(
+        static_cast<UINT>(previousRenderTargets.size()),
+        previousRenderTargets.data(),
+        previousDepthStencil);
+
+    for (auto* previousRenderTarget : previousRenderTargets)
     {
-        previousRenderTarget->Release();
+        if (previousRenderTarget != nullptr)
+        {
+            previousRenderTarget->Release();
+        }
     }
     if (previousDepthStencil != nullptr)
     {

@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <Target Name="PrepareNativeTestPayload" AfterTargets="Build">
-    <MakeDir Directories="$(TargetDir)nativepayload" />
+    <RemoveDir Directories="$(TargetDir)nativepayload" Condition="Exists('$(TargetDir)nativepayload')" />
     <Copy
       SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.dll"
-      DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.bin"
+      DestinationFiles="$(TargetDir)EffekseerForNative.dll"
       SkipUnchangedFiles="true" />
   </Target>
 

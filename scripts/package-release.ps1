@@ -46,7 +46,7 @@ if (-not (Test-Path -LiteralPath $sourcePluginDirectory -PathType Container)) {
 
 $requiredFiles = @(
     "EffekseerForYMM4.dll",
-    "nativepayload\EffekseerForNative.bin"
+    "EffekseerForNative.dll"
 )
 foreach ($relativePath in $requiredFiles) {
     $requiredPath = Join-Path $sourcePluginDirectory $relativePath
@@ -57,12 +57,14 @@ foreach ($relativePath in $requiredFiles) {
 
 $forbiddenFiles = @(
     "Ijwhost.dll",
-    "nativepayload\Ijwhost.bin"
+    "EffekseerForNative.bin",
+    "nativepayload",
+    "native"
 )
 foreach ($relativePath in $forbiddenFiles) {
     $forbiddenPath = Join-Path $sourcePluginDirectory $relativePath
     if (Test-Path -LiteralPath $forbiddenPath) {
-        throw "C++/CLI runtime file must not be packaged: $forbiddenPath"
+        throw "Legacy native layout/runtime file must not be packaged: $forbiddenPath"
     }
 }
 
@@ -87,8 +89,7 @@ Remove-Item -LiteralPath $stageRoot -Recurse -Force -ErrorAction SilentlyContinu
 New-Item -ItemType Directory -Force -Path $packageRoot | Out-Null
 
 Copy-Item -LiteralPath (Join-Path $sourcePluginDirectory "EffekseerForYMM4.dll") -Destination $packageRoot -Force
-New-Item -ItemType Directory -Force -Path (Join-Path $packageRoot "nativepayload") | Out-Null
-Copy-Item -LiteralPath (Join-Path $sourcePluginDirectory "nativepayload\EffekseerForNative.bin") -Destination (Join-Path $packageRoot "nativepayload") -Force
+Copy-Item -LiteralPath (Join-Path $sourcePluginDirectory "EffekseerForNative.dll") -Destination $packageRoot -Force
 
 Get-ChildItem -LiteralPath $sourcePluginDirectory -Recurse -File -Filter "EffekseerForYMM4.resources.dll" |
     ForEach-Object {
@@ -145,7 +146,7 @@ $ymmeArchive = [System.IO.Compression.ZipFile]::OpenRead($ymmePath)
 try {
     $requiredEntries = @(
         "EffekseerForYMM4/EffekseerForYMM4.dll",
-        "EffekseerForYMM4/nativepayload/EffekseerForNative.bin",
+        "EffekseerForYMM4/EffekseerForNative.dll",
         "EffekseerForYMM4/Readme.txt",
         "EffekseerForYMM4/LICENSE.txt"
     )

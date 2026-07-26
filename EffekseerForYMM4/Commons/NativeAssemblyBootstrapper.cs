@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 
 namespace EffekseerForYMM4.Commons;
 
@@ -13,12 +12,7 @@ internal static class NativeAssemblyBootstrapper
     private const string NativeLibraryFileName = $"{NativeLibraryName}.dll";
     private static readonly string PluginDirectory =
         Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
-    private static readonly string PayloadDirectory = Path.Combine(PluginDirectory, "nativepayload");
-    private static readonly string CacheRootDirectory = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "YukkuriMovieMaker",
-        "PluginCache",
-        "EffekseerForYMM4");
+
     [SuppressMessage("Usage", "CA2255:ModuleInitializer 属性はライブラリ コードで使用しないでください", Justification = "The native C ABI resolver must be registered before the first P/Invoke call.")]
     [ModuleInitializer]
     internal static void Initialize()
@@ -35,64 +29,16 @@ internal static class NativeAssemblyBootstrapper
             return IntPtr.Zero;
         }
 
-        var cachePath = PrepareNativeLibrary();
-        if (cachePath != null && NativeLibrary.TryLoad(cachePath, out var cacheHandle))
+        var pluginPath = Path.Combine(PluginDirectory, NativeLibraryFileName);
+        if (NativeLibrary.TryLoad(pluginPath, out var pluginHandle))
         {
-            return cacheHandle;
+            return pluginHandle;
         }
 
         var developmentPath = Path.Combine(AppContext.BaseDirectory, NativeLibraryFileName);
-        return NativeLibrary.TryLoad(developmentPath, out var developmentHandle)
+        return !string.Equals(pluginPath, developmentPath, StringComparison.OrdinalIgnoreCase) &&
+            NativeLibrary.TryLoad(developmentPath, out var developmentHandle)
             ? developmentHandle
             : IntPtr.Zero;
-    }
-
-    private static string? PrepareNativeLibrary()
-    {
-        var sourcePath = Path.Combine(PayloadDirectory, "EffekseerForNative.bin");
-        if (!File.Exists(sourcePath))
-        {
-            return null;
-        }
-
-        var fingerprint = ComputeFingerprint(sourcePath);
-        var cacheDirectory = Path.Combine(CacheRootDirectory, fingerprint);
-        Directory.CreateDirectory(cacheDirectory);
-
-        var destinationPath = Path.Combine(cacheDirectory, NativeLibraryFileName);
-        CopyIfMissing(sourcePath, destinationPath);
-
-        var pdbSource = Path.Combine(PayloadDirectory, "EffekseerForNative.pdb.bin");
-        if (File.Exists(pdbSource))
-        {
-            CopyIfMissing(pdbSource, Path.Combine(cacheDirectory, "EffekseerForNative.pdb"));
-        }
-
-        return destinationPath;
-    }
-
-    private static string ComputeFingerprint(string path)
-    {
-        using var stream = File.OpenRead(path);
-        return Convert.ToHexString(SHA256.HashData(stream));
-    }
-
-    private static void CopyIfMissing(string sourcePath, string destinationPath)
-    {
-        if (File.Exists(destinationPath))
-        {
-            return;
-        }
-
-        try
-        {
-            File.Copy(sourcePath, destinationPath, overwrite: false);
-        }
-        catch (IOException) when (File.Exists(destinationPath))
-        {
-        }
-        catch (UnauthorizedAccessException) when (File.Exists(destinationPath))
-        {
-        }
     }
 }

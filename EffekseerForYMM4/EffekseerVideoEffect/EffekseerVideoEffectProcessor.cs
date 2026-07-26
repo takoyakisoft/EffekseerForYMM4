@@ -41,6 +41,7 @@ namespace EffekseerForYMM4
         private double renderedFrame;
         private ID2D1Image? inputImage;
         private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
+        private static readonly object RenderLock = new();
 
         public EffekseerVideoEffectProcessor(IGraphicsDevicesAndContext devices, EffekseerVideoEffect item)
         {
@@ -193,59 +194,62 @@ namespace EffekseerForYMM4
                     targetFrame += totalFrames;
             }
 
-            double animFrame = frame;
-            float camX = (float)item.CamPosX.GetValue((long)animFrame, length, safeFps);
-            float camY = (float)item.CamPosY.GetValue((long)animFrame, length, safeFps);
-            float camZ = (float)item.CamPosZ.GetValue((long)animFrame, length, safeFps);
-            float posX = (float)item.PosX.GetValue((long)animFrame, length, safeFps);
-            float posY = (float)item.PosY.GetValue((long)animFrame, length, safeFps);
-            float posZ = (float)item.PosZ.GetValue((long)animFrame, length, safeFps);
-            float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-            float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-            float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
-            float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
-            float scale = scalePercent <= 0f ? 0f : Math.Max(scalePercent / 100.0f, 0.0001f);
+            lock (RenderLock)
+            {
+                double animFrame = frame;
+                float camX = (float)item.CamPosX.GetValue((long)animFrame, length, safeFps);
+                float camY = (float)item.CamPosY.GetValue((long)animFrame, length, safeFps);
+                float camZ = (float)item.CamPosZ.GetValue((long)animFrame, length, safeFps);
+                float posX = (float)item.PosX.GetValue((long)animFrame, length, safeFps);
+                float posY = (float)item.PosY.GetValue((long)animFrame, length, safeFps);
+                float posZ = (float)item.PosZ.GetValue((long)animFrame, length, safeFps);
+                float rotX = (float)item.RotX.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float rotY = (float)item.RotY.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float rotZ = (float)item.RotZ.GetValue((long)animFrame, length, safeFps) * MathF.PI / 180f;
+                float scalePercent = (float)item.Scale.GetValue((long)animFrame, length, safeFps);
+                float scale = scalePercent <= 0f ? 0f : Math.Max(scalePercent / 100.0f, 0.0001f);
 
-            nativeRenderer.SetCameraLookAt(
-                camX, camY, camZ,
-                camX, camY, 0,
-                0, 1, 0);
+                nativeRenderer.SetCameraLookAt(
+                    camX, camY, camZ,
+                    camX, camY, 0,
+                    0, 1, 0);
 
-            float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
-            if (item.ProjectionMode == ProjectionMode.Orthographic)
-            {
-                var orthographicHeight = Math.Max(
-                    0.001f,
-                    (float)item.OrthographicSize.GetValue((long)animFrame, length, safeFps));
-                var orthographicWidth = orthographicHeight * width / Math.Max(1.0f, height);
-                nativeRenderer.SetProjectionOrthographic(orthographicWidth, orthographicHeight, 1.0f, 2000.0f);
-            }
-            else
-            {
-                nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
-            }
-            nativeRenderer.SetLocation(posX, posY, posZ);
-            nativeRenderer.SetRotation(rotX, rotY, rotZ);
-            nativeRenderer.SetScale(scale);
+                float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
+                if (item.ProjectionMode == ProjectionMode.Orthographic)
+                {
+                    var orthographicHeight = Math.Max(
+                        0.001f,
+                        (float)item.OrthographicSize.GetValue((long)animFrame, length, safeFps));
+                    var orthographicWidth = orthographicHeight * width / Math.Max(1.0f, height);
+                    nativeRenderer.SetProjectionOrthographic(orthographicWidth, orthographicHeight, 1.0f, 2000.0f);
+                }
+                else
+                {
+                    nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
+                }
+                nativeRenderer.SetLocation(posX, posY, posZ);
+                nativeRenderer.SetRotation(rotX, rotY, rotZ);
+                nativeRenderer.SetScale(scale);
 
-            if (targetFrame < renderedFrame)
-            {
-                ReplayRendererToTargetFrame(targetFrame);
-            }
-            else
-            {
-                AdvanceRenderer((float)(targetFrame - renderedFrame));
-                renderedFrame = targetFrame;
-            }
+                if (targetFrame < renderedFrame)
+                {
+                    ReplayRendererToTargetFrame(targetFrame);
+                }
+                else
+                {
+                    AdvanceRenderer((float)(targetFrame - renderedFrame));
+                    renderedFrame = targetFrame;
+                }
 
-            transformEffect.TransformMatrix = Matrix3x2.CreateTranslation(-width / 2f, -height / 2f);
-            if (renderTargetView != null && depthStencilView != null)
-            {
-                nativeRenderer.Render(
-                    renderTargetView.NativePointer,
-                    depthStencilView.NativePointer,
-                    width,
-                    height);
+                transformEffect.TransformMatrix = Matrix3x2.CreateTranslation(-width / 2f, -height / 2f);
+                if (renderTargetView != null && depthStencilView != null)
+                {
+                    nativeRenderer.Render(
+                        renderTargetView.NativePointer,
+                        depthStencilView.NativePointer,
+                        width,
+                        height);
+                }
             }
 
             return effectDescription.DrawDescription;
@@ -358,7 +362,10 @@ namespace EffekseerForYMM4
 
         private void Resize()
         {
-            CreateResources(lastWidth, lastHeight);
+            lock (RenderLock)
+            {
+                CreateResources(lastWidth, lastHeight);
+            }
         }
 
         public void Dispose()

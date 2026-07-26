@@ -49,7 +49,7 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
   - Effekseer本体、DX11レンダラー、C ABI境界を1プロジェクトでビルドします。
 - `EffekseerForYMM4`
   - YMM4 プラグイン本体です。
-  - UI、ローカライズ、ファイルコピー、ネイティブDLL展開を担当します。
+  - UI、ローカライズ、ファイルコピー、ネイティブDLL呼び出しを担当します。
 - `YukkuriMovieMaker.Generator`
   - 翻訳CSVから `resx` とクラスを生成するソースジェネレーターです。
 
@@ -63,7 +63,7 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
 
 `EffekseerForYMM4.Tests` は必要なときだけビルドすれば十分です。
 
-描画にはYMM4のDirect3D 11デバイスとImmediate Contextを借用します。ネイティブ側はCOM参照を保持しますが、デバイス自体は作成・所有しません。通常の連続描画ホットパスではmanaged heap allocationや明示的なロックを行いません。
+描画にはYMM4のDirect3D 11デバイスとImmediate Contextを借用します。ネイティブ側はCOM参照を保持しますが、デバイス自体は作成・所有しません。通常の連続描画ホットパスではmanaged heap allocationを行いません。共有Immediate Contextを使用する描画区間はプロセッサ側で直列化し、ネイティブ描画後にRenderTargetとViewportを描画前の状態へ復元します。
 
 ### ビルド構成
 
@@ -74,8 +74,7 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
 ### 配布用ファイルについて
 
 - 翻訳ファイルはビルド時に `ar-sa`, `en-us`, `es-es`, `id-id`, `ko-kr`, `zh-cn`, `zh-tw` の `EffekseerForYMM4.resources.dll` として出力されます。
-- ネイティブDLLはプラグインフォルダ直下に置かず、`nativepayload` 配下に `EffekseerForNative.bin` として配置されます。
-- 実行時に `EffekseerForYMM4` が `%LocalAppData%\YukkuriMovieMaker\PluginCache\EffekseerForYMM4` へ上書き展開して読み込みます。
+- ネイティブDLLはプラグインフォルダ直下に `EffekseerForNative.dll` として配置され、その場所から直接読み込みます。
 - BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4.ymme`と`Readme.txt`が含まれます。
 
 ### ビルド前提
