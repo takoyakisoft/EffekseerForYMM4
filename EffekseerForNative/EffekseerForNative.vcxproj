@@ -93,6 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Core\EffectsManager.h" />
+    <ClInclude Include="src\Core\WindowsString.h" />
     <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
   </ItemGroup>
   <ItemGroup>

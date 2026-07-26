@@ -1,13 +1,13 @@
 #include "EffekseerRenderer.h"
 
 #include "../Core/EffectsManager.h"
+#include "../Core/WindowsString.h"
 
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
 #include <new>
 #include <string>
-#include <windows.h>
 
 namespace
 {
@@ -18,47 +18,7 @@ namespace
 
     std::filesystem::path ToPath(const char* pathUtf8)
     {
-        if (pathUtf8 == nullptr || *pathUtf8 == '\0')
-        {
-            return {};
-        }
-
-        return std::filesystem::path(
-            std::u8string(reinterpret_cast<const char8_t*>(pathUtf8)));
-    }
-
-    std::string ToUtf8(const std::wstring& value)
-    {
-        if (value.empty())
-        {
-            return {};
-        }
-
-        const auto size = WideCharToMultiByte(
-            CP_UTF8,
-            WC_ERR_INVALID_CHARS,
-            value.data(),
-            static_cast<int>(value.size()),
-            nullptr,
-            0,
-            nullptr,
-            nullptr);
-        if (size <= 0)
-        {
-            return {};
-        }
-
-        std::string result(static_cast<size_t>(size), '\0');
-        WideCharToMultiByte(
-            CP_UTF8,
-            WC_ERR_INVALID_CHARS,
-            value.data(),
-            static_cast<int>(value.size()),
-            result.data(),
-            size,
-            nullptr,
-            nullptr);
-        return result;
+        return EffekseerForYMM4::WindowsString::Utf8ToAbsolutePath(pathUtf8);
     }
 
     int32_t CopyUtf8ToBuffer(const std::string& value, char* buffer, int32_t bufferSize)
@@ -144,7 +104,10 @@ int32_t effekseer_renderer_get_last_error(
 {
     auto* manager = GetManager(handle);
     return CopyUtf8ToBuffer(
-        manager == nullptr ? std::string{} : ToUtf8(manager->GetLastErrorMessage()),
+        manager == nullptr
+            ? std::string{}
+            : EffekseerForYMM4::WindowsString::WideToUtf8(
+                manager->GetLastErrorMessage()),
         buffer,
         bufferSize);
 }

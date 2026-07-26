@@ -28,4 +28,12 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <Target Name="PrepareNativeTestPayload" AfterTargets="Build">
+    <MakeDir Directories="$(TargetDir)nativepayload" />
+    <Copy
+      SourceFiles="$(MSBuildProjectDirectory)\..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.dll"
+      DestinationFiles="$(TargetDir)nativepayload\EffekseerForNative.bin"
+      SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

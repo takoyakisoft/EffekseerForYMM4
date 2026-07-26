@@ -1,5 +1,6 @@
 ﻿
 #include "Effekseer.DefaultFile.h"
+#include "Core/WindowsString.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -85,7 +86,9 @@ FileReaderRef DefaultFileInterface::OpenRead(const char16_t* path)
 {
 	FILE* filePtr = nullptr;
 #ifdef _WIN32
-	_wfopen_s(&filePtr, (const wchar_t*)path, L"rb");
+	const auto win32Path = EffekseerForYMM4::WindowsString::ToWin32ApiPath(
+		reinterpret_cast<const wchar_t*>(path));
+	_wfopen_s(&filePtr, win32Path.c_str(), L"rb");
 #else
 	char path8[256];
 	ConvertUtf16ToUtf8(path8, 256, path);
@@ -104,7 +107,9 @@ FileWriterRef DefaultFileInterface::OpenWrite(const char16_t* path)
 {
 	FILE* filePtr = nullptr;
 #ifdef _WIN32
-	_wfopen_s(&filePtr, (const wchar_t*)path, L"wb");
+	const auto win32Path = EffekseerForYMM4::WindowsString::ToWin32ApiPath(
+		reinterpret_cast<const wchar_t*>(path));
+	_wfopen_s(&filePtr, win32Path.c_str(), L"wb");
 #else
 	char path8[256];
 	ConvertUtf16ToUtf8(path8, 256, path);
