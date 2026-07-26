@@ -4,12 +4,12 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](#)
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](#)
 
-![Image](assets/EffekseerForYMM4.png)
+![Image](docs/EffekseerForYMM4.png)
 
 Effekseerで作成したエフェクトを、ゆっくりMovieMaker4（YMM4）上で再生・合成するためのプラグインです。
 
 <p align="center">
-  <img src="assets/sample.gif" width="100%" alt="sample">
+  <img src="docs/sample.gif" width="100%" alt="sample">
 </p>
 
 ## v1.2.0 の主な変更
