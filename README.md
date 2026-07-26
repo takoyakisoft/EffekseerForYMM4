@@ -12,6 +12,15 @@ Effekseerで作成したエフェクトを、ゆっくりMovieMaker4（YMM4）�
   <img src="assets/sample.gif" width="100%" alt="sample">
 </p>
 
+## v1.2.0 の主な変更
+
+- GitHub Releasesに加えてBOOTH向けの配布zipを整備
+- 透視投影／正投影の切り替えと正投影サイズの設定を追加
+- 日本語、絵文字、CP932外文字、長いパスを含むエフェクトファイルの読み込みを改善
+- 連続再生時の状態更新を見直し、不要なエフェクト再生成や一時割り当てを削減
+- ネイティブブリッジをC++/CLIから純粋なネイティブC++のC ABI DLLへ移行
+- 映像用途外だった音声エフェクトを削除
+
 ## インストール方法
 
 1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)またはBOOTHから最新の`EffekseerForYMM4-vX.Y.Z.zip`をダウンロードします。
