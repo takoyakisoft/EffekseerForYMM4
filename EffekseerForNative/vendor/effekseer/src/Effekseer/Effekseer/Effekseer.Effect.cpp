@@ -22,6 +22,7 @@
 #include "Model/ProceduralModelGenerator.h"
 #include "Model/ProceduralModelParameter.h"
 #include "Utils/Effekseer.BinaryReader.h"
+#include "Core/WindowsString.h"
 
 #include <array>
 #include <functional>
@@ -31,58 +32,6 @@
 //----------------------------------------------------------------------------------
 namespace Effekseer
 {
-
-static void PathCombine(char16_t* dst, const char16_t* src1, const char16_t* src2)
-{
-	int len1 = 0, len2 = 0;
-	if (src1 != nullptr)
-	{
-		for (len1 = 0; src1[len1] != L'\0'; len1++)
-		{
-		}
-		memcpy(dst, src1, len1 * sizeof(char16_t));
-		if (len1 > 0 && src1[len1 - 1] != L'/' && src1[len1 - 1] != L'\\')
-		{
-			dst[len1++] = L'/';
-		}
-	}
-	if (src2 != nullptr)
-	{
-		for (len2 = 0; src2[len2] != L'\0'; len2++)
-		{
-		}
-		memcpy(&dst[len1], src2, len2 * sizeof(char16_t));
-	}
-
-	for (int i = 0; i < len1 + len2; i++)
-	{
-		if (dst[i] == u'\\')
-		{
-			dst[i] = u'/';
-		}
-	}
-
-	dst[len1 + len2] = L'\0';
-}
-
-static void GetParentDir(char16_t* dst, const char16_t* src)
-{
-	int i, last = -1;
-	for (i = 0; src[i] != L'\0'; i++)
-	{
-		if (src[i] == L'/' || src[i] == L'\\')
-			last = i;
-	}
-	if (last >= 0)
-	{
-		memcpy(dst, src, last * sizeof(char16_t));
-		dst[last] = L'\0';
-	}
-	else
-	{
-		dst[0] = L'\0';
-	}
-}
 
 static std::u16string getFilenameWithoutExt(const char16_t* path)
 {
@@ -213,64 +162,57 @@ void EffectFactory::OnLoadingResource(Effect* effect, const void* data, int32_t 
 
 	for (auto i = 0; i < effect->GetColorImageCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetColorImagePath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetColorImagePath(i));
 
-		auto resource = resourceMgr->LoadTexture(fullPath, TextureType::Color);
+		auto resource = resourceMgr->LoadTexture(fullPath.c_str(), TextureType::Color);
 		SetTexture(effect, i, TextureType::Color, resource);
 	}
 
 	for (auto i = 0; i < effect->GetNormalImageCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetNormalImagePath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetNormalImagePath(i));
 
-		auto resource = resourceMgr->LoadTexture(fullPath, TextureType::Normal);
+		auto resource = resourceMgr->LoadTexture(fullPath.c_str(), TextureType::Normal);
 		SetTexture(effect, i, TextureType::Normal, resource);
 	}
 
 	for (auto i = 0; i < effect->GetDistortionImageCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetDistortionImagePath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetDistortionImagePath(i));
 
-		auto resource = resourceMgr->LoadTexture(fullPath, TextureType::Distortion);
+		auto resource = resourceMgr->LoadTexture(fullPath.c_str(), TextureType::Distortion);
 		SetTexture(effect, i, TextureType::Distortion, resource);
 	}
 
 	for (auto i = 0; i < effect->GetWaveCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetWavePath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetWavePath(i));
 
-		auto resource = resourceMgr->LoadSoundData(fullPath);
+		auto resource = resourceMgr->LoadSoundData(fullPath.c_str());
 		SetSound(effect, i, resource);
 	}
 
 	for (auto i = 0; i < effect->GetModelCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetModelPath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetModelPath(i));
 
-		auto resource = resourceMgr->LoadModel(fullPath);
+		auto resource = resourceMgr->LoadModel(fullPath.c_str());
 		SetModel(effect, i, resource);
 	}
 
 	for (auto i = 0; i < effect->GetMaterialCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetMaterialPath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetMaterialPath(i));
 
-		auto resource = resourceMgr->LoadMaterial(fullPath);
+		auto resource = resourceMgr->LoadMaterial(fullPath.c_str());
 		SetMaterial(effect, i, resource);
 	}
 
 	for (auto i = 0; i < effect->GetCurveCount(); i++)
 	{
-		char16_t fullPath[512];
-		PathCombine(fullPath, materialPath, effect->GetCurvePath(i));
+		const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(materialPath, effect->GetCurvePath(i));
 
-		auto resource = resourceMgr->LoadCurve(fullPath);
+		auto resource = resourceMgr->LoadCurve(fullPath.c_str());
 		SetCurve(effect, i, resource);
 	}
 
@@ -377,11 +319,11 @@ EffectRef Effect::Create(const ManagerRef& manager, const char16_t* path, float 
 	if (!eLoader->Load(path, data, size))
 		return nullptr;
 
-	char16_t parentDir[512];
+	std::u16string parentDir;
 	if (materialPath == nullptr)
 	{
-		GetParentDir(parentDir, path);
-		materialPath = parentDir;
+		parentDir = EffekseerForYMM4::WindowsString::GetParentUtf16Path(path);
+		materialPath = parentDir.c_str();
 	}
 
 	auto effect = EffectImplemented::Create(manager, data, size, magnification, materialPath);
@@ -782,11 +724,11 @@ EffectRef Effect::Create(const SettingRef& setting, const char16_t* path, float 
 	if (!eLoader->Load(path, data, size))
 		return nullptr;
 
-	char16_t parentDir[512];
+	std::u16string parentDir;
 	if (materialPath == nullptr)
 	{
-		GetParentDir(parentDir, path);
-		materialPath = parentDir;
+		parentDir = EffekseerForYMM4::WindowsString::GetParentUtf16Path(path);
+		materialPath = parentDir.c_str();
 	}
 
 	auto effect = EffectImplemented::Create(setting, data, size, magnification, materialPath);
@@ -1364,11 +1306,11 @@ bool EffectImplemented::Reload(
 	if (!eLoader->Load(path, data, size))
 		return false;
 
-	char16_t parentDir[512];
+	std::u16string parentDir;
 	if (materialPath == nullptr)
 	{
-		GetParentDir(parentDir, path);
-		materialPath = parentDir;
+		parentDir = EffekseerForYMM4::WindowsString::GetParentUtf16Path(path);
+		materialPath = parentDir.c_str();
 	}
 
 	int lockCount = 0;
@@ -1415,11 +1357,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < m_pImages.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_ImagePaths[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_ImagePaths[ind].get());
 
 			TextureRef value = nullptr;
-			if (reloadingBackup->images.Pop(fullPath, value))
+			if (reloadingBackup->images.Pop(fullPath.c_str(), value))
 			{
 				m_pImages[ind] = value;
 			}
@@ -1427,11 +1368,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < m_normalImages.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_normalImagePaths[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_normalImagePaths[ind].get());
 
 			TextureRef value = nullptr;
-			if (reloadingBackup->normalImages.Pop(fullPath, value))
+			if (reloadingBackup->normalImages.Pop(fullPath.c_str(), value))
 			{
 				m_normalImages[ind] = value;
 			}
@@ -1439,11 +1379,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < m_distortionImages.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_distortionImagePaths[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_distortionImagePaths[ind].get());
 
 			TextureRef value = nullptr;
-			if (reloadingBackup->distortionImages.Pop(fullPath, value))
+			if (reloadingBackup->distortionImages.Pop(fullPath.c_str(), value))
 			{
 				m_distortionImages[ind] = value;
 			}
@@ -1451,11 +1390,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < m_pWaves.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_WavePaths[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_WavePaths[ind].get());
 
 			SoundDataRef value;
-			if (reloadingBackup->sounds.Pop(fullPath, value))
+			if (reloadingBackup->sounds.Pop(fullPath.c_str(), value))
 			{
 				m_pWaves[ind] = value;
 			}
@@ -1463,11 +1401,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (size_t ind = 0; ind < models_.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, modelPaths_[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, modelPaths_[ind].get());
 
 			ModelRef value = nullptr;
-			if (reloadingBackup->models.Pop(fullPath, value))
+			if (reloadingBackup->models.Pop(fullPath.c_str(), value))
 			{
 				models_[ind] = value;
 			}
@@ -1475,11 +1412,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < materials_.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, materialPaths_[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, materialPaths_[ind].get());
 
 			MaterialRef value = nullptr;
-			if (reloadingBackup->materials.Pop(fullPath, value))
+			if (reloadingBackup->materials.Pop(fullPath.c_str(), value))
 			{
 				materials_[ind] = value;
 			}
@@ -1487,11 +1423,10 @@ void EffectImplemented::ReloadResources(const void* data, int32_t size, const ch
 
 		for (uint32_t ind = 0; ind < curves_.size(); ind++)
 		{
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, curvePaths_[ind].get());
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, curvePaths_[ind].get());
 
 			CurveRef value = nullptr;
-			if (reloadingBackup->curves.Pop(fullPath, value))
+			if (reloadingBackup->curves.Pop(fullPath.c_str(), value))
 			{
 				curves_[ind] = value;
 			}
@@ -1522,9 +1457,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (m_pImages[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_ImagePaths[ind].get());
-			reloadingBackup->images.Push(fullPath, m_pImages[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_ImagePaths[ind].get());
+			reloadingBackup->images.Push(fullPath.c_str(), m_pImages[ind]);
 		}
 
 		for (uint32_t ind = 0; ind < m_normalImages.size(); ind++)
@@ -1532,9 +1466,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (m_normalImages[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_normalImagePaths[ind].get());
-			reloadingBackup->normalImages.Push(fullPath, m_normalImages[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_normalImagePaths[ind].get());
+			reloadingBackup->normalImages.Push(fullPath.c_str(), m_normalImages[ind]);
 		}
 
 		for (uint32_t ind = 0; ind < m_distortionImages.size(); ind++)
@@ -1542,9 +1475,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (m_distortionImagePaths[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_distortionImagePaths[ind].get());
-			reloadingBackup->distortionImages.Push(fullPath, m_distortionImages[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_distortionImagePaths[ind].get());
+			reloadingBackup->distortionImages.Push(fullPath.c_str(), m_distortionImages[ind]);
 		}
 
 		for (uint32_t ind = 0; ind < m_pWaves.size(); ind++)
@@ -1552,9 +1484,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (m_pWaves[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, m_WavePaths[ind].get());
-			reloadingBackup->sounds.Push(fullPath, m_pWaves[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, m_WavePaths[ind].get());
+			reloadingBackup->sounds.Push(fullPath.c_str(), m_pWaves[ind]);
 		}
 
 		for (size_t ind = 0; ind < models_.size(); ind++)
@@ -1562,9 +1493,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (models_[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, modelPaths_[ind].get());
-			reloadingBackup->models.Push(fullPath, models_[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, modelPaths_[ind].get());
+			reloadingBackup->models.Push(fullPath.c_str(), models_[ind]);
 		}
 
 		for (uint32_t ind = 0; ind < materials_.size(); ind++)
@@ -1572,9 +1502,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (materials_[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, materialPaths_[ind].get());
-			reloadingBackup->materials.Push(fullPath, materials_[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, materialPaths_[ind].get());
+			reloadingBackup->materials.Push(fullPath.c_str(), materials_[ind]);
 		}
 
 		for (uint32_t ind = 0; ind < curves_.size(); ind++)
@@ -1582,9 +1511,8 @@ void EffectImplemented::UnloadResources(const char16_t* materialPath)
 			if (curves_[ind] == nullptr)
 				continue;
 
-			char16_t fullPath[512];
-			PathCombine(fullPath, matPath, curvePaths_[ind].get());
-			reloadingBackup->curves.Push(fullPath, curves_[ind]);
+			const auto fullPath = EffekseerForYMM4::WindowsString::CombineUtf16Path(matPath, curvePaths_[ind].get());
+			reloadingBackup->curves.Push(fullPath.c_str(), curves_[ind]);
 		}
 
 		return;

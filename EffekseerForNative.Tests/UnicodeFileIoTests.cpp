@@ -4,7 +4,9 @@
 #include <Windows.h>
 
 #include "Effekseer.DefaultFile.h"
+#include "Core/WindowsString.h"
 
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
@@ -66,7 +68,7 @@ int wmain()
     }
     createdDirectories.push_back(currentPath);
 
-    while (currentPath.size() < 280)
+    while (currentPath.size() < 600)
     {
         currentPath += L"\\日本語_emoji_\U0001F680_segment";
         if (!CreateDirectoryForTest(currentPath))
@@ -78,7 +80,32 @@ int wmain()
         createdDirectories.push_back(currentPath);
     }
 
-    const auto filePath = currentPath + L"\\実ファイル_\U0001F60A.bin";
+    static_assert(sizeof(wchar_t) == sizeof(char16_t));
+    const auto combinedFilePath = EffekseerForYMM4::WindowsString::CombineUtf16Path(
+        reinterpret_cast<const char16_t*>(currentPath.c_str()),
+        u"実ファイル_\U0001F60A.bin");
+    if (combinedFilePath.size() <= 512 || combinedFilePath.find(u'\\') != std::u16string::npos)
+    {
+        std::cerr << "Long UTF-16 path combination did not preserve the full normalized path." << std::endl;
+        cleanup();
+        return 1;
+    }
+
+    const auto parentPath = EffekseerForYMM4::WindowsString::GetParentUtf16Path(combinedFilePath.c_str());
+    const std::u16string expectedParent(
+        reinterpret_cast<const char16_t*>(currentPath.c_str()));
+    auto normalizedExpectedParent = expectedParent;
+    std::replace(normalizedExpectedParent.begin(), normalizedExpectedParent.end(), u'\\', u'/');
+    if (parentPath != normalizedExpectedParent)
+    {
+        std::cerr << "Long UTF-16 parent path extraction truncated the path." << std::endl;
+        cleanup();
+        return 1;
+    }
+
+    std::wstring filePath(
+        reinterpret_cast<const wchar_t*>(combinedFilePath.c_str()));
+    std::replace(filePath.begin(), filePath.end(), L'/', L'\\');
     const auto extendedFilePath = ToExtendedPath(filePath);
     const auto fileHandle = CreateFileW(
         extendedFilePath.c_str(),
@@ -113,13 +140,12 @@ int wmain()
         return 1;
     }
 
-    static_assert(sizeof(wchar_t) == sizeof(char16_t));
     Effekseer::DefaultFileInterface fileInterface;
     auto reader = fileInterface.OpenRead(
         reinterpret_cast<const char16_t*>(filePath.c_str()));
     if (reader == nullptr)
     {
-        std::cerr << "DefaultFileInterface failed to open a >260-character Unicode path." << std::endl;
+        std::cerr << "DefaultFileInterface failed to open a >512-character Unicode path." << std::endl;
         DeleteFileW(extendedFilePath.c_str());
         cleanup();
         return 1;
@@ -138,6 +164,6 @@ int wmain()
         return 1;
     }
 
-    std::cout << "Unicode long-path file I/O passed." << std::endl;
+    std::cout << "Unicode >512-character path helpers and file I/O passed." << std::endl;
     return 0;
 }

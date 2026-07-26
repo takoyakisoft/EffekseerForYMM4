@@ -162,6 +162,42 @@ namespace EffekseerForYMM4::WindowsString
         return absolute;
     }
 
+    inline std::u16string GetParentUtf16Path(const char16_t* path)
+    {
+        if (path == nullptr || *path == u'\0')
+        {
+            return {};
+        }
+
+        std::u16string value(path);
+        const auto separator = value.find_last_of(u"/\\");
+        return separator == std::u16string::npos
+            ? std::u16string{}
+            : value.substr(0, separator);
+    }
+
+    inline std::u16string CombineUtf16Path(const char16_t* basePath, const char16_t* relativePath)
+    {
+        std::u16string combined;
+        if (basePath != nullptr)
+        {
+            combined.assign(basePath);
+        }
+
+        if (!combined.empty() && combined.back() != u'/' && combined.back() != u'\\')
+        {
+            combined.push_back(u'/');
+        }
+
+        if (relativePath != nullptr)
+        {
+            combined.append(relativePath);
+        }
+
+        std::replace(combined.begin(), combined.end(), u'\\', u'/');
+        return combined;
+    }
+
     inline std::wstring Utf8ToAbsolutePath(const char* pathUtf8)
     {
         return ToAbsolutePath(Utf8ToWide(pathUtf8));
