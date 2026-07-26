@@ -457,6 +457,26 @@ namespace EffekseerForYMM4
             }
         }
 
+        private void ReplayRendererAt(double targetFrame)
+        {
+            if (nativeRenderer == null)
+                return;
+
+            var replayFrames = Math.Min(targetFrame, MaxSimulationAdvanceFrames);
+            var replayStartFrame = targetFrame - replayFrames;
+
+            // Match VTuberKit's random-access model: evaluate the absolute
+            // timeline position in one coarse update, then replay only a small
+            // trailing window with fixed steps so stateful motion settles
+            // without simulating the whole item from frame zero.
+            if (replayStartFrame > 0)
+            {
+                nativeRenderer.Update((float)replayStartFrame);
+            }
+
+            AdvanceRenderer((float)replayFrames);
+        }
+
         private PlaybackAccessKind ClassifyPlaybackAccess(long currentItemFrame, double targetFrame)
         {
             if (!hasPreviousItemFrame)
@@ -475,17 +495,14 @@ namespace EffekseerForYMM4
 
         private void InitializePlayback(double targetFrame)
         {
-            if (targetFrame > 0 && targetFrame <= MaxSimulationAdvanceFrames)
-            {
-                AdvanceRenderer((float)targetFrame);
-            }
-
+            ReplayRendererAt(targetFrame);
             renderedFrame = targetFrame;
         }
 
         private void RestartPlaybackAt(double targetFrame)
         {
             nativeRenderer?.Reset();
+            ReplayRendererAt(targetFrame);
             renderedFrame = targetFrame;
         }
 

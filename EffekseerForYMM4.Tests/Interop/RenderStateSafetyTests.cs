@@ -53,19 +53,29 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("PlaybackAccessKind.Initial", source, StringComparison.Ordinal);
         Assert.Contains("PlaybackAccessKind.Continuous", source, StringComparison.Ordinal);
         Assert.Contains("PlaybackAccessKind.Random", source, StringComparison.Ordinal);
-        Assert.Contains("targetFrame <= MaxSimulationAdvanceFrames", source, StringComparison.Ordinal);
         Assert.Contains("nativeRenderer?.Reset();", source, StringComparison.Ordinal);
         Assert.Contains("delta <= MaxSimulationAdvanceFrames", source, StringComparison.Ordinal);
+        Assert.Contains("private void ReplayRendererAt(double targetFrame)", source, StringComparison.Ordinal);
+        Assert.Contains("var replayFrames = Math.Min(targetFrame, MaxSimulationAdvanceFrames);", source, StringComparison.Ordinal);
+        Assert.Contains("var replayStartFrame = targetFrame - replayFrames;", source, StringComparison.Ordinal);
+        Assert.Contains("nativeRenderer.Update((float)replayStartFrame);", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedCamera", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedProjection", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedTransform", source, StringComparison.Ordinal);
+
+        var replayStart = source.IndexOf("private void ReplayRendererAt", StringComparison.Ordinal);
+        var classifyStart = source.IndexOf("private PlaybackAccessKind ClassifyPlaybackAccess", StringComparison.Ordinal);
+        Assert.True(replayStart >= 0);
+        Assert.True(classifyStart > replayStart);
+        var replayMethod = source[replayStart..classifyStart];
+        Assert.Contains("AdvanceRenderer((float)replayFrames);", replayMethod, StringComparison.Ordinal);
 
         var restartStart = source.IndexOf("private void RestartPlaybackAt", StringComparison.Ordinal);
         var resetTrackingStart = source.IndexOf("private void ResetPlaybackTracking", StringComparison.Ordinal);
         Assert.True(restartStart >= 0);
         Assert.True(resetTrackingStart > restartStart);
         var restartMethod = source[restartStart..resetTrackingStart];
-        Assert.DoesNotContain("AdvanceRenderer", restartMethod, StringComparison.Ordinal);
+        Assert.Contains("ReplayRendererAt(targetFrame);", restartMethod, StringComparison.Ordinal);
     }
 
     [Fact]
