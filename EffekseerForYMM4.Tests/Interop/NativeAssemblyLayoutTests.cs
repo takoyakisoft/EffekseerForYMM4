@@ -32,6 +32,21 @@ public sealed class NativeAssemblyLayoutTests
         Assert.DoesNotContain("nativepayload\\EffekseerForNative.bin", packageScript, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public void PackageRendersVersionAndIncludesThirdPartyNotices()
+    {
+        var root = FindRepositoryRoot();
+        var packageScript = File.ReadAllText(Path.Combine(root, "scripts", "package-release.ps1"));
+        var packageReadme = File.ReadAllText(Path.Combine(root, "packaging", "Readme.txt"));
+        var thirdPartyNotices = File.ReadAllText(Path.Combine(root, "packaging", "THIRD_PARTY_NOTICES.txt"));
+
+        Assert.Contains("{VERSION}", packageReadme, StringComparison.Ordinal);
+        Assert.Contains("Replace(\"{VERSION}\", $Version)", packageScript, StringComparison.Ordinal);
+        Assert.Contains("THIRD_PARTY_NOTICES.txt", packageScript, StringComparison.Ordinal);
+        Assert.Contains("Copyright (c) 2011 Effekseer Project", thirdPartyNotices, StringComparison.Ordinal);
+        Assert.Contains("The MIT License (MIT)", thirdPartyNotices, StringComparison.Ordinal);
+    }
+
     private static string FindRepositoryRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
