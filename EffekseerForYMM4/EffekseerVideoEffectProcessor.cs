@@ -443,7 +443,6 @@ namespace EffekseerForYMM4
             if (delta <= 0)
                 return;
 
-            delta = MathF.Min(delta, MaxSimulationAdvanceFrames);
             int wholeSteps = (int)MathF.Floor(delta);
             for (int i = 0; i < wholeSteps; i++)
             {
@@ -483,9 +482,10 @@ namespace EffekseerForYMM4
                 return PlaybackAccessKind.Initial;
 
             var delta = targetFrame - renderedFrame;
+            // Sequential item frames are continuous playback even when a low output FPS
+            // advances Effekseer by more than the bounded random-access replay window.
             if ((currentItemFrame == previousItemFrame || currentItemFrame == previousItemFrame + 1) &&
-                delta >= 0 &&
-                delta <= MaxSimulationAdvanceFrames)
+                delta >= 0)
             {
                 return PlaybackAccessKind.Continuous;
             }

@@ -40,7 +40,7 @@ public sealed class RenderStateSafetyTests
     }
 
     [Fact]
-    public void PlaybackUsesBoundedThreeStateAccessModel()
+    public void PlaybackUsesBoundedRandomAccessAndExactContinuousAdvance()
     {
         var root = FindRepositoryRoot();
         var processorPath = Path.Combine(
@@ -54,7 +54,6 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("PlaybackAccessKind.Continuous", source, StringComparison.Ordinal);
         Assert.Contains("PlaybackAccessKind.Random", source, StringComparison.Ordinal);
         Assert.Contains("nativeRenderer?.Reset();", source, StringComparison.Ordinal);
-        Assert.Contains("delta <= MaxSimulationAdvanceFrames", source, StringComparison.Ordinal);
         Assert.Contains("private void ReplayRendererAt(double targetFrame)", source, StringComparison.Ordinal);
         Assert.Contains("var replayFrames = Math.Min(targetFrame, MaxSimulationAdvanceFrames);", source, StringComparison.Ordinal);
         Assert.Contains("var replayStartFrame = targetFrame - replayFrames;", source, StringComparison.Ordinal);
@@ -63,12 +62,25 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("hasAppliedProjection", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedTransform", source, StringComparison.Ordinal);
 
+        var advanceStart = source.IndexOf("private void AdvanceRenderer", StringComparison.Ordinal);
         var replayStart = source.IndexOf("private void ReplayRendererAt", StringComparison.Ordinal);
         var classifyStart = source.IndexOf("private PlaybackAccessKind ClassifyPlaybackAccess", StringComparison.Ordinal);
-        Assert.True(replayStart >= 0);
+        var initializeStart = source.IndexOf("private void InitializePlayback", StringComparison.Ordinal);
+        Assert.True(advanceStart >= 0);
+        Assert.True(replayStart > advanceStart);
         Assert.True(classifyStart > replayStart);
+        Assert.True(initializeStart > classifyStart);
+
+        var advanceMethod = source[advanceStart..replayStart];
+        Assert.DoesNotContain("MaxSimulationAdvanceFrames", advanceMethod, StringComparison.Ordinal);
+
         var replayMethod = source[replayStart..classifyStart];
         Assert.Contains("AdvanceRenderer((float)replayFrames);", replayMethod, StringComparison.Ordinal);
+
+        var classifyMethod = source[classifyStart..initializeStart];
+        Assert.Contains("currentItemFrame == previousItemFrame + 1", classifyMethod, StringComparison.Ordinal);
+        Assert.Contains("delta >= 0", classifyMethod, StringComparison.Ordinal);
+        Assert.DoesNotContain("MaxSimulationAdvanceFrames", classifyMethod, StringComparison.Ordinal);
 
         var restartStart = source.IndexOf("private void RestartPlaybackAt", StringComparison.Ordinal);
         var resetTrackingStart = source.IndexOf("private void ResetPlaybackTracking", StringComparison.Ordinal);
