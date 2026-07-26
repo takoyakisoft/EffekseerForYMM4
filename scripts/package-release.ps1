@@ -113,7 +113,8 @@ if ($stagedFiles.Count -eq 0) {
 New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
 $baseName = "EffekseerForYMM4-v$Version"
 $temporaryZipPath = Join-Path $outputDir "$baseName-plugin.zip"
-$ymmePath = Join-Path $outputDir "EffekseerForYMM4.ymme"
+$ymmeFileName = "$baseName.ymme"
+$ymmePath = Join-Path $outputDir $ymmeFileName
 $boothZipPath = Join-Path $outputDir "$baseName.zip"
 $boothStageRoot = Join-Path $outputDir "booth-stage"
 
@@ -159,7 +160,7 @@ finally {
 }
 
 New-Item -ItemType Directory -Force -Path $boothStageRoot | Out-Null
-Copy-Item -LiteralPath $ymmePath -Destination (Join-Path $boothStageRoot "EffekseerForYMM4.ymme") -Force
+Copy-Item -LiteralPath $ymmePath -Destination (Join-Path $boothStageRoot $ymmeFileName) -Force
 Copy-Item -LiteralPath $readmePath -Destination (Join-Path $boothStageRoot "Readme.txt") -Force
 [System.IO.Compression.ZipFile]::CreateFromDirectory(
     $boothStageRoot,
@@ -172,10 +173,10 @@ try {
     $entries = @($boothArchive.Entries |
         Where-Object { -not [string]::IsNullOrEmpty($_.Name) } |
         ForEach-Object { $_.FullName })
-    $expectedEntries = @("EffekseerForYMM4.ymme", "Readme.txt")
+    $expectedEntries = @($ymmeFileName, "Readme.txt")
     if (@($entries | Where-Object { $expectedEntries -notcontains $_ }).Count -ne 0 -or
         @($expectedEntries | Where-Object { $entries -notcontains $_ }).Count -ne 0) {
-        throw "BOOTH package must contain only EffekseerForYMM4.ymme and Readme.txt. Actual=$($entries -join ', ')"
+        throw "BOOTH package must contain only $ymmeFileName and Readme.txt. Actual=$($entries -join ', ')"
     }
 }
 finally {
