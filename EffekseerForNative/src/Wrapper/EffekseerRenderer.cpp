@@ -1,218 +1,351 @@
 #include "EffekseerRenderer.h"
+
 #include "../Core/EffectsManager.h"
-#include <msclr/marshal_cppstd.h>
 
-using namespace System::Runtime::InteropServices;
-using namespace System;
+#include <algorithm>
+#include <cstring>
+#include <filesystem>
+#include <new>
+#include <string>
+#include <windows.h>
 
-namespace EffekseerForNative {
-
-    EffekseerRenderer::EffekseerRenderer()
+namespace
+{
+    EffectsManager* GetManager(EffekseerRendererHandle handle)
     {
-        m_impl = new EffectsManager();
+        return static_cast<EffectsManager*>(handle);
     }
 
-    EffekseerRenderer::~EffekseerRenderer()
+    std::filesystem::path ToPath(const char* path_utf8)
     {
-        this->!EffekseerRenderer();
-    }
-
-    EffekseerRenderer::!EffekseerRenderer()
-    {
-        Destroy();
-        if (m_impl)
+        if (path_utf8 == nullptr || *path_utf8 == '\0')
         {
-            delete m_impl;
-            m_impl = nullptr;
-        }
-    }
-
-    bool EffekseerRenderer::Initialize(IntPtr device, IntPtr context, int width, int height)
-    {
-        if (!m_impl) return false;
-
-        ID3D11Device* d3d11Device = nullptr;
-        ID3D11DeviceContext* d3d11Context = nullptr;
-
-        if (device != IntPtr::Zero)
-            d3d11Device = (ID3D11Device*)device.ToPointer();
-
-        if (context != IntPtr::Zero)
-            d3d11Context = (ID3D11DeviceContext*)context.ToPointer();
-
-        if (!m_impl->Initialize(d3d11Device, d3d11Context))
-        {
-            return false;
+            return {};
         }
 
-        m_impl->SetProjection(width, height);
-        m_impl->SetCamera(20.0f);
-
-        return true;
+        return std::filesystem::path(
+            std::u8string(reinterpret_cast<const char8_t*>(path_utf8)));
     }
 
-    bool EffekseerRenderer::LoadEffect(System::String^ path)
+    std::string ToUtf8(const std::wstring& value)
     {
-        if (!m_impl) return false;
-
-        std::wstring wpath = msclr::interop::marshal_as<std::wstring>(path);
-        std::wstring key = wpath; // Use path as key
-
-        if (!m_impl->LoadEffect(key, wpath))
+        if (value.empty())
         {
-            return false;
+            return {};
         }
 
-        m_impl->PlayEffect(key, 0, 0, 0);
-
-        return true;
-    }
-
-    System::String^ EffekseerRenderer::LastErrorMessage::get()
-    {
-        if (!m_impl)
+        const auto size = WideCharToMultiByte(
+            CP_UTF8,
+            WC_ERR_INVALID_CHARS,
+            value.data(),
+            static_cast<int>(value.size()),
+            nullptr,
+            0,
+            nullptr,
+            nullptr);
+        if (size <= 0)
         {
-            return nullptr;
+            return {};
         }
 
-        auto message = m_impl->GetLastErrorMessage();
-        if (message.empty())
+        std::string result(static_cast<size_t>(size), '\0');
+        WideCharToMultiByte(
+            CP_UTF8,
+            WC_ERR_INVALID_CHARS,
+            value.data(),
+            static_cast<int>(value.size()),
+            result.data(),
+            size,
+            nullptr,
+            nullptr);
+        return result;
+    }
+
+    int32_t CopyUtf8ToBuffer(const std::string& value, char* buffer, int32_t buffer_size)
+    {
+        const auto required = static_cast<int32_t>(value.size() + 1);
+        if (buffer == nullptr || buffer_size <= 0)
         {
-            return nullptr;
+            return required;
         }
 
-        return gcnew System::String(message.c_str());
+        const auto copy_size = (std::min)(static_cast<size_t>(buffer_size - 1), value.size());
+        if (copy_size > 0)
+        {
+            std::memcpy(buffer, value.data(), copy_size);
+        }
+        buffer[copy_size] = '\0';
+        return required;
+    }
+}
+
+EffekseerRendererHandle effekseer_renderer_create()
+{
+    try
+    {
+        return new (std::nothrow) EffectsManager();
+    }
+    catch (...)
+    {
+        return nullptr;
+    }
+}
+
+void effekseer_renderer_destroy(EffekseerRendererHandle handle)
+{
+    auto* manager = GetManager(handle);
+    if (manager == nullptr)
+    {
+        return;
     }
 
-    void EffekseerRenderer::Render()
+    try
     {
-        if (m_impl)
+        manager->Shutdown();
+    }
+    catch (...)
+    {
+    }
+    delete manager;
+}
+
+int32_t effekseer_renderer_initialize(
+    EffekseerRendererHandle handle,
+    void* device,
+    void* context,
+    int32_t width,
+    int32_t height)
+{
+    auto* manager = GetManager(handle);
+    if (manager == nullptr)
+    {
+        return 0;
+    }
+
+    try
+    {
+        if (!manager->Initialize(
+                static_cast<ID3D11Device*>(device),
+                static_cast<ID3D11DeviceContext*>(context)))
         {
-            m_impl->Draw();
+            return 0;
+        }
+
+        manager->SetProjection(width, height);
+        manager->SetCamera(20.0f);
+        return 1;
+    }
+    catch (...)
+    {
+        return 0;
+    }
+}
+
+int32_t effekseer_renderer_load_effect(EffekseerRendererHandle handle, const char* path_utf8)
+{
+    auto* manager = GetManager(handle);
+    if (manager == nullptr)
+    {
+        return 0;
+    }
+
+    try
+    {
+        const auto path = ToPath(path_utf8);
+        if (path.empty() || !manager->LoadEffect(path.native(), path))
+        {
+            return 0;
+        }
+
+        manager->PlayEffect(path.native(), 0, 0, 0);
+        return 1;
+    }
+    catch (...)
+    {
+        return 0;
+    }
+}
+
+int32_t effekseer_renderer_get_last_error(
+    EffekseerRendererHandle handle,
+    char* buffer,
+    int32_t buffer_size)
+{
+    auto* manager = GetManager(handle);
+    return CopyUtf8ToBuffer(manager == nullptr ? std::string{} : ToUtf8(manager->GetLastErrorMessage()), buffer, buffer_size);
+}
+
+void effekseer_renderer_render(EffekseerRendererHandle handle)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->Draw();
+    }
+}
+
+void effekseer_renderer_update(EffekseerRendererHandle handle, float delta_frames)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->Update(delta_frames / 60.0f);
+    }
+}
+
+void effekseer_renderer_set_sound_callback(
+    EffekseerRendererHandle handle,
+    void* load_sound,
+    void* unload_sound,
+    void* play_sound)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetSoundCallback(
+            reinterpret_cast<EffekseerForNative::LoadSoundFunc>(load_sound),
+            reinterpret_cast<EffekseerForNative::UnloadSoundFunc>(unload_sound),
+            reinterpret_cast<EffekseerForNative::PlaySoundFunc>(play_sound));
+    }
+}
+
+void effekseer_renderer_set_projection(EffekseerRendererHandle handle, int32_t width, int32_t height)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetProjection(width, height);
+    }
+}
+
+void effekseer_renderer_set_projection_perspective(
+    EffekseerRendererHandle handle,
+    float fov,
+    int32_t width,
+    int32_t height,
+    float near_value,
+    float far_value)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetProjectionPerspective(fov, width, height, near_value, far_value);
+    }
+}
+
+void effekseer_renderer_set_projection_orthographic(
+    EffekseerRendererHandle handle,
+    float width,
+    float height,
+    float near_value,
+    float far_value)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetProjectionOrthographic(width, height, near_value, far_value);
+    }
+}
+
+void effekseer_renderer_set_camera_look_at(
+    EffekseerRendererHandle handle,
+    float position_x,
+    float position_y,
+    float position_z,
+    float target_x,
+    float target_y,
+    float target_z,
+    float up_x,
+    float up_y,
+    float up_z)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetCameraLookAt(
+            position_x,
+            position_y,
+            position_z,
+            target_x,
+            target_y,
+            target_z,
+            up_x,
+            up_y,
+            up_z);
+    }
+}
+
+void effekseer_renderer_set_location(EffekseerRendererHandle handle, float x, float y, float z)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetLocation(x, y, z);
+    }
+}
+
+void effekseer_renderer_set_rotation(EffekseerRendererHandle handle, float x, float y, float z)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetRotation(x, y, z);
+    }
+}
+
+void effekseer_renderer_set_scale(EffekseerRendererHandle handle, float scale)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->SetScale(scale);
+    }
+}
+
+void effekseer_renderer_reset(EffekseerRendererHandle handle)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        manager->StopAll();
+        const auto key = manager->GetLastPlayedKey();
+        if (!key.empty())
+        {
+            manager->PlayEffect(key, 0, 0, 0);
         }
     }
+}
 
-    void EffekseerRenderer::Update(float deltaFrames)
+void effekseer_renderer_stop(EffekseerRendererHandle handle)
+{
+    if (auto* manager = GetManager(handle))
     {
-        if (m_impl)
+        manager->StopAll();
+    }
+}
+
+void effekseer_renderer_play_effect(
+    EffekseerRendererHandle handle,
+    const char* path_utf8,
+    float x,
+    float y,
+    float z)
+{
+    if (auto* manager = GetManager(handle))
+    {
+        const auto path = ToPath(path_utf8);
+        if (!path.empty())
         {
-            // Convert frames to seconds (assuming 60fps base)
-            m_impl->Update(deltaFrames / 60.0f);
+            manager->PlayEffect(path.native(), x, y, z);
         }
     }
+}
 
-    void EffekseerRenderer::SetSoundCallback(System::IntPtr loadSound, System::IntPtr unloadSound, System::IntPtr playSound)
+void effekseer_renderer_shutdown(EffekseerRendererHandle handle)
+{
+    if (auto* manager = GetManager(handle))
     {
-        if (m_impl)
-        {
-            m_impl->SetSoundCallback(
-                (EffekseerForNative::LoadSoundFunc)loadSound.ToPointer(),
-                (EffekseerForNative::UnloadSoundFunc)unloadSound.ToPointer(),
-                (EffekseerForNative::PlaySoundFunc)playSound.ToPointer()
-            );
-        }
+        manager->Shutdown();
+    }
+}
+
+int32_t effekseer_renderer_get_total_frame(EffekseerRendererHandle handle)
+{
+    auto* manager = GetManager(handle);
+    if (manager == nullptr)
+    {
+        return 0;
     }
 
-    void EffekseerRenderer::SetProjection(int width, int height)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjection(width, height);
-        }
-    }
-
-    void EffekseerRenderer::SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjectionPerspective(fov, width, height, nearVal, farVal);
-        }
-    }
-
-    void EffekseerRenderer::SetProjectionOrthographic(float width, float height, float nearVal, float farVal)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjectionOrthographic(width, height, nearVal, farVal);
-        }
-    }
-
-    void EffekseerRenderer::SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ)
-    {
-        if (m_impl)
-        {
-            m_impl->SetCameraLookAt(posX, posY, posZ, targetX, targetY, targetZ, upX, upY, upZ);
-        }
-    }
-
-    void EffekseerRenderer::SetLocation(float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            m_impl->SetLocation(x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::SetRotation(float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            m_impl->SetRotation(x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::SetScale(float scale)
-    {
-        if (m_impl)
-        {
-            m_impl->SetScale(scale);
-        }
-    }
-
-    void EffekseerRenderer::Reset()
-    {
-        if (m_impl)
-        {
-            m_impl->StopAll();
-
-            std::wstring lastKey = m_impl->GetLastPlayedKey();
-            if (!lastKey.empty())
-            {
-                m_impl->PlayEffect(lastKey, 0, 0, 0);
-            }
-        }
-    }
-
-    void EffekseerRenderer::StopRoot()
-    {
-        if (m_impl)
-        {
-            m_impl->StopAll();
-        }
-    }
-
-    void EffekseerRenderer::PlayEffect(System::String^ path, float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            std::wstring wpath = msclr::interop::marshal_as<std::wstring>(path);
-            m_impl->PlayEffect(wpath, x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::Destroy()
-    {
-        if (m_impl)
-        {
-            m_impl->Shutdown();
-        }
-    }
-
-    int EffekseerRenderer::GetTotalFrame()
-    {
-        if (!m_impl) return 0;
-        std::wstring key = m_impl->GetLastPlayedKey();
-        if (key.empty()) return 0;
-        return m_impl->GetTotalFrame(key);
-    }
+    const auto key = manager->GetLastPlayedKey();
+    return key.empty() ? 0 : manager->GetTotalFrame(key);
 }

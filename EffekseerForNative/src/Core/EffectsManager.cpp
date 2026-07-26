@@ -1,4 +1,5 @@
 #include "EffectsManager.h"
+#include "PathUtils.h"
 
 #include <filesystem>
 #include <chrono>
@@ -204,21 +205,20 @@ void EffectsManager::Draw()
     renderer_->EndRendering();
 }
 
-bool EffectsManager::LoadEffect(const std::wstring& key, const std::wstring& path)
+bool EffectsManager::LoadEffect(const std::wstring& key, const std::filesystem::path& path)
 {
     lastErrorMessage_.clear();
     ClearLastEffekseerError();
 
     if (manager_.Get() == nullptr) return false;
-    std::filesystem::path p(path);
-    std::wstring dir = p.parent_path().wstring();
-    if (!dir.empty() && dir.back() != L'\\') dir += L'\\';
+    const auto effectPath = EffekseerForNative::PathUtils::ToUtf16PathString(path);
+    const auto directoryPath = EffekseerForNative::PathUtils::ToUtf16PathString(path.parent_path());
 
     auto effect = ::Effekseer::Effect::Create(
         manager_->GetSetting(),
-        (const char16_t*)path.c_str(),
+        effectPath.c_str(),
         1.0f,
-        (const char16_t*)dir.c_str());
+        directoryPath.empty() ? nullptr : directoryPath.c_str());
     if (effect == nullptr)
     {
         lastErrorMessage_ = ConsumeLastEffekseerError();

@@ -81,13 +81,19 @@
 <data name="Camera_Z_Desc" xml:space="preserve"><value>카메라 Z 좌표</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>시야각</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>시야각(도)</value></data>
+<data name="Video_Projection_Name" xml:space="preserve"><value>투영</value></data>
+<data name="Video_Projection_Desc" xml:space="preserve"><value>카메라 투영 방식입니다.</value></data>
+<data name="Video_Projection_Perspective" xml:space="preserve"><value>원근 투영</value></data>
+<data name="Video_Projection_Orthographic" xml:space="preserve"><value>직교 투영</value></data>
+<data name="Video_OrthographicSize_Name" xml:space="preserve"><value>직교 크기</value></data>
+<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>직교 투영 시 표시 범위입니다.</value></data>
 <data name="Transform_Scale_Name" xml:space="preserve"><value>배율</value></data>
 <data name="Transform_Scale_Desc" xml:space="preserve"><value>효과 전체의 배율</value></data>
-<data name="Transform_PositionX_Name" xml:space="preserve"><value>위치 X</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
 <data name="Transform_PositionX_Desc" xml:space="preserve"><value>효과 위치 X</value></data>
-<data name="Transform_PositionY_Name" xml:space="preserve"><value>위치 Y</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
 <data name="Transform_PositionY_Desc" xml:space="preserve"><value>효과 위치 Y</value></data>
-<data name="Transform_PositionZ_Name" xml:space="preserve"><value>위치 Z</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
 <data name="Transform_PositionZ_Desc" xml:space="preserve"><value>효과 위치 Z</value></data>
 <data name="Transform_RotationX_Name" xml:space="preserve"><value>회전 X</value></data>
 <data name="Transform_RotationX_Desc" xml:space="preserve"><value>효과 회전 X</value></data>

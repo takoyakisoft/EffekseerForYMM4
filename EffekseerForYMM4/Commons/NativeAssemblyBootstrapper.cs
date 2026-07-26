@@ -2,103 +2,66 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Loader;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace EffekseerForYMM4.Commons;
 
 internal static class NativeAssemblyBootstrapper
 {
-    private const string NativeAssemblyName = "EffekseerForNative";
-    private const string NativeAssemblyFileName = $"{NativeAssemblyName}.dll";
-    private static readonly string PluginDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+    internal const string NativeLibraryName = "EffekseerForNative";
+    private const string NativeLibraryFileName = $"{NativeLibraryName}.dll";
+    private static readonly object SyncRoot = new();
+    private static readonly string PluginDirectory =
+        Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
     private static readonly string PayloadDirectory = Path.Combine(PluginDirectory, "nativepayload");
     private static readonly string CacheRootDirectory = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "YukkuriMovieMaker",
         "PluginCache",
         "EffekseerForYMM4");
+    private static bool isInitialized;
 
-    [SuppressMessage("Usage", "CA2255:ModuleInitializer 属性はライブラリ コードで使用しないでください", Justification = "YMM4 plugin load before native bridge resolution is required.")]
+    [SuppressMessage("Usage", "CA2255:ModuleInitializer 属性はライブラリ コードで使用しないでください", Justification = "The native C ABI resolver must be registered before the first P/Invoke call.")]
     [ModuleInitializer]
-    internal static void Initialize()
+    internal static void Initialize() => EnsureInitialized();
+
+    internal static void EnsureInitialized()
     {
-        AssemblyLoadContext.Default.Resolving += ResolveNativeAssembly;
-        PrepareNativeFiles();
-        TryLoadNativeAssembly();
+        lock (SyncRoot)
+        {
+            if (isInitialized)
+            {
+                return;
+            }
+
+            NativeLibrary.SetDllImportResolver(typeof(NativeAssemblyBootstrapper).Assembly, ResolveNativeLibrary);
+            isInitialized = true;
+        }
     }
 
-    private static Assembly? ResolveNativeAssembly(AssemblyLoadContext context, AssemblyName assemblyName)
+    private static IntPtr ResolveNativeLibrary(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
     {
-        if (!string.Equals(assemblyName.Name, NativeAssemblyName, StringComparison.OrdinalIgnoreCase))
+        _ = assembly;
+        _ = searchPath;
+        if (!string.Equals(libraryName, NativeLibraryName, StringComparison.OrdinalIgnoreCase))
         {
-            return null;
+            return IntPtr.Zero;
         }
 
-        return TryLoadNativeAssembly();
+        var cachePath = PrepareNativeLibrary();
+        if (cachePath != null && NativeLibrary.TryLoad(cachePath, out var cacheHandle))
+        {
+            return cacheHandle;
+        }
+
+        var developmentPath = Path.Combine(AppContext.BaseDirectory, NativeLibraryFileName);
+        return NativeLibrary.TryLoad(developmentPath, out var developmentHandle)
+            ? developmentHandle
+            : IntPtr.Zero;
     }
 
-    private static Assembly? TryLoadNativeAssembly()
-    {
-        var nativeAssemblyPath = GetNativeAssemblyPath();
-        if (nativeAssemblyPath == null || !File.Exists(nativeAssemblyPath))
-        {
-            return null;
-        }
-
-        var loadedAssembly = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .FirstOrDefault(assembly => string.Equals(assembly.GetName().Name, NativeAssemblyName, StringComparison.OrdinalIgnoreCase));
-        if (loadedAssembly != null)
-        {
-            return loadedAssembly;
-        }
-
-        return AssemblyLoadContext.Default.LoadFromAssemblyPath(nativeAssemblyPath);
-    }
-
-    private static void PrepareNativeFiles()
-    {
-        if (!Directory.Exists(PayloadDirectory))
-        {
-            return;
-        }
-
-        var cacheDirectory = GetCacheDirectory();
-        if (cacheDirectory == null)
-        {
-            return;
-        }
-
-        Directory.CreateDirectory(cacheDirectory);
-        CopyPayload(cacheDirectory, "EffekseerForNative.bin", "EffekseerForNative.dll");
-        CopyPayload(cacheDirectory, "Ijwhost.bin", "Ijwhost.dll");
-        CopyPayload(cacheDirectory, "EffekseerForNative.pdb.bin", "EffekseerForNative.pdb");
-    }
-
-    private static string? GetNativeAssemblyPath()
-    {
-        var cacheDirectory = GetCacheDirectory();
-        if (cacheDirectory == null)
-        {
-            return null;
-        }
-
-        return Path.Combine(cacheDirectory, NativeAssemblyFileName);
-    }
-
-    private static string? GetCacheDirectory()
-    {
-        var payloadFingerprint = ComputePayloadFingerprint();
-        if (payloadFingerprint == null)
-        {
-            return null;
-        }
-
-        return Path.Combine(CacheRootDirectory, payloadFingerprint);
-    }
-
-    private static string? ComputePayloadFingerprint()
+    private static string? PrepareNativeLibrary()
     {
         var sourcePath = Path.Combine(PayloadDirectory, "EffekseerForNative.bin");
         if (!File.Exists(sourcePath))
@@ -106,50 +69,44 @@ internal static class NativeAssemblyBootstrapper
             return null;
         }
 
-        using var incrementalHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        foreach (var fileName in new[] { "EffekseerForNative.bin", "Ijwhost.bin", "EffekseerForNative.pdb.bin" })
-        {
-            var path = Path.Combine(PayloadDirectory, fileName);
-            if (!File.Exists(path))
-            {
-                continue;
-            }
+        var fingerprint = ComputeFingerprint(sourcePath);
+        var cacheDirectory = Path.Combine(CacheRootDirectory, fingerprint);
+        Directory.CreateDirectory(cacheDirectory);
 
-            incrementalHash.AppendData(System.Text.Encoding.UTF8.GetBytes(fileName));
-            using var stream = File.OpenRead(path);
-            var buffer = new byte[81920];
-            int bytesRead;
-            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                incrementalHash.AppendData(buffer, 0, bytesRead);
-            }
+        var destinationPath = Path.Combine(cacheDirectory, NativeLibraryFileName);
+        CopyIfMissing(sourcePath, destinationPath);
+
+        var pdbSource = Path.Combine(PayloadDirectory, "EffekseerForNative.pdb.bin");
+        if (File.Exists(pdbSource))
+        {
+            CopyIfMissing(pdbSource, Path.Combine(cacheDirectory, "EffekseerForNative.pdb"));
         }
 
-        return Convert.ToHexString(incrementalHash.GetHashAndReset());
+        return destinationPath;
     }
 
-    private static void CopyPayload(string cacheDirectory, string sourceFileName, string destinationFileName)
+    private static string ComputeFingerprint(string path)
     {
-        var sourcePath = Path.Combine(PayloadDirectory, sourceFileName);
-        if (!File.Exists(sourcePath))
+        using var stream = File.OpenRead(path);
+        return Convert.ToHexString(SHA256.HashData(stream));
+    }
+
+    private static void CopyIfMissing(string sourcePath, string destinationPath)
+    {
+        if (File.Exists(destinationPath))
         {
             return;
         }
 
-        var destinationPath = Path.Combine(cacheDirectory, destinationFileName);
-        var shouldCopy = !File.Exists(destinationPath);
-        if (shouldCopy)
+        try
         {
-            try
-            {
-                File.Copy(sourcePath, destinationPath, false);
-            }
-            catch (IOException) when (File.Exists(destinationPath))
-            {
-            }
-            catch (UnauthorizedAccessException) when (File.Exists(destinationPath))
-            {
-            }
+            File.Copy(sourcePath, destinationPath, overwrite: false);
+        }
+        catch (IOException) when (File.Exists(destinationPath))
+        {
+        }
+        catch (UnauthorizedAccessException) when (File.Exists(destinationPath))
+        {
         }
     }
 }

@@ -1,6 +1,7 @@
 name: Build and Release
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - "v*"
@@ -16,22 +17,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Download YMM4
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/manju-summoner/YukkuriMovieMaker4/releases/download/v4.49.0.2/YukkuriMovieMaker_v4.49.0.2.zip" -OutFile "YMM4.zip"
-          Expand-Archive -Path "YMM4.zip" -DestinationPath "YMM4"
-
-      - name: Setup Directory.Build.props
-        run: |
-          $content = @"
-          <Project>
-            <PropertyGroup>
-              <YMM4DirPath>$(Resolve-Path .\YMM4)\</YMM4DirPath>
-            </PropertyGroup>
-          </Project>
-          "@
-          Set-Content -Path "Directory.Build.props" -Value $content
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -40,41 +25,74 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      - name: Restore NuGet packages
-        run: dotnet restore EffekseerForYMM4
+      - name: Download latest YMM4
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $release = gh release view --repo manju-summoner/YukkuriMovieMaker4 --json tagName,assets | ConvertFrom-Json
+          $asset = $release.assets |
+            Where-Object { $_.name -match '^YukkuriMovieMaker_v.*\.zip$' -and $_.name -notmatch '_Lite\.zip$' } |
+            Select-Object -First 1
+          if ($null -eq $asset) {
+            throw "Non-Lite YMM4 ZIP asset was not found in release $($release.tagName)."
+          }
 
-      - name: Build Native
-        working-directory: EffekseerForNative
-        run: msbuild EffekseerForNative.vcxproj /p:Configuration=Release /p:Platform=x64
+          New-Item -ItemType Directory -Force -Path ".\YMM4Download" | Out-Null
+          gh release download $release.tagName --repo manju-summoner/YukkuriMovieMaker4 --pattern $asset.name --dir ".\YMM4Download" --clobber
+          Expand-Archive -LiteralPath ".\YMM4Download\$($asset.name)" -DestinationPath ".\YMM4" -Force
 
-      - name: Build Managed
-        working-directory: EffekseerForYMM4
-        run: msbuild EffekseerForYMM4.csproj /p:Configuration=Release /p:Platform=x64
+          $exe = Get-ChildItem -LiteralPath ".\YMM4" -Recurse -Filter "YukkuriMovieMaker.exe" -File | Select-Object -First 1
+          if ($null -eq $exe) {
+            throw "YukkuriMovieMaker.exe was not found after extracting $($asset.name)."
+          }
 
-      - name: Create Release Package
+          "YMM4_DIR=$($exe.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Using YMM4 $($release.tagName) from $($exe.Directory.FullName)."
+
+      - name: Setup Directory.Build.props
         shell: pwsh
         run: |
-          $pluginPath = "YMM4/user/plugin/EffekseerForYMM4"
-          if (-not (Test-Path $pluginPath)) {
-            Write-Error "Plugin output directory not found at $pluginPath"
-            exit 1
+          $content = @"
+          <Project>
+            <PropertyGroup>
+              <YMM4DirPath>$env:YMM4_DIR\</YMM4DirPath>
+            </PropertyGroup>
+          </Project>
+          "@
+          Set-Content -Path "Directory.Build.props" -Value $content
+
+      - name: Restore NuGet packages
+        shell: pwsh
+        run: dotnet restore .\EffekseerForYMM4\EffekseerForYMM4.csproj
+
+      - name: Build plugin
+        shell: pwsh
+        run: msbuild .\EffekseerForYMM4\EffekseerForYMM4.csproj /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Create BOOTH package
+        shell: pwsh
+        run: |
+          $project = [xml](Get-Content -LiteralPath ".\EffekseerForYMM4\EffekseerForYMM4.csproj" -Raw)
+          $version = [string]$project.Project.PropertyGroup.Version
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            throw "Version was not found in EffekseerForYMM4.csproj."
           }
-          if (-not (Test-Path "$pluginPath/nativepayload/EffekseerForNative.bin")) {
-            Write-Error "Native payload not found at $pluginPath/nativepayload/EffekseerForNative.bin"
-            exit 1
+          if ("${{ github.ref_type }}" -eq "tag" -and "${{ github.ref_name }}" -ne "v$version") {
+            throw "Tag/version mismatch. Tag=${{ github.ref_name }} Version=$version"
           }
-          if (-not (Test-Path "$pluginPath/nativepayload/Ijwhost.bin")) {
-            Write-Error "Native payload not found at $pluginPath/nativepayload/Ijwhost.bin"
-            exit 1
-          }
-          Copy-Item -Path "README.md" -Destination "$pluginPath/Readme.txt"
-          Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.ymme"
-          Compress-Archive -Path "$pluginPath" -DestinationPath "EffekseerForYMM4.zip"
+          .\scripts\package-release.ps1 -YMM4DirPath "$env:YMM4_DIR" -Version $version -OutputDirectory ".\artifacts"
+
+      - name: Upload BOOTH package
+        uses: actions/upload-artifact@v4
+        with:
+          name: EffekseerForYMM4-booth-package
+          path: artifacts/*.zip
+          if-no-files-found: error
 
       - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            EffekseerForYMM4.ymme
-            EffekseerForYMM4.zip
+          files: artifacts/*.zip
           generate_release_notes: true

@@ -14,8 +14,9 @@ EffekseerのエフェクトをゆっくりMovieMaker4（YMM4）で再生する�
 
 ## インストール方法
 
-1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)から最新の`EffekseerForYMM4.zip`をダウンロードします。
-2. `YukkuriMovieMaker4/user/plugin`フォルダ内に、ダウンロードしたファイルをそのまま解凍します。
+1. [GitHub Releases](https://github.com/takoyakisoft/EffekseerForYMM4/releases)またはBOOTHから最新の`EffekseerForYMM4.zip`をダウンロードします。
+2. zipを展開し、`EffekseerForYMM4.ymme`を開きます。
+3. YMM4の案内に従ってプラグインをインストールします。
 
 ## 使い方
 
@@ -48,8 +49,8 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
   - 純粋ネイティブC++の静的ライブラリです。
   - Effekseer本体とネイティブ実装をビルドします。
 - `EffekseerForNative`
-  - C++/CLI の薄いブリッジです。
-  - `EffekseerNativeCore` を参照し、C# 側から利用するDLLを生成します。
+  - 純粋ネイティブC++のC ABI DLLです。
+  - `EffekseerNativeCore` を参照し、C#側から`LibraryImport`で利用するDLLを生成します。
 - `EffekseerForYMM4`
   - YMM4 プラグイン本体です。
   - UI、ローカライズ、ファイルコピー、ネイティブDLL展開を担当します。
@@ -76,13 +77,14 @@ Effekseerでファイルを開き、メニューの「ファイル」>「エク�
 ### 配布用ファイルについて
 
 - 翻訳ファイルはビルド時に `ar-sa`, `en-us`, `es-es`, `id-id`, `ko-kr`, `zh-cn`, `zh-tw` の `EffekseerForYMM4.resources.dll` として出力されます。
-- ネイティブDLLはプラグインフォルダ直下に置かず、`nativepayload` 配下に `EffekseerForNative.bin` と `Ijwhost.bin` として配置されます。
+- ネイティブDLLはプラグインフォルダ直下に置かず、`nativepayload` 配下に `EffekseerForNative.bin` として配置されます。
 - 実行時に `EffekseerForYMM4` が `%LocalAppData%\YukkuriMovieMaker\PluginCache\EffekseerForYMM4` へ上書き展開して読み込みます。
+- BOOTH配布用zipには、YMM4インストーラー用の`EffekseerForYMM4.ymme`と`Readme.txt`が含まれます。
 
 ### ビルド前提
 
 - `Directory.Build.props` に `YMM4DirPath` を設定すると、ビルド後に YMM4 の `user/plugin/EffekseerForYMM4` へ自動コピーされます。
-- GitHub Actions の release ビルドは `Release|x64` のみを使用します。
+- GitHub Actions は最新の通常版YMM4を取得し、`Release|x64`でビルドしてBOOTH配布用zipを作成します。
 
 ## ライセンス
 

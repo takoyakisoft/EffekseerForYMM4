@@ -81,13 +81,19 @@
 <data name="Camera_Z_Desc" xml:space="preserve"><value>Posición Z de la cámara</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>Campo de visión</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>Campo de visión (grados)</value></data>
+<data name="Video_Projection_Name" xml:space="preserve"><value>Proyección</value></data>
+<data name="Video_Projection_Desc" xml:space="preserve"><value>Modo de proyección de la cámara.</value></data>
+<data name="Video_Projection_Perspective" xml:space="preserve"><value>Perspectiva</value></data>
+<data name="Video_Projection_Orthographic" xml:space="preserve"><value>Ortográfica</value></data>
+<data name="Video_OrthographicSize_Name" xml:space="preserve"><value>Tamaño ortográfico</value></data>
+<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>Rango visible para proyección ortográfica.</value></data>
 <data name="Transform_Scale_Name" xml:space="preserve"><value>Escala</value></data>
 <data name="Transform_Scale_Desc" xml:space="preserve"><value>Escala de todo el efecto</value></data>
-<data name="Transform_PositionX_Name" xml:space="preserve"><value>Posición X</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
 <data name="Transform_PositionX_Desc" xml:space="preserve"><value>Posición X del efecto</value></data>
-<data name="Transform_PositionY_Name" xml:space="preserve"><value>Posición Y</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
 <data name="Transform_PositionY_Desc" xml:space="preserve"><value>Posición Y del efecto</value></data>
-<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Posición Z</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
 <data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Posición Z del efecto</value></data>
 <data name="Transform_RotationX_Name" xml:space="preserve"><value>Rotación X</value></data>
 <data name="Transform_RotationX_Desc" xml:space="preserve"><value>Rotación X del efecto</value></data>

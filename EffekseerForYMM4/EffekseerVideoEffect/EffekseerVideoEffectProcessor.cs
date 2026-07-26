@@ -223,7 +223,18 @@ namespace EffekseerForYMM4
                 // Update Projection
                 float fov = (float)item.Fov.GetValue((long)animFrame, length, safeFps);
 
-                nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
+                if (item.ProjectionMode == ProjectionMode.Orthographic)
+                {
+                    var orthographicHeight = Math.Max(
+                        0.001f,
+                        (float)item.OrthographicSize.GetValue((long)animFrame, length, safeFps));
+                    var orthographicWidth = orthographicHeight * width / Math.Max(1.0f, height);
+                    nativeRenderer.SetProjectionOrthographic(orthographicWidth, orthographicHeight, 1.0f, 2000.0f);
+                }
+                else
+                {
+                    nativeRenderer.SetProjectionPerspective(fov, width, height, 1.0f, 2000.0f);
+                }
                 nativeRenderer.SetLocation(posX, posY, posZ);
                 nativeRenderer.SetRotation(rotX, rotY, rotZ);
                 nativeRenderer.SetScale(scale);

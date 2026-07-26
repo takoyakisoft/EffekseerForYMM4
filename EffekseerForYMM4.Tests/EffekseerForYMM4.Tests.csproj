@@ -40,6 +40,7 @@
         <HintPath>$(YMM4DirPath)Vortice.Mathematics.dll</HintPath>
     </Reference>
     
+    <ProjectReference Include="..\EffekseerForNative\EffekseerForNative.vcxproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\EffekseerForYMM4\EffekseerForYMM4.csproj" />
   </ItemGroup>
 
@@ -49,10 +50,6 @@
     </None>
     <None Include="..\EffekseerForNative\bin\$(Configuration)\EffekseerForNative.dll">
       <Link>EffekseerForNative.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\EffekseerForNative\bin\$(Configuration)\Ijwhost.dll">
-      <Link>Ijwhost.dll</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

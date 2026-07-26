@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -22,7 +23,7 @@ public:
     void Update(float deltaSeconds);
     void Draw();
 
-    bool LoadEffect(const std::wstring& key, const std::wstring& path);
+    bool LoadEffect(const std::wstring& key, const std::filesystem::path& path);
     void PlayEffect(const std::wstring& key, float x, float y, float z = 0.0f);
 
     void StopAll();

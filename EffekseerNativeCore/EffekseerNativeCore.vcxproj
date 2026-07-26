@@ -59,13 +59,15 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\EffekseerForNative\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\include;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>false</TreatWarningAsError>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -73,21 +75,25 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)..\EffekseerForNative\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\include;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src;$(ProjectDir)..\EffekseerForNative\vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\EffekseerForNative\src\Core\EffekseerSound.h" />
     <ClInclude Include="..\EffekseerForNative\src\Core\EffectsManager.h" />
+    <ClInclude Include="..\EffekseerForNative\src\Core\PathUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\EffekseerForNative\src\Core\EffekseerSound.cpp" />
     <ClCompile Include="..\EffekseerForNative\src\Core\EffectsManager.cpp" />
+    <ClCompile Include="..\EffekseerForNative\src\Core\PathUtils.cpp" />
     <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\Effekseer\Effekseer\**\*.cpp" />
     <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\EffekseerRendererCommon\**\*.cpp" />
     <ClCompile Include="..\EffekseerForNative\vendor\effekseer\src\EffekseerRendererDX11\**\*.cpp" />

@@ -13,17 +13,15 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{9482C5D6-B446-4985-8D4C-762283088C95}</ProjectGuid>
-    <Keyword>NetCoreCProj</Keyword>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>EffekseerForNative</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
@@ -32,7 +30,6 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v145</PlatformToolset>
-    <CLRSupport>NetCore</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
     <EnableASAN>false</EnableASAN>
     <EnableFuzzer>false</EnableFuzzer>
@@ -64,12 +61,14 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <TreatWarningAsError>false</TreatWarningAsError>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -80,11 +79,13 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;dcomp.lib;d3dcompiler.lib;xaudio2.lib;user32.lib;gdi32.lib;shell32.lib;comdlg32.lib;ole32.lib;uuid.lib;oleacc.lib;uiautomationcore.lib;imm32.lib;windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -92,9 +93,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Wrapper\EffekseerRenderer.h" />
+    <ClInclude Include="src\Wrapper\NativePathBridge.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Wrapper\EffekseerRenderer.cpp" />
+    <ClCompile Include="src\Wrapper\NativePathBridge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EffekseerNativeCore\EffekseerNativeCore.vcxproj">

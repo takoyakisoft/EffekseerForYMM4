@@ -1,40 +1,83 @@
 #pragma once
 
-#include <d3d11.h>
+#include <cstdint>
 
-class EffectsManager;
+#if defined(_WIN32)
+#define EFFEKSEER_NATIVE_API extern "C" __declspec(dllexport)
+#else
+#define EFFEKSEER_NATIVE_API extern "C"
+#endif
 
-using namespace System;
+using EffekseerRendererHandle = void*;
 
-namespace EffekseerForNative {
-
-        public ref class EffekseerRenderer
-        {
-        public:
-            EffekseerRenderer();
-            ~EffekseerRenderer();
-            !EffekseerRenderer();
-
-            bool Initialize(IntPtr device, IntPtr context, int width, int height);
-            bool LoadEffect(System::String^ path);
-            property System::String^ LastErrorMessage { System::String^ get(); }
-            void Render();
-            void Update(float deltaFrames);
-            void SetSoundCallback(System::IntPtr loadSound, System::IntPtr unloadSound, System::IntPtr playSound);
-            void SetProjection(int width, int height);
-            void SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal);
-            void SetProjectionOrthographic(float width, float height, float nearVal, float farVal);
-            void SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
-            void SetLocation(float x, float y, float z);
-            void SetRotation(float x, float y, float z);
-            void SetScale(float scale);
-            void Reset();
-            void StopRoot();
-            void PlayEffect(System::String^ path, float x, float y, float z);
-            void Destroy();
-            int GetTotalFrame();
-
-        private:
-            EffectsManager* m_impl = nullptr;
-        };
-}
+EFFEKSEER_NATIVE_API EffekseerRendererHandle effekseer_renderer_create();
+EFFEKSEER_NATIVE_API void effekseer_renderer_destroy(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_initialize(
+    EffekseerRendererHandle handle,
+    void* device,
+    void* context,
+    int32_t width,
+    int32_t height);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_load_effect(
+    EffekseerRendererHandle handle,
+    const char* path_utf8);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_get_last_error(
+    EffekseerRendererHandle handle,
+    char* buffer,
+    int32_t buffer_size);
+EFFEKSEER_NATIVE_API void effekseer_renderer_render(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API void effekseer_renderer_update(EffekseerRendererHandle handle, float delta_frames);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_sound_callback(
+    EffekseerRendererHandle handle,
+    void* load_sound,
+    void* unload_sound,
+    void* play_sound);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_projection(
+    EffekseerRendererHandle handle,
+    int32_t width,
+    int32_t height);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_projection_perspective(
+    EffekseerRendererHandle handle,
+    float fov,
+    int32_t width,
+    int32_t height,
+    float near_value,
+    float far_value);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_projection_orthographic(
+    EffekseerRendererHandle handle,
+    float width,
+    float height,
+    float near_value,
+    float far_value);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_camera_look_at(
+    EffekseerRendererHandle handle,
+    float position_x,
+    float position_y,
+    float position_z,
+    float target_x,
+    float target_y,
+    float target_z,
+    float up_x,
+    float up_y,
+    float up_z);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_location(
+    EffekseerRendererHandle handle,
+    float x,
+    float y,
+    float z);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_rotation(
+    EffekseerRendererHandle handle,
+    float x,
+    float y,
+    float z);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_scale(EffekseerRendererHandle handle, float scale);
+EFFEKSEER_NATIVE_API void effekseer_renderer_reset(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API void effekseer_renderer_stop(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API void effekseer_renderer_play_effect(
+    EffekseerRendererHandle handle,
+    const char* path_utf8,
+    float x,
+    float y,
+    float z);
+EFFEKSEER_NATIVE_API void effekseer_renderer_shutdown(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_get_total_frame(EffekseerRendererHandle handle);

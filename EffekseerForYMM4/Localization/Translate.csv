@@ -21,19 +21,25 @@ Camera_Z_Name,name,Z,Z,Z,Z,Z,Z,Z,Z
 Camera_Z_Desc,desc,カメラのZ座標,Camera Z position,相机 Z 坐标,相機 Z 座標,카메라 Z 좌표,Posición Z de la cámara,موضع Z للكاميرا,Posisi Z kamera
 Video_Fov_Name,name,視野角,Field of View,视野角,視野角,시야각,Campo de visión,زاوية الرؤية,Sudut Pandang
 Video_Fov_Desc,desc,視野角(度),Field of view (degrees),视野角（度）,視野角（度）,시야각(도),Campo de visión (grados),زاوية الرؤية (درجة),Sudut pandang (derajat)
+Video_Projection_Name,name,投影,Projection,投影,投影,투영,Proyección,الإسقاط,Proyeksi
+Video_Projection_Desc,desc,遠近感を付けるか、平面的に表示するかを選びます。,Camera projection mode.,相机的投影方式。,相機的投影方式。,카메라 투영 방식입니다.,Modo de proyección de la cámara.,وضع إسقاط الكاميرا.,Mode proyeksi kamera.
+Video_Projection_Perspective,ui,透視投影,Perspective,透视投影,透視投影,원근 투영,Perspectiva,إسقاط منظور,Perspektif
+Video_Projection_Orthographic,ui,正投影,Orthographic,正交投影,正交投影,직교 투영,Ortográfica,إسقاط متعامد,Ortografis
+Video_OrthographicSize_Name,name,正投影サイズ,Orthographic Size,正交尺寸,正交尺寸,직교 크기,Tamaño ortográfico,حجم الإسقاط المتعامد,Ukuran Ortografis
+Video_OrthographicSize_Desc,desc,平面的に表示するときの表示範囲を調整します。,Visible range for orthographic projection.,正交投影时的显示范围。,正交投影時的顯示範圍。,직교 투영 시 표시 범위입니다.,Rango visible para proyección ortográfica.,نطاق العرض عند الإسقاط المتعامد.,Rentang tampilan untuk proyeksi ortografis.
 Transform_Scale_Name,name,拡大率,Scale,缩放率,縮放率,배율,Escala,المقياس,Skala
 Transform_Scale_Desc,desc,エフェクト全体の拡大率,Scale of the entire effect,整个效果的缩放率,整體效果的縮放率,효과 전체의 배율,Escala de todo el efecto,مقياس التأثير بالكامل,Skala seluruh efek
-Transform_PositionX_Name,name,位置X,Position X,位置X,位置X,위치 X,Posición X,الموضع X,Posisi X
+Transform_PositionX_Name,name,X,X,X,X,X,X,X,X
 Transform_PositionX_Desc,desc,エフェクト位置X,Effect position X,效果位置 X,效果位置 X,효과 위치 X,Posición X del efecto,موضع التأثير X,Posisi efek X
-Transform_PositionY_Name,name,位置Y,Position Y,位置Y,位置Y,위치 Y,Posición Y,الموضع Y,Posisi Y
+Transform_PositionY_Name,name,Y,Y,Y,Y,Y,Y,Y,Y
 Transform_PositionY_Desc,desc,エフェクト位置Y,Effect position Y,效果位置 Y,效果位置 Y,효과 위치 Y,Posición Y del efecto,موضع التأثير Y,Posisi efek Y
-Transform_PositionZ_Name,name,位置Z,Position Z,位置Z,位置Z,위치 Z,Posición Z,الموضع Z,Posisi Z
+Transform_PositionZ_Name,name,Z,Z,Z,Z,Z,Z,Z,Z
 Transform_PositionZ_Desc,desc,エフェクト位置Z,Effect position Z,效果位置 Z,效果位置 Z,효과 위치 Z,Posición Z del efecto,موضع التأثير Z,Posisi efek Z
-Transform_RotationX_Name,name,回転X,Rotation X,旋转X,旋轉X,회전 X,Rotación X,الدوران X,Rotasi X
+Transform_RotationX_Name,name,回転角X,Rotation X,旋转 X,旋轉 X,회전 X,Rotación X,دوران X,Rotasi X
 Transform_RotationX_Desc,desc,エフェクト回転X,Effect rotation X,效果旋转 X,效果旋轉 X,효과 회전 X,Rotación X del efecto,دوران التأثير X,Rotasi efek X
-Transform_RotationY_Name,name,回転Y,Rotation Y,旋转Y,旋轉Y,회전 Y,Rotación Y,الدوران Y,Rotasi Y
+Transform_RotationY_Name,name,回転角Y,Rotation Y,旋转 Y,旋轉 Y,회전 Y,Rotación Y,دوران Y,Rotasi Y
 Transform_RotationY_Desc,desc,エフェクト回転Y,Effect rotation Y,效果旋转 Y,效果旋轉 Y,효과 회전 Y,Rotación Y del efecto,دوران التأثير Y,Rotasi efek Y
-Transform_RotationZ_Name,name,回転Z,Rotation Z,旋转Z,旋轉Z,회전 Z,Rotación Z,الدوران Z,Rotasi Z
+Transform_RotationZ_Name,name,回転角Z,Rotation Z,旋转 Z,旋轉 Z,회전 Z,Rotación Z,دوران Z,Rotasi Z
 Transform_RotationZ_Desc,desc,エフェクト回転Z,Effect rotation Z,效果旋转 Z,效果旋轉 Z,효과 회전 Z,Rotación Z del efecto,دوران التأثير Z,Rotasi efek Z
 Error_DialogTitle,title,Error,Error,错误,錯誤,오류,Error,خطأ,Error
 Error_EffectLoadFailed_Title,title,Effekseerファイルの読み込みに失敗しました,Failed to load the Effekseer file,加载 Effekseer 文件失败,載入 Effekseer 檔案失敗,Effekseer 파일을 불러오지 못했습니다,No se pudo cargar el archivo de Effekseer,تعذر تحميل ملف Effekseer,Gagal memuat file Effekseer

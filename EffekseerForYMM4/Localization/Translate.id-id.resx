@@ -81,13 +81,19 @@
 <data name="Camera_Z_Desc" xml:space="preserve"><value>Posisi Z kamera</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>Sudut Pandang</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>Sudut pandang (derajat)</value></data>
+<data name="Video_Projection_Name" xml:space="preserve"><value>Proyeksi</value></data>
+<data name="Video_Projection_Desc" xml:space="preserve"><value>Mode proyeksi kamera.</value></data>
+<data name="Video_Projection_Perspective" xml:space="preserve"><value>Perspektif</value></data>
+<data name="Video_Projection_Orthographic" xml:space="preserve"><value>Ortografis</value></data>
+<data name="Video_OrthographicSize_Name" xml:space="preserve"><value>Ukuran Ortografis</value></data>
+<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>Rentang tampilan untuk proyeksi ortografis.</value></data>
 <data name="Transform_Scale_Name" xml:space="preserve"><value>Skala</value></data>
 <data name="Transform_Scale_Desc" xml:space="preserve"><value>Skala seluruh efek</value></data>
-<data name="Transform_PositionX_Name" xml:space="preserve"><value>Posisi X</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
 <data name="Transform_PositionX_Desc" xml:space="preserve"><value>Posisi efek X</value></data>
-<data name="Transform_PositionY_Name" xml:space="preserve"><value>Posisi Y</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
 <data name="Transform_PositionY_Desc" xml:space="preserve"><value>Posisi efek Y</value></data>
-<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Posisi Z</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
 <data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Posisi efek Z</value></data>
 <data name="Transform_RotationX_Name" xml:space="preserve"><value>Rotasi X</value></data>
 <data name="Transform_RotationX_Desc" xml:space="preserve"><value>Rotasi efek X</value></data>
