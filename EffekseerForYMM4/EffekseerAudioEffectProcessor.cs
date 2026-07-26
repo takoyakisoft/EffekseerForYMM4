@@ -9,6 +9,14 @@ namespace EffekseerForYMM4;
 internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
 {
     private const double EffekseerFps = 60.0;
+    private const double MaxSimulationAdvanceFrames = 8.0;
+
+    private enum PlaybackAccessKind
+    {
+        Initial,
+        Continuous,
+        Random,
+    }
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     private delegate int LoadSoundDelegate([MarshalAs(UnmanagedType.LPUTF8Str)] string path);
@@ -44,6 +52,7 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
     private int cachedLoopHz;
     private int loadedTotalFrames;
     private bool hasLoadedEffect;
+    private bool hasPreviousRead;
     private bool disposed;
 
     public override int Hz => Input?.Hz ?? 44100;
@@ -80,7 +89,6 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
     protected override void seek(long position)
     {
         Input?.Seek(position);
-        rendererSampleFrame = -1;
     }
 
     protected override int read(float[] destBuffer, int offset, int count)
@@ -109,6 +117,7 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
     private int ReadCore(float[] destBuffer, int offset, int count)
     {
         var sampleRate = Hz;
+        var startSampleFrame = Position / 2;
         mixer.SetOutputSampleRate(sampleRate);
         var inputRead = Input?.Read(destBuffer, offset, count) ?? 0;
         if (inputRead < count)
@@ -121,9 +130,8 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
             return count;
         }
 
-        var startSampleFrame = Position / 2;
-        SynchronizeRenderer(startSampleFrame, sampleRate);
         ApplySpatialParameters(startSampleFrame, sampleRate);
+        SynchronizeRenderer(startSampleFrame, sampleRate);
 
         var stereoSamplesRemaining = count - (count & 1);
         var writeOffset = offset;
@@ -152,7 +160,7 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
         }
 
         mixer.StopAll();
-        rendererSampleFrame = 0;
+        ResetPlaybackTracking();
         cachedLoopSampleFrames = 0;
         cachedLoopHz = 0;
         loadedTotalFrames = 0;
@@ -236,27 +244,88 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
 
     private void SynchronizeRenderer(long targetSampleFrame, int sampleRate)
     {
-        if (rendererSampleFrame == targetSampleFrame)
+        var target = Math.Max(0, targetSampleFrame);
+        switch (ClassifyPlaybackAccess(target))
         {
-            return;
+            case PlaybackAccessKind.Initial:
+                InitializePlayback(target, sampleRate);
+                break;
+            case PlaybackAccessKind.Continuous:
+                break;
+            case PlaybackAccessKind.Random:
+                RestartPlaybackAt(target, sampleRate);
+                break;
+        }
+        hasPreviousRead = true;
+    }
+
+    private PlaybackAccessKind ClassifyPlaybackAccess(long targetSampleFrame)
+    {
+        if (!hasPreviousRead)
+        {
+            return PlaybackAccessKind.Initial;
         }
 
+        return targetSampleFrame == rendererSampleFrame
+            ? PlaybackAccessKind.Continuous
+            : PlaybackAccessKind.Random;
+    }
+
+    private void InitializePlayback(long targetSampleFrame, int sampleRate)
+    {
+        ReplayRendererAt(targetSampleFrame, sampleRate);
+    }
+
+    private void RestartPlaybackAt(long targetSampleFrame, int sampleRate)
+    {
         mixer.StopAll();
         renderer.Reset();
-        rendererSampleFrame = 0;
+        ReplayRendererAt(targetSampleFrame, sampleRate);
+    }
 
-        var target = Math.Max(0, targetSampleFrame);
+    private void ReplayRendererAt(long targetSampleFrame, int sampleRate)
+    {
         var loopLength = GetLoopLengthInSampleFrames(sampleRate);
-        var replayTarget = loopLength > 0 ? target % loopLength : target;
-        var framesPerStep = Math.Max(1, sampleRate / (int)EffekseerFps);
-        while (rendererSampleFrame < replayTarget)
+        var replayTarget = loopLength > 0
+            ? targetSampleFrame % loopLength
+            : targetSampleFrame;
+        var maxReplaySampleFrames = Math.Max(
+            1L,
+            (long)Math.Ceiling(MaxSimulationAdvanceFrames * sampleRate / EffekseerFps));
+        var replaySampleFrames = Math.Min(replayTarget, maxReplaySampleFrames);
+        var replayStartSampleFrame = replayTarget - replaySampleFrames;
+
+        // Match the video processor's random-access model: jump close to the
+        // absolute timeline position, then replay only a small trailing window.
+        // Sounds emitted during the coarse jump cannot be positioned accurately,
+        // so discard them and reconstruct only the bounded trailing window.
+        if (replayStartSampleFrame > 0)
         {
-            var step = Math.Min(framesPerStep, replayTarget - rendererSampleFrame);
+            renderer.Update((float)(replayStartSampleFrame * EffekseerFps / sampleRate));
+            mixer.StopAll();
+        }
+
+        AdvanceReplay(replaySampleFrames, sampleRate);
+        rendererSampleFrame = targetSampleFrame;
+    }
+
+    private void AdvanceReplay(long sampleFrames, int sampleRate)
+    {
+        var remaining = sampleFrames;
+        var framesPerStep = Math.Max(1, sampleRate / (int)EffekseerFps);
+        while (remaining > 0)
+        {
+            var step = Math.Min(framesPerStep, remaining);
             renderer.Update((float)(step * EffekseerFps / sampleRate));
             mixer.Advance(step);
-            rendererSampleFrame += step;
+            remaining -= step;
         }
-        rendererSampleFrame = target;
+    }
+
+    private void ResetPlaybackTracking()
+    {
+        hasPreviousRead = false;
+        rendererSampleFrame = 0;
     }
 
     private long GetLoopLengthInSampleFrames(int sampleRate)
