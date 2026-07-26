@@ -163,7 +163,7 @@ internal sealed class EffekseerSoundMixer : IDisposable
         }
     }
 
-    public void Mix(float[] buffer, int offset, int count)
+    public void Mix(float[] buffer, int offset, int count, float masterVolume = 1f)
     {
         ArgumentNullException.ThrowIfNull(buffer);
         ArgumentOutOfRangeException.ThrowIfNegative(offset);
@@ -190,8 +190,8 @@ internal sealed class EffekseerSoundMixer : IDisposable
 
                     ReadInterpolated(voice.Sound, voice.Position, out var left, out var right);
                     var target = offset + frame * 2;
-                    buffer[target] += left * leftVolume;
-                    buffer[target + 1] += right * rightVolume;
+                    buffer[target] += left * leftVolume * masterVolume;
+                    buffer[target + 1] += right * rightVolume * masterVolume;
                     voice.Position += step;
                 }
             }

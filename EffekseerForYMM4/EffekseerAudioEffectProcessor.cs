@@ -45,6 +45,7 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
     private readonly PlaySoundDelegate playSound;
     private readonly EffekseerLoadErrorNotifier loadErrorNotifier = new();
 
+    private float[] effectMixBuffer = [];
     private string? loadedFilePath;
     private string? lastReadErrorKey;
     private long rendererSampleFrame;
@@ -142,13 +143,17 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
                 stereoSamplesRemaining / 2,
                 sampleRate);
             renderer.Update((float)(sampleFrames * EffekseerFps / sampleRate));
-            mixer.Mix(destBuffer, writeOffset, sampleFrames * 2);
+            MixEffekseerAudio(
+                destBuffer,
+                writeOffset,
+                sampleFrames * 2,
+                rendererSampleFrame,
+                sampleRate);
             rendererSampleFrame += sampleFrames;
             writeOffset += sampleFrames * 2;
             stereoSamplesRemaining -= sampleFrames * 2;
         }
 
-        ApplyMasterVolume(destBuffer, offset, count, startSampleFrame, sampleRate);
         return count;
     }
 
@@ -390,6 +395,41 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
         var cameraZ = (float)item.CamPosZ.GetValue(sampleFrame, totalFrames, sampleRate);
         renderer.SetCameraLookAt(cameraX, cameraY, cameraZ, 0, 0, 0, 0, 1, 0);
         mixer.SetListenerPosition(cameraX, cameraY, cameraZ);
+    }
+
+    private void MixEffekseerAudio(
+        float[] destination,
+        int destinationOffset,
+        int count,
+        long startSampleFrame,
+        int sampleRate)
+    {
+        var totalFrames = Math.Max(1L, (long)(duration.TotalSeconds * sampleRate));
+        if (item.Volume.Values.Count <= 1)
+        {
+            var volume = (float)item.Volume.GetValue(
+                startSampleFrame,
+                totalFrames,
+                sampleRate) / 100f;
+            mixer.Mix(destination, destinationOffset, count, volume);
+            return;
+        }
+
+        if (effectMixBuffer.Length < count)
+        {
+            effectMixBuffer = new float[count];
+        }
+        else
+        {
+            Array.Clear(effectMixBuffer, 0, count);
+        }
+
+        mixer.Mix(effectMixBuffer, 0, count);
+        ApplyMasterVolume(effectMixBuffer, 0, count, startSampleFrame, sampleRate);
+        for (var index = 0; index < count; index++)
+        {
+            destination[destinationOffset + index] += effectMixBuffer[index];
+        }
     }
 
     private void ApplyMasterVolume(

@@ -70,6 +70,69 @@ public sealed class EffekseerAudioEffectRegistrationTests
         Assert.True(peak > 0.001f, $"Expected Effekseer audio, but peak was {peak}.");
     }
 
+    [Fact]
+    public void ZeroEffectVolumePreservesInputAudio()
+    {
+        var path = Path.Combine(
+            AppContext.BaseDirectory,
+            "Resources",
+            "Laser01.efkefc");
+        Assert.True(File.Exists(path));
+
+        var effect = new EffekseerAudioEffect
+        {
+            FilePath = path,
+            IsLoop = false,
+        };
+        effect.Volume.Values[0].Value = 0;
+
+        const float inputSample = 0.25f;
+        using var input = new ConstantAudioStream(44100, TimeSpan.FromSeconds(1), inputSample);
+        using var processor = effect.CreateAudioEffect(TimeSpan.FromSeconds(1));
+        processor.Input = input;
+
+        var buffer = new float[4096];
+        var read = processor.Read(buffer, 0, buffer.Length);
+
+        Assert.Equal(buffer.Length, read);
+        Assert.All(buffer, sample => Assert.Equal(inputSample, sample));
+    }
+
+    private sealed class ConstantAudioStream(
+        int hz,
+        TimeSpan duration,
+        float sample) : IAudioStream
+    {
+        private readonly long sampleCount = (long)(duration.TotalSeconds * hz) * 2;
+
+        public int Hz { get; } = hz;
+        public int Channel => 2;
+        public long Duration => sampleCount / 2;
+        public long Position { get; set; }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            var readable = (int)Math.Min(count, sampleCount - Position);
+            if (readable <= 0)
+            {
+                return 0;
+            }
+
+            Array.Fill(buffer, sample, offset, readable);
+            Position += readable;
+            return readable;
+        }
+
+        public void Seek(long position) => Position = position * 2;
+
+        public void Seek(TimeSpan time) =>
+            Position = (long)(time.TotalSeconds * Hz) * 2;
+
+        public void Dispose()
+        {
+        }
+    }
+
     private sealed class SilentAudioStream(int hz, TimeSpan duration) : IAudioStream
     {
         private readonly long frameCount = (long)(duration.TotalSeconds * hz);
