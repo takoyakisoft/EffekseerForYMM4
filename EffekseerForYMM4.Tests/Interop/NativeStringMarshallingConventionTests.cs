@@ -35,7 +35,7 @@ public sealed partial class NativeStringMarshallingConventionTests
         Assert.DoesNotContain("wchar_t", source, StringComparison.Ordinal);
         Assert.DoesNotContain("_wide", source, StringComparison.Ordinal);
         Assert.DoesNotMatch(WideEntryPointPattern(), source);
-        Assert.Contains("const char* pathUtf8", source, StringComparison.Ordinal);
+        Assert.Matches(Utf8NativePathParameterPattern(), source);
     }
 
     [Fact]
@@ -96,6 +96,11 @@ public sealed partial class NativeStringMarshallingConventionTests
         @"LibraryImport\([^\)]*effekseer_renderer_load_effect[^\)]*StringMarshalling\s*=\s*StringMarshalling\.Utf8[^\)]*\)",
         RegexOptions.Singleline)]
     private static partial Regex Utf8LoadEffectImportPattern();
+
+    [GeneratedRegex(
+        @"effekseer_renderer_load_effect\s*\([^\)]*\bconst\s+char\s*\*\s*pathUtf8\b[^\)]*\)",
+        RegexOptions.Singleline)]
+    private static partial Regex Utf8NativePathParameterPattern();
 
     [GeneratedRegex(@"effekseer_[A-Za-z0-9_]*(?:_w|W)\s*\(")]
     private static partial Regex WideEntryPointPattern();

@@ -5,7 +5,7 @@
 //----------------------------------------------------------------------------------
 // Include
 //----------------------------------------------------------------------------------
-#include "Effekseer.Base.h"
+#include "Effekseer.Base.Pre.h"
 #include "Effekseer.File.h"
 
 //----------------------------------------------------------------------------------
@@ -66,14 +66,14 @@ struct EffectInstanceTerm
 	\~English	Minimum end time that the first instance may exist
 	\~Japanese	最初のインスタンスが存在する可能性のある最小の終了時間
 	*/
-	int32_t FirstInstanceEndMin = INT_MAX;
+	int32_t FirstInstanceEndMin = std::numeric_limits<int32_t>::max();
 
 	/**
 	@brief
 	\~English	Maximum end time that the first instance may exist
 	\~Japanese	最初のインスタンスが存在する可能性のある最大の終了時間
 	*/
-	int32_t FirstInstanceEndMax = INT_MAX;
+	int32_t FirstInstanceEndMax = std::numeric_limits<int32_t>::max();
 
 	/**
 	@brief
@@ -94,14 +94,14 @@ struct EffectInstanceTerm
 	\~English	Minimum end time that the last instance may exist
 	\~Japanese	最後のインスタンスが存在する可能性のある最小の終了時間
 	*/
-	int32_t LastInstanceEndMin = INT_MAX;
+	int32_t LastInstanceEndMin = std::numeric_limits<int32_t>::max();
 
 	/**
 	@brief
 	\~English	Maximum end time that the last instance may exist
 	\~Japanese	最後のインスタンスが存在する可能性のある最大の終了時間
 	*/
-	int32_t LastInstanceEndMax = INT_MAX;
+	int32_t LastInstanceEndMax = std::numeric_limits<int32_t>::max();
 };
 
 /**
@@ -603,12 +603,19 @@ public:
 	*/
 	virtual EffectTerm CalculateTerm() const = 0;
 
+	/**
+	@brief
+	\~English	Get values of default dynamic inputs.
+	\~Japanese	動的パラメーターのデフォルトの値を取得する。
+	*/
+	virtual std::array<float, 4> GetDefaultDynamicInputs() const = 0;
+
 	virtual EffectImplemented* GetImplemented() = 0;
 	virtual const EffectImplemented* GetImplemented() const = 0;
 };
 
 /**
-	@brief	
+	@brief
 	\~English	Node rendering parameters
 	\~Japanese	ノードの描画パラメーター
 	@note

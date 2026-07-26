@@ -61,8 +61,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;_DEBUG;EFFEKSEER_FOR_YMM4_PREMULTIPLIED_ALPHA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;$(ProjectDir)vendor\effekseer\src\EffekseerRendererCommon;$(ProjectDir)vendor\effekseer\src\EffekseerRendererDX11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
@@ -79,8 +79,8 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;NDEBUG;EFFEKSEER_FOR_YMM4_PREMULTIPLIED_ALPHA;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;$(ProjectDir)vendor\effekseer\include;$(ProjectDir)vendor\effekseer\src;$(ProjectDir)vendor\effekseer\src\Effekseer;$(ProjectDir)vendor\effekseer\src\EffekseerRendererCommon;$(ProjectDir)vendor\effekseer\src\EffekseerRendererDX11;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <SDLCheck>true</SDLCheck>
@@ -112,11 +112,6 @@
     </ClCompile>
     <ClCompile Include="vendor\effekseer\src\EffekseerMaterialCompiler\**\*.cpp">
       <DisableSpecificWarnings>4018;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Update="vendor\effekseer\src\EffekseerRendererCommon\ModelLoader.cpp">
-      <ObjectFileName>$(IntDir)RendererCommon_%(Filename).obj</ObjectFileName>
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

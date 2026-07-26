@@ -40,7 +40,7 @@ Effekseerで作成したエフェクトを、ゆっくりMovieMaker4（YMM4）�
 
 以下からEffekseerをダウンロードし、同梱の`Sample`フォルダーにあるエフェクトを使用するか、ご自身でエフェクトを作成してください。
 
-[Effekseer 1.7.3.0（Windows版）](https://github.com/effekseer/Effekseer/releases/download/1.7.3.0/Effekseer1.7.3.0Win.zip)
+[Effekseer 1.80.6（Windows版）](https://effekseer.github.io/jp/download.html)
 
 **注意：**
 
@@ -122,7 +122,7 @@ Effekseerを含む第三者コンポーネントの著作権表示とライセ�
 
 ### 使用ライブラリと関連ソフトウェア
 
-- **Effekseer**（v1.7.3.0）：MIT License
+- **Effekseer**（v1.80.6）：MIT License
 - **YukkuriMovieMaker4**
 
 ### 謝辞

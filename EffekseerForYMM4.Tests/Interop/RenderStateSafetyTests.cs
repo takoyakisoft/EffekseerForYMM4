@@ -108,6 +108,38 @@ public sealed class RenderStateSafetyTests
     }
 
     [Fact]
+    public void NativeRendererUsesPremultipliedAlphaForTransparentIntermediateTarget()
+    {
+        var root = FindRepositoryRoot();
+        var project = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForNative",
+            "EffekseerForNative.vcxproj"));
+        var rendererImpl = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForNative",
+            "vendor",
+            "effekseer",
+            "src",
+            "EffekseerRendererCommon",
+            "EffekseerRendererCommon",
+            "EffekseerRenderer.Renderer_Impl.h"));
+
+        Assert.Contains(
+            "EFFEKSEER_FOR_YMM4_PREMULTIPLIED_ALPHA",
+            project,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "#if defined(EFFEKSEER_FOR_YMM4_PREMULTIPLIED_ALPHA)",
+            rendererImpl,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "bool IsPremultipliedAlphaEnabled = true;",
+            rendererImpl,
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void EffectMaterialBasePathKeepsTrailingDirectorySeparator()
     {
         var root = FindRepositoryRoot();

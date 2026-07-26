@@ -1,5 +1,5 @@
-Effekseer 1.7.3.0
------------------
+Effekseer 1.80.6
+----------------
 
 Source:
 https://github.com/effekseer/Effekseer

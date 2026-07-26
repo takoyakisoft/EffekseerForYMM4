@@ -8,9 +8,11 @@
 #include <array>
 #include <assert.h>
 #include <atomic>
+#include <cmath>
 #include <cfloat>
 #include <climits>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <stdint.h>
 #include <stdio.h>
@@ -18,6 +20,11 @@
 #include <string>
 #include <thread>
 #include <vector>
+
+#if _WIN32
+#undef min
+#undef max
+#endif
 
 //----------------------------------------------------------------------------------
 //
@@ -33,7 +40,7 @@
 //----------------------------------------------------------------------------------
 
 #ifdef _WIN32
-//#include <windows.h>
+// #include <windows.h>
 #elif defined(_PSVITA)
 #elif defined(_PS4)
 #elif defined(_SWITCH)
@@ -75,6 +82,8 @@ class RibbonRenderer;
 class RingRenderer;
 class ModelRenderer;
 class TrackRenderer;
+class GpuTimer;
+class GpuParticleSystem;
 
 class EffectLoader;
 class TextureLoader;
@@ -82,6 +91,8 @@ class MaterialLoader;
 class SoundLoader;
 class ModelLoader;
 class CurveLoader;
+class VectorFieldLoader;
+class GpuParticleFactory;
 
 class Texture;
 class SoundData;
@@ -129,7 +140,7 @@ using ThreadNativeHandleType = std::thread::native_handle_type;
 	static_assert(std::is_class<decltype(val)>::value != true, "val must not be class/struct"); \
 	if ((val) != nullptr)                                                                       \
 	{                                                                                           \
-		delete[](val);                                                                          \
+		delete[] (val);                                                                         \
 		(val) = nullptr;                                                                        \
 	}
 
@@ -190,6 +201,7 @@ enum class TextureWrapType : int32_t
 {
 	Repeat = 0,
 	Clamp = 1,
+	Mirror = 2,
 };
 
 enum class CullingType : int32_t
@@ -208,6 +220,7 @@ enum class BillboardType : int32_t
 	YAxisFixed = 1,
 	Fixed = 2,
 	RotatedBillboard = 3,
+	DirectionalBillboard = 4,
 };
 
 enum class CoordinateSystem : int32_t
@@ -241,6 +254,7 @@ enum class TextureFormatType : int32_t
 	BC1,
 	BC2,
 	BC3,
+	BC7,
 };
 
 enum class ZSortType : int32_t
@@ -332,12 +346,27 @@ T Clamp(T t, U max_, V min_)
 	return t;
 }
 
+inline float AvoidZero(float value)
+{
+	float eps = 0.000001f;
+	if (std::fabs(value) < eps)
+	{
+		if (value > 0)
+		{
+			return eps;
+		}
+		return -eps;
+	}
+
+	return value;
+}
+
 /**
-    @brief    Convert UTF16 into UTF8
-    @param    dst    a pointer to destination buffer
-    @param    dst_size    a length of destination buffer
-    @param    src            a source buffer
-    @return    length except 0
+	@brief    Convert UTF16 into UTF8
+	@param    dst    a pointer to destination buffer
+	@param    dst_size    a length of destination buffer
+	@param    src            a source buffer
+	@return    length except 0
 */
 inline int32_t ConvertUtf16ToUtf8(char* dst, int32_t dst_size, const char16_t* src)
 {
@@ -365,14 +394,14 @@ inline int32_t ConvertUtf16ToUtf8(char* dst, int32_t dst_size, const char16_t* s
 		else if ((wc & ~0x7ff) == 0)
 		{
 			*cp++ = ((wc >> 6) & 0x1f) | 0xc0;
-			*cp++ = ((wc)&0x3f) | 0x80;
+			*cp++ = ((wc) & 0x3f) | 0x80;
 			cnt += 2;
 		}
 		else
 		{
 			*cp++ = ((wc >> 12) & 0xf) | 0xe0;
 			*cp++ = ((wc >> 6) & 0x3f) | 0x80;
-			*cp++ = ((wc)&0x3f) | 0x80;
+			*cp++ = ((wc) & 0x3f) | 0x80;
 			cnt += 3;
 		}
 	}
@@ -381,11 +410,11 @@ inline int32_t ConvertUtf16ToUtf8(char* dst, int32_t dst_size, const char16_t* s
 }
 
 /**
-    @brief    Convert UTF8 into UTF16
-    @param    dst    a pointer to destination buffer
-    @param    dst_size    a length of destination buffer
-    @param    src            a source buffer
-    @return    length except 0
+	@brief    Convert UTF8 into UTF16
+	@param    dst    a pointer to destination buffer
+	@param    dst_size    a length of destination buffer
+	@param    src            a source buffer
+	@return    length except 0
 */
 inline int32_t ConvertUtf8ToUtf16(char16_t* dst, int32_t dst_size, const char* src)
 {
@@ -473,11 +502,11 @@ public:
 class ReferenceObject : public IReference
 {
 private:
-	mutable std::atomic<int32_t> m_reference;
+	mutable std::atomic<int32_t> reference_;
 
 public:
 	ReferenceObject()
-		: m_reference(1)
+		: reference_(1)
 	{
 	}
 
@@ -487,26 +516,26 @@ public:
 
 	virtual int AddRef()
 	{
-		std::atomic_fetch_add_explicit(&m_reference, 1, std::memory_order_consume);
+		std::atomic_fetch_add_explicit(&reference_, 1, std::memory_order_consume);
 
-		return m_reference;
+		return reference_;
 	}
 
 	virtual int GetRef()
 	{
-		return m_reference;
+		return reference_;
 	}
 
 	virtual int Release()
 	{
-		bool destroy = std::atomic_fetch_sub_explicit(&m_reference, 1, std::memory_order_consume) == 1;
+		bool destroy = std::atomic_fetch_sub_explicit(&reference_, 1, std::memory_order_consume) == 1;
 		if (destroy)
 		{
 			delete this;
 			return 0;
 		}
 
-		return m_reference;
+		return reference_;
 	}
 };
 
@@ -694,6 +723,11 @@ public:
 		SafeAddRef(ptr);
 		return RefPtr<T>(ptr);
 	}
+
+	explicit operator bool() const
+	{
+		return ptr_ != nullptr;
+	};
 };
 
 template <class T, class U>
@@ -730,6 +764,9 @@ RefPtr<T> MakeRefPtr(Arg&&... args)
 	return RefPtr<T>(new T(args...));
 }
 
+class VectorField;
+class VectorFieldLoader;
+
 using SettingRef = RefPtr<Setting>;
 using ManagerRef = RefPtr<Manager>;
 using EffectRef = RefPtr<Effect>;
@@ -738,12 +775,15 @@ using SoundDataRef = RefPtr<SoundData>;
 using ModelRef = RefPtr<Model>;
 using MaterialRef = RefPtr<Material>;
 using CurveRef = RefPtr<Curve>;
+using VectorFieldRef = RefPtr<VectorField>;
 
 using SpriteRendererRef = RefPtr<SpriteRenderer>;
 using RibbonRendererRef = RefPtr<RibbonRenderer>;
 using RingRendererRef = RefPtr<RingRenderer>;
 using ModelRendererRef = RefPtr<ModelRenderer>;
 using TrackRendererRef = RefPtr<TrackRenderer>;
+using GpuTimerRef = RefPtr<GpuTimer>;
+using GpuParticleSystemRef = RefPtr<GpuParticleSystem>;
 using SoundPlayerRef = RefPtr<SoundPlayer>;
 
 using EffectLoaderRef = RefPtr<EffectLoader>;
@@ -752,7 +792,9 @@ using MaterialLoaderRef = RefPtr<MaterialLoader>;
 using SoundLoaderRef = RefPtr<SoundLoader>;
 using ModelLoaderRef = RefPtr<ModelLoader>;
 using CurveLoaderRef = RefPtr<CurveLoader>;
+using VectorFieldLoaderRef = RefPtr<VectorFieldLoader>;
 using ProceduralModelGeneratorRef = RefPtr<ProceduralModelGenerator>;
+using GpuParticleFactoryRef = RefPtr<GpuParticleFactory>;
 
 /**
 	@brief	This object generates random values.
@@ -997,7 +1039,7 @@ struct NodeRendererDepthParameter
 	bool IsDepthOffsetScaledWithParticleScale = false;
 	ZSortType ZSort = ZSortType::None;
 	float SuppressionOfScalingByDepth = 1.0f;
-	float DepthClipping = FLT_MAX;
+	float DepthClipping = std::numeric_limits<float>::max();
 };
 
 /**
