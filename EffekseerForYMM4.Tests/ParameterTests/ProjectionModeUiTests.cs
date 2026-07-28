@@ -16,8 +16,13 @@ public sealed class ProjectionModeUiTests
             root,
             "EffekseerForYMM4",
             "EffekseerVideoEffectProcessor.cs");
+        var projectionSliderPath = Path.Combine(
+            root,
+            "EffekseerForYMM4",
+            "ProjectionAnimationSliderAttribute.cs");
         var parameterSource = File.ReadAllText(parameterPath);
         var processorSource = File.ReadAllText(processorPath);
+        var projectionSliderSource = File.ReadAllText(projectionSliderPath);
 
         Assert.Contains(
             "[ProjectionAnimationSlider(ProjectionMode.Perspective, \"F1\", \"px\", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]",
@@ -40,6 +45,14 @@ public sealed class ProjectionModeUiTests
         Assert.Contains(
             "float fov = Math.Clamp(",
             processorSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "new Binding(nameof(ProjectionModeViewModel.SelectedProjectionMode))",
+            projectionSliderSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "Source = effect.Projection",
+            projectionSliderSource,
             StringComparison.Ordinal);
     }
 

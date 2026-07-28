@@ -38,9 +38,10 @@ internal sealed class ProjectionAnimationSliderAttribute(
         {
             if (itemProperty.PropertyOwner is EffekseerVideoEffect effect)
             {
-                modeBinding.Bindings.Add(new Binding(nameof(EffekseerVideoEffect.ProjectionMode))
+                // Bind to the public view model directly because the owning effect type is internal.
+                modeBinding.Bindings.Add(new Binding(nameof(ProjectionModeViewModel.SelectedProjectionMode))
                 {
-                    Source = effect,
+                    Source = effect.Projection,
                     Mode = BindingMode.OneWay,
                 });
             }
