@@ -74,8 +74,6 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("nativeRenderer?.Reset();", source, StringComparison.Ordinal);
         Assert.Contains("private void ReplayRendererAt(double targetFrame)", source, StringComparison.Ordinal);
         Assert.Contains("var replayFrames = Math.Min(targetFrame, MaxSimulationAdvanceFrames);", source, StringComparison.Ordinal);
-        Assert.Contains("var replayStartFrame = targetFrame - replayFrames;", source, StringComparison.Ordinal);
-        Assert.Contains("nativeRenderer.Update((float)replayStartFrame);", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedCamera", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedProjection", source, StringComparison.Ordinal);
         Assert.Contains("hasAppliedTransform", source, StringComparison.Ordinal);
@@ -94,6 +92,8 @@ public sealed class RenderStateSafetyTests
 
         var replayMethod = source[replayStart..classifyStart];
         Assert.Contains("AdvanceRenderer((float)replayFrames);", replayMethod, StringComparison.Ordinal);
+        Assert.DoesNotContain("replayStartFrame", replayMethod, StringComparison.Ordinal);
+        Assert.DoesNotContain("nativeRenderer.Update(", replayMethod, StringComparison.Ordinal);
 
         var classifyMethod = source[classifyStart..initializeStart];
         Assert.Contains("currentItemFrame == previousItemFrame + 1", classifyMethod, StringComparison.Ordinal);
@@ -106,6 +106,30 @@ public sealed class RenderStateSafetyTests
         Assert.True(resetTrackingStart > restartStart);
         var restartMethod = source[restartStart..resetTrackingStart];
         Assert.Contains("ReplayRendererAt(targetFrame);", restartMethod, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AudioPlaybackUsesBoundedRandomAccessWithoutCoarseJump()
+    {
+        var root = FindRepositoryRoot();
+        var processorPath = Path.Combine(
+            root,
+            "EffekseerForYMM4",
+            "EffekseerAudioEffectProcessor.cs");
+        var source = File.ReadAllText(processorPath);
+
+        var replayStart = source.IndexOf("private void ReplayRendererAt(long targetSampleFrame", StringComparison.Ordinal);
+        var advanceStart = source.IndexOf("private void AdvanceReplay", StringComparison.Ordinal);
+        Assert.True(replayStart >= 0);
+        Assert.True(advanceStart > replayStart);
+
+        var replayMethod = source[replayStart..advanceStart];
+        Assert.Contains("Math.Min(replayTarget, maxReplaySampleFrames)", replayMethod, StringComparison.Ordinal);
+        Assert.Contains("AdvanceReplay(replaySampleFrames, sampleRate);", replayMethod, StringComparison.Ordinal);
+        Assert.DoesNotContain("replayStartSampleFrame", replayMethod, StringComparison.Ordinal);
+        Assert.DoesNotContain("renderer.Update(", replayMethod, StringComparison.Ordinal);
+        Assert.Contains("effectMixBuffer.Length <= int.MaxValue / 2", source, StringComparison.Ordinal);
+        Assert.Contains("new float[Math.Max(count, doubledLength)]", source, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -155,6 +179,21 @@ public sealed class RenderStateSafetyTests
         Assert.Contains("renderer_->CreateGpuParticleSystem()", nativeSource, StringComparison.Ordinal);
         Assert.Contains("manager_->SetGpuParticleFactory(gpuParticleFactory);", nativeSource, StringComparison.Ordinal);
         Assert.Contains("manager_->SetGpuParticleSystem(gpuParticleSystem);", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("manager_->SetCurveLoader(", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("MakeRefPtr<::Effekseer::CurveLoader>()", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("ComputeShaderStateGuard stateGuard(renderer_->GetContext());", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSGetShader", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSGetConstantBuffers", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSGetShaderResources", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSGetSamplers", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSGetUnorderedAccessViews", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSSetShader", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSSetConstantBuffers", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSSetShaderResources", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSSetSamplers", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("CSSetUnorderedAccessViews", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("DispatchParameter::BufferSlotCount", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("DispatchParameter::ResourceSlotCount", nativeSource, StringComparison.Ordinal);
         Assert.Contains("manager_->Compute();", nativeSource, StringComparison.Ordinal);
         Assert.Contains("effekseer_renderer_compute", wrapperHeader, StringComparison.Ordinal);
         Assert.Contains("EntryPoint = \"effekseer_renderer_compute\"", nativeMethods, StringComparison.Ordinal);

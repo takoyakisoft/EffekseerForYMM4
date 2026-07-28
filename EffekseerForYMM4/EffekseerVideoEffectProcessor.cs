@@ -478,18 +478,11 @@ namespace EffekseerForYMM4
                 return;
 
             var replayFrames = Math.Min(targetFrame, MaxSimulationAdvanceFrames);
-            var replayStartFrame = targetFrame - replayFrames;
 
-            // Match VTuberKit's random-access model: evaluate the absolute
-            // timeline position in one coarse update, then replay only a small
-            // trailing window with fixed steps so stateful motion settles
-            // without simulating the whole item from frame zero.
-            if (replayStartFrame > 0)
-            {
-                nativeRenderer.Update((float)replayStartFrame);
-                ComputeGpuParticles();
-            }
-
+            // Random-access preview is intentionally approximate. Advancing by a
+            // large delta can still make Effekseer process every missed spawn, so
+            // only simulate a bounded prefix after Reset instead of jumping near
+            // the requested frame. Continuous playback remains frame-accurate.
             AdvanceRenderer((float)replayFrames);
         }
 

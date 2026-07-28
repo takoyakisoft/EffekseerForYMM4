@@ -298,18 +298,10 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
             1L,
             (long)Math.Ceiling(MaxSimulationAdvanceFrames * sampleRate / EffekseerFps));
         var replaySampleFrames = Math.Min(replayTarget, maxReplaySampleFrames);
-        var replayStartSampleFrame = replayTarget - replaySampleFrames;
 
-        // Match the video processor's random-access model: jump close to the
-        // absolute timeline position, then replay only a small trailing window.
-        // Sounds emitted during the coarse jump cannot be positioned accurately,
-        // so discard them and reconstruct only the bounded trailing window.
-        if (replayStartSampleFrame > 0)
-        {
-            renderer.Update((float)(replayStartSampleFrame * EffekseerFps / sampleRate));
-            mixer.StopAll();
-        }
-
+        // Random-access audio is intentionally approximate. A large Effekseer
+        // update can still iterate over every missed spawn, so only rebuild a
+        // bounded prefix after Reset. Sequential reads remain exact.
         AdvanceReplay(replaySampleFrames, sampleRate);
         rendererSampleFrame = targetSampleFrame;
     }
@@ -417,7 +409,10 @@ internal sealed class EffekseerAudioEffectProcessor : AudioEffectProcessorBase
 
         if (effectMixBuffer.Length < count)
         {
-            effectMixBuffer = new float[count];
+            var doubledLength = effectMixBuffer.Length <= int.MaxValue / 2
+                ? effectMixBuffer.Length * 2
+                : int.MaxValue;
+            effectMixBuffer = new float[Math.Max(count, doubledLength)];
         }
         else
         {

@@ -33,6 +33,76 @@ std::wstring Utf8ToWide(const std::string &value) {
                       static_cast<int>(value.size()), result.data(), length);
   return result;
 }
+
+class ComputeShaderStateGuard {
+public:
+  explicit ComputeShaderStateGuard(ID3D11DeviceContext *context)
+      : context_(context) {
+    context_->CSGetShader(&shader_, nullptr, nullptr);
+    context_->CSGetConstantBuffers(
+        0, static_cast<UINT>(constantBuffers_.size()), constantBuffers_.data());
+    context_->CSGetShaderResources(
+        0, static_cast<UINT>(shaderResources_.size()), shaderResources_.data());
+    context_->CSGetSamplers(0, static_cast<UINT>(samplers_.size()),
+                            samplers_.data());
+    context_->CSGetUnorderedAccessViews(
+        0, static_cast<UINT>(unorderedAccessViews_.size()),
+        unorderedAccessViews_.data());
+  }
+
+  ~ComputeShaderStateGuard() {
+    std::array<ID3D11ShaderResourceView *, ResourceSlotCount> emptySrvs{};
+    std::array<ID3D11UnorderedAccessView *, UavSlotCount> emptyUavs{};
+    context_->CSSetShaderResources(0, static_cast<UINT>(emptySrvs.size()),
+                                   emptySrvs.data());
+    context_->CSSetUnorderedAccessViews(0, static_cast<UINT>(emptyUavs.size()),
+                                        emptyUavs.data(), nullptr);
+    context_->CSSetConstantBuffers(
+        0, static_cast<UINT>(constantBuffers_.size()), constantBuffers_.data());
+    context_->CSSetShaderResources(
+        0, static_cast<UINT>(shaderResources_.size()), shaderResources_.data());
+    context_->CSSetSamplers(0, static_cast<UINT>(samplers_.size()),
+                            samplers_.data());
+    context_->CSSetUnorderedAccessViews(
+        0, static_cast<UINT>(unorderedAccessViews_.size()),
+        unorderedAccessViews_.data(), nullptr);
+    context_->CSSetShader(shader_, nullptr, 0);
+
+    ReleaseReferences(constantBuffers_);
+    ReleaseReferences(shaderResources_);
+    ReleaseReferences(samplers_);
+    ReleaseReferences(unorderedAccessViews_);
+    if (shader_ != nullptr) {
+      shader_->Release();
+    }
+  }
+
+  ComputeShaderStateGuard(const ComputeShaderStateGuard &) = delete;
+  ComputeShaderStateGuard &operator=(const ComputeShaderStateGuard &) = delete;
+
+private:
+  static constexpr size_t ConstantBufferSlotCount =
+      ::Effekseer::Backend::DispatchParameter::BufferSlotCount;
+  static constexpr size_t ResourceSlotCount =
+      ::Effekseer::Backend::DispatchParameter::ResourceSlotCount;
+  static constexpr size_t UavSlotCount = D3D11_PS_CS_UAV_REGISTER_COUNT;
+
+  template <typename T, size_t N>
+  static void ReleaseReferences(std::array<T *, N> &references) {
+    for (auto *reference : references) {
+      if (reference != nullptr) {
+        reference->Release();
+      }
+    }
+  }
+
+  ID3D11DeviceContext *context_;
+  ID3D11ComputeShader *shader_ = nullptr;
+  std::array<ID3D11Buffer *, ConstantBufferSlotCount> constantBuffers_{};
+  std::array<ID3D11ShaderResourceView *, ResourceSlotCount> shaderResources_{};
+  std::array<ID3D11SamplerState *, ResourceSlotCount> samplers_{};
+  std::array<ID3D11UnorderedAccessView *, UavSlotCount> unorderedAccessViews_{};
+};
 } // namespace
 
 bool EffectsManager::Initialize(ID3D11Device *device,
@@ -87,6 +157,7 @@ bool EffectsManager::Initialize(ID3D11Device *device,
     manager_->SetModelLoader(renderer_->CreateModelLoader());
     manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
   }
+  manager_->SetCurveLoader(::Effekseer::MakeRefPtr<::Effekseer::CurveLoader>());
   manager_->SetCoordinateSystem(::Effekseer::CoordinateSystem::RH);
 
   SetProjectionPerspective(90.0f, 1920, 1080, 1.0f, 2000.0f);
@@ -200,6 +271,7 @@ void EffectsManager::Compute() {
     return;
   }
 
+  ComputeShaderStateGuard stateGuard(renderer_->GetContext());
   manager_->Compute();
 }
 
