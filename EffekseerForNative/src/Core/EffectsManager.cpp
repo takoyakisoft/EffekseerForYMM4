@@ -282,6 +282,13 @@ void EffectsManager::SetCameraLookAt(float positionX, float positionY,
   camera_.LookAtRH(::Effekseer::Vector3D(positionX, positionY, positionZ),
                    ::Effekseer::Vector3D(targetX, targetY, targetZ),
                    ::Effekseer::Vector3D(upX, upY, upZ));
+
+  if (manager_ != nullptr) {
+    auto layerParameter = manager_->GetLayerParameter(0);
+    layerParameter.ViewerPosition =
+        ::Effekseer::Vector3D(positionX, positionY, positionZ);
+    manager_->SetLayerParameter(0, layerParameter);
+  }
 }
 
 void EffectsManager::SetLocation(float x, float y, float z) {

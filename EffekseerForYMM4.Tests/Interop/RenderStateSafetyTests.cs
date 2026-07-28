@@ -22,6 +22,24 @@ public sealed class RenderStateSafetyTests
     }
 
     [Fact]
+    public void NativeRendererSynchronizesLodViewerPositionWithCamera()
+    {
+        var root = FindRepositoryRoot();
+        var sourcePath = Path.Combine(
+            root,
+            "EffekseerForNative",
+            "src",
+            "Core",
+            "EffectsManager.cpp");
+        var source = File.ReadAllText(sourcePath);
+
+        Assert.Contains("auto layerParameter = manager_->GetLayerParameter(0);", source, StringComparison.Ordinal);
+        Assert.Contains("layerParameter.ViewerPosition =", source, StringComparison.Ordinal);
+        Assert.Contains("::Effekseer::Vector3D(positionX, positionY, positionZ);", source, StringComparison.Ordinal);
+        Assert.Contains("manager_->SetLayerParameter(0, layerParameter);", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void NativeRendererRestoresViewportAndAllRenderTargets()
     {
         var root = FindRepositoryRoot();
