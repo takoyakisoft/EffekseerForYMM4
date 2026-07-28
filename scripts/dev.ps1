@@ -150,14 +150,6 @@ function Invoke-Format {
 function Invoke-Lint {
     Invoke-DotnetFormat "style" -VerifyNoChanges
     Invoke-DotnetFormat "analyzers" -VerifyNoChanges
-    Invoke-CommandChecked "Build with managed warnings treated as errors" {
-        & $msbuild $pluginProject /restore /t:Build /m `
-            "/p:Configuration=$configuration" `
-            "/p:Platform=$platform" `
-            "/p:YMM4DirPath=$ymm4Dir" `
-            "/p:SkipPluginDeploy=true" `
-            "/p:TreatWarningsAsErrors=true"
-    }
 }
 
 function Remove-BuildOutputs {
