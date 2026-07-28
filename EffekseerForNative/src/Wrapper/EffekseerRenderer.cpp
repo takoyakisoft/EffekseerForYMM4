@@ -116,6 +116,12 @@ void effekseer_renderer_update(EffekseerRendererHandle handle,
   }
 }
 
+void effekseer_renderer_compute(EffekseerRendererHandle handle) {
+  if (auto *manager = GetManager(handle)) {
+    manager->Compute();
+  }
+}
+
 void effekseer_renderer_set_sound_callbacks(EffekseerRendererHandle handle,
                                             void *loadSound, void *unloadSound,
                                             void *playSound) {

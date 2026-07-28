@@ -450,12 +450,25 @@ namespace EffekseerForYMM4
             for (int i = 0; i < wholeSteps; i++)
             {
                 nativeRenderer.Update(1.0f);
+                ComputeGpuParticles();
             }
 
             float remainder = delta - wholeSteps;
             if (remainder > 0)
             {
                 nativeRenderer.Update(remainder);
+                ComputeGpuParticles();
+            }
+        }
+
+        private void ComputeGpuParticles()
+        {
+            if (nativeRenderer == null)
+                return;
+
+            lock (RenderLock)
+            {
+                nativeRenderer.Compute();
             }
         }
 
@@ -474,6 +487,7 @@ namespace EffekseerForYMM4
             if (replayStartFrame > 0)
             {
                 nativeRenderer.Update((float)replayStartFrame);
+                ComputeGpuParticles();
             }
 
             AdvanceRenderer((float)replayFrames);

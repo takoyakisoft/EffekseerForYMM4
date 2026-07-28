@@ -108,6 +108,46 @@ public sealed class RenderStateSafetyTests
     }
 
     [Fact]
+    public void NativeRendererInitializesAndComputesGpuParticles()
+    {
+        var root = FindRepositoryRoot();
+        var nativeSource = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForNative",
+            "src",
+            "Core",
+            "EffectsManager.cpp"));
+        var wrapperHeader = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForNative",
+            "src",
+            "Wrapper",
+            "EffekseerRenderer.h"));
+        var nativeMethods = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForYMM4",
+            "Commons",
+            "NativeMethods.cs"));
+        var processor = File.ReadAllText(Path.Combine(
+            root,
+            "EffekseerForYMM4",
+            "EffekseerVideoEffectProcessor.cs"));
+
+        Assert.Contains("renderer_->CreateGpuParticleFactory()", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("renderer_->CreateGpuParticleSystem()", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("manager_->SetGpuParticleFactory(gpuParticleFactory);", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("manager_->SetGpuParticleSystem(gpuParticleSystem);", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("manager_->Compute();", nativeSource, StringComparison.Ordinal);
+        Assert.Contains("effekseer_renderer_compute", wrapperHeader, StringComparison.Ordinal);
+        Assert.Contains("EntryPoint = \"effekseer_renderer_compute\"", nativeMethods, StringComparison.Ordinal);
+        Assert.Contains("private void ComputeGpuParticles()", processor, StringComparison.Ordinal);
+        var computeStart = processor.IndexOf("private void ComputeGpuParticles()", StringComparison.Ordinal);
+        Assert.True(computeStart >= 0);
+        Assert.Contains("lock (RenderLock)", processor[computeStart..], StringComparison.Ordinal);
+        Assert.Contains("nativeRenderer.Compute();", processor, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void NativeRendererUsesPremultipliedAlphaForTransparentIntermediateTarget()
     {
         var root = FindRepositoryRoot();

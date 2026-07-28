@@ -22,6 +22,8 @@ effekseer_renderer_render(EffekseerRendererHandle handle, void *renderTarget,
 EFFEKSEER_NATIVE_API void
 effekseer_renderer_update(EffekseerRendererHandle handle, float deltaFrames);
 EFFEKSEER_NATIVE_API void
+effekseer_renderer_compute(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API void
 effekseer_renderer_set_sound_callbacks(EffekseerRendererHandle handle,
                                        void *loadSound, void *unloadSound,
                                        void *playSound);

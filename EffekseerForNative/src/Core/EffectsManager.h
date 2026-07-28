@@ -18,6 +18,7 @@ public:
   bool LoadEffect(const std::filesystem::path &path);
   void Restart();
   void Update(float deltaSeconds);
+  void Compute();
   void Draw(ID3D11RenderTargetView *renderTarget,
             ID3D11DepthStencilView *depthStencil, int width, int height);
 

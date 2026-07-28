@@ -40,6 +40,10 @@ internal static partial class NativeMethods
     internal static partial void RendererUpdate(IntPtr handle, float deltaFrames);
 
     [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+    [LibraryImport(LibraryName, EntryPoint = "effekseer_renderer_compute")]
+    internal static partial void RendererCompute(IntPtr handle);
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
     [LibraryImport(LibraryName, EntryPoint = "effekseer_renderer_set_sound_callbacks")]
     internal static partial void RendererSetSoundCallbacks(
         IntPtr handle,

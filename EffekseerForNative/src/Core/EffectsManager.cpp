@@ -75,6 +75,14 @@ bool EffectsManager::Initialize(ID3D11Device *device,
     manager_->SetRingRenderer(renderer_->CreateRingRenderer());
     manager_->SetTrackRenderer(renderer_->CreateTrackRenderer());
     manager_->SetModelRenderer(renderer_->CreateModelRenderer());
+
+    auto gpuParticleFactory = renderer_->CreateGpuParticleFactory();
+    auto gpuParticleSystem = renderer_->CreateGpuParticleSystem();
+    if (gpuParticleFactory != nullptr && gpuParticleSystem != nullptr) {
+      manager_->SetGpuParticleFactory(gpuParticleFactory);
+      manager_->SetGpuParticleSystem(gpuParticleSystem);
+    }
+
     manager_->SetTextureLoader(renderer_->CreateTextureLoader());
     manager_->SetModelLoader(renderer_->CreateModelLoader());
     manager_->SetMaterialLoader(renderer_->CreateMaterialLoader());
@@ -185,6 +193,14 @@ void EffectsManager::Update(float deltaSeconds) {
   if (renderer_ != nullptr) {
     renderer_->SetTime(renderer_->GetTime() + deltaSeconds);
   }
+}
+
+void EffectsManager::Compute() {
+  if (manager_.Get() == nullptr || renderer_.Get() == nullptr) {
+    return;
+  }
+
+  manager_->Compute();
 }
 
 void EffectsManager::Draw(ID3D11RenderTargetView *renderTarget,
