@@ -29,14 +29,12 @@ internal sealed class ProjectionAnimationSliderAttribute(
         innerAttribute.SetBindings(control, itemProperties);
         RemoveSubscription(control);
 
-        var projections = itemProperties
+        var effect = itemProperties
             .Select(itemProperty => itemProperty.PropertyOwner)
             .OfType<EffekseerVideoEffect>()
-            .Select(effect => effect.Projection)
-            .Distinct()
-            .ToArray();
+            .FirstOrDefault();
 
-        if (projections.Length == 0)
+        if (effect is null)
         {
             // Do not leave the editor permanently disabled if YMM4 changes
             // how ItemProperty.PropertyOwner is exposed.
@@ -46,7 +44,7 @@ internal sealed class ProjectionAnimationSliderAttribute(
 
         subscriptions.Add(
             control,
-            new ProjectionModeEnablementSubscription(control, projections, EnabledMode));
+            new ProjectionModeEnablementSubscription(control, effect, EnabledMode));
     }
 
     public override void ClearBindings(FrameworkElement control)
@@ -69,23 +67,20 @@ internal sealed class ProjectionAnimationSliderAttribute(
     private sealed class ProjectionModeEnablementSubscription : IDisposable
     {
         private readonly FrameworkElement control;
-        private readonly ProjectionModeViewModel[] projections;
+        private readonly EffekseerVideoEffect effect;
         private readonly ProjectionMode enabledMode;
         private bool disposed;
 
         public ProjectionModeEnablementSubscription(
             FrameworkElement control,
-            ProjectionModeViewModel[] projections,
+            EffekseerVideoEffect effect,
             ProjectionMode enabledMode)
         {
             this.control = control;
-            this.projections = projections;
+            this.effect = effect;
             this.enabledMode = enabledMode;
 
-            foreach (var projection in projections)
-            {
-                projection.PropertyChanged += Projection_PropertyChanged;
-            }
+            effect.PropertyChanged += Effect_PropertyChanged;
 
             UpdateIsEnabled();
         }
@@ -98,18 +93,15 @@ internal sealed class ProjectionAnimationSliderAttribute(
             }
 
             disposed = true;
-            foreach (var projection in projections)
-            {
-                projection.PropertyChanged -= Projection_PropertyChanged;
-            }
+            effect.PropertyChanged -= Effect_PropertyChanged;
         }
 
-        private void Projection_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void Effect_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             _ = sender;
 
             if (string.IsNullOrEmpty(e.PropertyName) ||
-                e.PropertyName == nameof(ProjectionModeViewModel.SelectedProjectionMode))
+                e.PropertyName == nameof(EffekseerVideoEffect.ProjectionMode))
             {
                 UpdateIsEnabled();
             }
@@ -117,8 +109,7 @@ internal sealed class ProjectionAnimationSliderAttribute(
 
         private void UpdateIsEnabled()
         {
-            control.IsEnabled = projections.All(
-                projection => projection.SelectedProjectionMode == enabledMode);
+            control.IsEnabled = effect.ProjectionMode == enabledMode;
         }
     }
 }

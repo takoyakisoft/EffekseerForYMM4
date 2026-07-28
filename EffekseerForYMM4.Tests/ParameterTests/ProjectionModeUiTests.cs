@@ -47,11 +47,19 @@ public sealed class ProjectionModeUiTests
             processorSource,
             StringComparison.Ordinal);
         Assert.Contains(
-            "projection.PropertyChanged += Projection_PropertyChanged;",
+            ".OfType<EffekseerVideoEffect>()",
             projectionSliderSource,
             StringComparison.Ordinal);
         Assert.Contains(
-            "projection.SelectedProjectionMode == enabledMode",
+            ".FirstOrDefault();",
+            projectionSliderSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "effect.PropertyChanged += Effect_PropertyChanged;",
+            projectionSliderSource,
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "effect.ProjectionMode == enabledMode",
             projectionSliderSource,
             StringComparison.Ordinal);
         Assert.DoesNotContain(
