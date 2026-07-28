@@ -1,6 +1,6 @@
-using System.Globalization;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Data;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Controls;
 
@@ -14,6 +14,7 @@ internal sealed class ProjectionAnimationSliderAttribute(
     double sliderMaximum) : PropertyEditorAttribute2
 {
     private readonly AnimationSliderAttribute innerAttribute = new(format, unit, sliderMinimum, sliderMaximum);
+    private readonly ConditionalWeakTable<FrameworkElement, ProjectionModeEnablementSubscription> subscriptions = new();
 
     public ProjectionMode EnabledMode { get; } = enabledMode;
     public string Format { get; } = format;
@@ -26,57 +27,98 @@ internal sealed class ProjectionAnimationSliderAttribute(
     public override void SetBindings(FrameworkElement control, ItemProperty[] itemProperties)
     {
         innerAttribute.SetBindings(control, itemProperties);
+        RemoveSubscription(control);
 
-        var modeBinding = new MultiBinding
-        {
-            Mode = BindingMode.OneWay,
-            Converter = ProjectionModeEnabledConverter.Instance,
-            ConverterParameter = EnabledMode,
-        };
+        var projections = itemProperties
+            .Select(itemProperty => itemProperty.PropertyOwner)
+            .OfType<EffekseerVideoEffect>()
+            .Select(effect => effect.Projection)
+            .Distinct()
+            .ToArray();
 
-        foreach (var itemProperty in itemProperties)
+        if (projections.Length == 0)
         {
-            if (itemProperty.PropertyOwner is EffekseerVideoEffect effect)
-            {
-                // Bind to the public view model directly because the owning effect type is internal.
-                modeBinding.Bindings.Add(new Binding(nameof(ProjectionModeViewModel.SelectedProjectionMode))
-                {
-                    Source = effect.Projection,
-                    Mode = BindingMode.OneWay,
-                });
-            }
-        }
-
-        if (modeBinding.Bindings.Count == 0)
-        {
-            control.IsEnabled = false;
+            // Do not leave the editor permanently disabled if YMM4 changes
+            // how ItemProperty.PropertyOwner is exposed.
+            control.IsEnabled = true;
             return;
         }
 
-        BindingOperations.SetBinding(control, UIElement.IsEnabledProperty, modeBinding);
+        subscriptions.Add(
+            control,
+            new ProjectionModeEnablementSubscription(control, projections, EnabledMode));
     }
 
     public override void ClearBindings(FrameworkElement control)
     {
-        BindingOperations.ClearBinding(control, UIElement.IsEnabledProperty);
+        RemoveSubscription(control);
         innerAttribute.ClearBindings(control);
     }
 
-    private sealed class ProjectionModeEnabledConverter : IMultiValueConverter
+    private void RemoveSubscription(FrameworkElement control)
     {
-        public static ProjectionModeEnabledConverter Instance { get; } = new();
-
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        if (!subscriptions.TryGetValue(control, out var subscription))
         {
-            _ = targetType;
-            _ = culture;
-
-            return parameter is ProjectionMode mode &&
-                values.Length > 0 &&
-                values.All(value => value is ProjectionMode valueMode && valueMode == mode);
+            return;
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
-            throw new NotSupportedException();
+        subscription.Dispose();
+        subscriptions.Remove(control);
+    }
+
+    private sealed class ProjectionModeEnablementSubscription : IDisposable
+    {
+        private readonly FrameworkElement control;
+        private readonly ProjectionModeViewModel[] projections;
+        private readonly ProjectionMode enabledMode;
+        private bool disposed;
+
+        public ProjectionModeEnablementSubscription(
+            FrameworkElement control,
+            ProjectionModeViewModel[] projections,
+            ProjectionMode enabledMode)
+        {
+            this.control = control;
+            this.projections = projections;
+            this.enabledMode = enabledMode;
+
+            foreach (var projection in projections)
+            {
+                projection.PropertyChanged += Projection_PropertyChanged;
+            }
+
+            UpdateIsEnabled();
+        }
+
+        public void Dispose()
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            foreach (var projection in projections)
+            {
+                projection.PropertyChanged -= Projection_PropertyChanged;
+            }
+        }
+
+        private void Projection_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            _ = sender;
+
+            if (string.IsNullOrEmpty(e.PropertyName) ||
+                e.PropertyName == nameof(ProjectionModeViewModel.SelectedProjectionMode))
+            {
+                UpdateIsEnabled();
+            }
+        }
+
+        private void UpdateIsEnabled()
+        {
+            control.IsEnabled = projections.All(
+                projection => projection.SelectedProjectionMode == enabledMode);
+        }
     }
 }

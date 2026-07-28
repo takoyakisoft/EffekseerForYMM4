@@ -47,11 +47,15 @@ public sealed class ProjectionModeUiTests
             processorSource,
             StringComparison.Ordinal);
         Assert.Contains(
-            "new Binding(nameof(ProjectionModeViewModel.SelectedProjectionMode))",
+            "projection.PropertyChanged += Projection_PropertyChanged;",
             projectionSliderSource,
             StringComparison.Ordinal);
         Assert.Contains(
-            "Source = effect.Projection",
+            "projection.SelectedProjectionMode == enabledMode",
+            projectionSliderSource,
+            StringComparison.Ordinal);
+        Assert.DoesNotContain(
+            "BindingOperations.SetBinding(control, UIElement.IsEnabledProperty",
             projectionSliderSource,
             StringComparison.Ordinal);
     }
