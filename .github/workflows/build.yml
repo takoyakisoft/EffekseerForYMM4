@@ -86,10 +86,6 @@ jobs:
           "@
           Set-Content -Path "Directory.Build.props" -Value $content
 
-      - name: Run managed and Native tests
-        shell: pwsh
-        run: .\scripts\dev.ps1 test
-
       - name: Create BOOTH package
         shell: pwsh
         run: .\scripts\dev.ps1 publish

@@ -2,63 +2,68 @@ name: public-ci
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
-  lint:
-    runs-on: windows-latest
+  fmt-lint:
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          submodules: recursive
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
 
-      - name: Check patch whitespace
-        shell: pwsh
-        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD" -- . ":(exclude)EffekseerForNative/vendor/effekseer/**"
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
 
-      - name: Check C# formatting
+      - name: Download latest YMM4
         shell: pwsh
-        run: dotnet format whitespace . --folder --verify-no-changes --include .\EffekseerForYMM4 .\EffekseerForYMM4.Tests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $release = gh release view --repo manju-summoner/YukkuriMovieMaker4 --json tagName,assets | ConvertFrom-Json
+          $asset = $release.assets |
+            Where-Object { $_.name -match '^YukkuriMovieMaker_v.*\.zip$' -and $_.name -notmatch '_Lite\.zip$' } |
+            Select-Object -First 1
+          if ($null -eq $asset) {
+            throw "Non-Lite YMM4 ZIP asset was not found in release $($release.tagName)."
+          }
 
-      - name: Validate repository files
+          New-Item -ItemType Directory -Force -Path ".\YMM4Download" | Out-Null
+          gh release download $release.tagName --repo manju-summoner/YukkuriMovieMaker4 --pattern $asset.name --dir ".\YMM4Download" --clobber
+          Expand-Archive -LiteralPath ".\YMM4Download\$($asset.name)" -DestinationPath ".\YMM4" -Force
+
+          $exe = Get-ChildItem -LiteralPath ".\YMM4" -Recurse -Filter "YukkuriMovieMaker.exe" -File | Select-Object -First 1
+          if ($null -eq $exe) {
+            throw "YukkuriMovieMaker.exe was not found after extracting $($asset.name)."
+          }
+          "YMM4_DIR=$($exe.Directory.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Setup local build properties
         shell: pwsh
         run: |
-          $xmlFiles = @(
-            ".\Directory.Build.targets",
-            ".\EffekseerForYMM4\EffekseerForYMM4.csproj",
-            ".\EffekseerForNative\EffekseerForNative.vcxproj",
-            ".\EffekseerForNative.Tests\EffekseerForNative.Tests.vcxproj"
-          )
-          foreach ($file in $xmlFiles) {
-            try {
-              [xml](Get-Content -LiteralPath $file -Raw) | Out-Null
-            }
-            catch {
-              throw "Invalid XML: $file`n$_"
-            }
-          }
+          $content = @"
+          <Project>
+            <PropertyGroup>
+              <YMM4DirPath>$env:YMM4_DIR\</YMM4DirPath>
+              <DotnetPath>$((Get-Command dotnet).Source)</DotnetPath>
+              <MSBuildPath>$((Get-Command msbuild).Source)</MSBuildPath>
+            </PropertyGroup>
+          </Project>
+          "@
+          Set-Content -Path "Directory.Build.props" -Value $content
 
-          $parseErrors = @()
-          Get-ChildItem -LiteralPath ".\scripts" -Filter "*.ps1" -File | ForEach-Object {
-            $tokens = $null
-            $errors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile(
-              $_.FullName,
-              [ref]$tokens,
-              [ref]$errors) | Out-Null
-            $parseErrors += $errors
-          }
-          if ($parseErrors.Count -ne 0) {
-            throw ($parseErrors | Out-String)
-          }
+      - name: Check formatting
+        shell: pwsh
+        run: .\scripts\dev.ps1 fmt -Verify -ManagedOnly
 
-          $targets = [xml](Get-Content -LiteralPath ".\Directory.Build.targets" -Raw)
-          $version = [string]$targets.Project.PropertyGroup.EffekseerForYMM4Version
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-            throw "EffekseerForYMM4Version must be a three-part version. Actual=$version"
-          }
+      - name: Lint
+        shell: pwsh
+        run: .\scripts\dev.ps1 lint

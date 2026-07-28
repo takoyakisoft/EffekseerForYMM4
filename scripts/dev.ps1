@@ -1,8 +1,12 @@
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet("build", "test", "format", "lint", "publish")]
-    [string]$Task = "build"
+    [ValidateSet("build", "test", "fmt", "format", "lint", "check", "clean", "publish")]
+    [string]$Task = "build",
+
+    [switch]$Verify,
+
+    [switch]$ManagedOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,7 +61,8 @@ function Invoke-CommandChecked {
 
 function Invoke-DotnetFormat {
     param(
-        [Parameter(Mandatory = $true)][string]$Subcommand
+        [string]$Subcommand,
+        [switch]$VerifyNoChanges
     )
 
     $dotnet = Get-RequiredFileProperty "DotnetPath"
@@ -66,8 +71,16 @@ function Invoke-DotnetFormat {
         (Join-Path $root "EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj")
     )
     foreach ($project in $projects) {
+        $arguments = @("format")
+        if (-not [string]::IsNullOrWhiteSpace($Subcommand)) {
+            $arguments += $Subcommand
+        }
+        $arguments += @($project, "--verbosity", "minimal")
+        if ($VerifyNoChanges) {
+            $arguments += "--verify-no-changes"
+        }
         Invoke-CommandChecked "dotnet format $Subcommand $([System.IO.Path]::GetFileName($project))" {
-            & $dotnet format $Subcommand $project --verbosity minimal
+            & $dotnet @arguments
         }
     }
 }
@@ -82,6 +95,96 @@ function Invoke-PluginBuild {
             "/p:Platform=$platform" `
             "/p:YMM4DirPath=$ymm4Dir" `
             "/p:SkipPluginDeploy=$skipDeploy"
+    }
+}
+
+function Invoke-Tests {
+    Invoke-CommandChecked "Build managed and Native tests" {
+        & $msbuild $solution /restore /t:Build /m `
+            "/p:Configuration=$configuration" `
+            "/p:Platform=$platform" `
+            "/p:YMM4DirPath=$ymm4Dir" `
+            "/p:SkipPluginDeploy=true"
+    }
+
+    $nativeTests = Join-Path $root "EffekseerForNative.Tests\bin\$configuration\EffekseerForNative.Tests.exe"
+    Invoke-CommandChecked "Run Native tests" {
+        & $nativeTests
+    }
+
+    $dotnet = Get-RequiredFileProperty "DotnetPath"
+    $managedTests = Join-Path $root "EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj"
+    Invoke-CommandChecked "Run managed tests" {
+        & $dotnet test $managedTests -c $configuration -p:Platform=$platform --no-build --no-restore
+    }
+}
+
+function Invoke-Format {
+    Invoke-DotnetFormat -VerifyNoChanges:$Verify
+
+    if ($ManagedOnly) {
+        return
+    }
+
+    $clangFormat = Get-RequiredFileProperty "ClangFormatPath"
+    $nativeFiles = @(
+        Get-ChildItem -LiteralPath (Join-Path $root "EffekseerForNative\src") -Recurse -File |
+            Where-Object { $_.Extension -in @(".h", ".hpp", ".cpp") } |
+            ForEach-Object FullName
+        Get-ChildItem -LiteralPath (Join-Path $root "EffekseerForNative.Tests") -File |
+            Where-Object { $_.Extension -in @(".h", ".hpp", ".cpp") } |
+            ForEach-Object FullName
+    )
+    if ($nativeFiles.Count -gt 0) {
+        Invoke-CommandChecked "$(if ($Verify) { 'Verify' } else { 'Format' }) Native sources" {
+            if ($Verify) {
+                & $clangFormat --dry-run --Werror @nativeFiles
+            }
+            else {
+                & $clangFormat -i @nativeFiles
+            }
+        }
+    }
+}
+
+function Invoke-Lint {
+    Invoke-DotnetFormat "style" -VerifyNoChanges
+    Invoke-DotnetFormat "analyzers" -VerifyNoChanges
+    Invoke-CommandChecked "Build with managed warnings treated as errors" {
+        & $msbuild $pluginProject /restore /t:Build /m `
+            "/p:Configuration=$configuration" `
+            "/p:Platform=$platform" `
+            "/p:YMM4DirPath=$ymm4Dir" `
+            "/p:SkipPluginDeploy=true" `
+            "/p:TreatWarningsAsErrors=true"
+    }
+}
+
+function Remove-BuildOutputs {
+    $outputPaths = @(
+        "artifacts",
+        "EffekseerForNative\bin",
+        "EffekseerForNative\obj",
+        "EffekseerForNative.Tests\bin",
+        "EffekseerForNative.Tests\obj",
+        "EffekseerForYMM4\bin",
+        "EffekseerForYMM4\obj",
+        "EffekseerForYMM4.Tests\bin",
+        "EffekseerForYMM4.Tests\obj",
+        "YukkuriMovieMaker.Generator\YukkuriMovieMaker.Generator\bin",
+        "YukkuriMovieMaker.Generator\YukkuriMovieMaker.Generator\obj"
+    )
+
+    $rootPrefix = [System.IO.Path]::GetFullPath($root).TrimEnd('\') + '\'
+    foreach ($relativePath in $outputPaths) {
+        $path = [System.IO.Path]::GetFullPath((Join-Path $root $relativePath))
+        if (-not $path.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to clean a path outside the repository: $path"
+        }
+        if (Test-Path -LiteralPath $path) {
+            Write-Host "Removing $relativePath"
+            Remove-Item -LiteralPath $path -Recurse -Force
+        }
     }
 }
 
@@ -187,70 +290,41 @@ function New-ReleasePackage {
     Write-Host "Created release package: $zipPath" -ForegroundColor Green
 }
 
-$msbuild = Get-RequiredFileProperty "MSBuildPath"
-$ymm4Dir = [System.IO.Path]::GetFullPath((Get-BuildProperty "YMM4DirPath"))
-if (-not (Test-Path -LiteralPath $ymm4Dir -PathType Container)) {
-    throw "YMM4DirPath was not found: $ymm4Dir"
-}
-
 $pluginProject = Join-Path $root "EffekseerForYMM4\EffekseerForYMM4.csproj"
 $solution = Join-Path $root "EffekseerForYMM4.sln"
 $configuration = "Release"
 $platform = "x64"
+if ($Task -ne "clean") {
+    $msbuild = Get-RequiredFileProperty "MSBuildPath"
+    $ymm4Dir = [System.IO.Path]::GetFullPath((Get-BuildProperty "YMM4DirPath"))
+    if (-not (Test-Path -LiteralPath $ymm4Dir -PathType Container)) {
+        throw "YMM4DirPath was not found: $ymm4Dir"
+    }
+}
 
 switch ($Task) {
     "build" {
         Invoke-PluginBuild -Deploy
     }
     "test" {
-        Invoke-CommandChecked "Build managed and Native tests" {
-            & $msbuild $solution /restore /t:Build /m `
-                "/p:Configuration=$configuration" `
-                "/p:Platform=$platform" `
-                "/p:YMM4DirPath=$ymm4Dir" `
-                "/p:SkipPluginDeploy=true"
-        }
-
-        $nativeTests = Join-Path $root "EffekseerForNative.Tests\bin\$configuration\EffekseerForNative.Tests.exe"
-        Invoke-CommandChecked "Run Native tests" {
-            & $nativeTests
-        }
-
-        $dotnet = Get-RequiredFileProperty "DotnetPath"
-        $managedTests = Join-Path $root "EffekseerForYMM4.Tests\EffekseerForYMM4.Tests.csproj"
-        Invoke-CommandChecked "Run managed tests" {
-            & $dotnet test $managedTests -c $configuration -p:Platform=$platform --no-build --no-restore
-        }
+        Invoke-Tests
+    }
+    "fmt" {
+        Invoke-Format
     }
     "format" {
-        Invoke-DotnetFormat "whitespace"
-
-        $clangFormat = Get-RequiredFileProperty "ClangFormatPath"
-        $nativeFiles = @(
-            Get-ChildItem -LiteralPath (Join-Path $root "EffekseerForNative\src") -Recurse -File |
-                Where-Object { $_.Extension -in @(".h", ".hpp", ".cpp") } |
-                ForEach-Object FullName
-            Get-ChildItem -LiteralPath (Join-Path $root "EffekseerForNative.Tests") -File |
-                Where-Object { $_.Extension -in @(".h", ".hpp", ".cpp") } |
-                ForEach-Object FullName
-        )
-        if ($nativeFiles.Count -gt 0) {
-            Invoke-CommandChecked "Format Native sources" {
-                & $clangFormat -i @nativeFiles
-            }
-        }
+        Invoke-Format
     }
     "lint" {
-        Invoke-DotnetFormat "style"
-        Invoke-DotnetFormat "analyzers"
-        Invoke-CommandChecked "Build with managed warnings treated as errors" {
-            & $msbuild $pluginProject /restore /t:Build /m `
-                "/p:Configuration=$configuration" `
-                "/p:Platform=$platform" `
-                "/p:YMM4DirPath=$ymm4Dir" `
-                "/p:SkipPluginDeploy=true" `
-                "/p:TreatWarningsAsErrors=true"
-        }
+        Invoke-Lint
+    }
+    "check" {
+        Invoke-Format
+        Invoke-Lint
+        Invoke-Tests
+    }
+    "clean" {
+        Remove-BuildOutputs
     }
     "publish" {
         Invoke-PluginBuild -Deploy

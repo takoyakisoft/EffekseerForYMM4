@@ -103,15 +103,17 @@ Effekseerでプロジェクトを開き、「ファイル」→「エクスポ�
 
 - `Directory.Build.props.sample`を`Directory.Build.props`へコピーし、`YMM4DirPath`、`DotnetPath`、`MSBuildPath`、`ClangFormatPath`をローカル環境に合わせて設定します。
 - `.\scripts\dev.ps1`を実行すると、ネイティブコードを含むReleaseビルドとYMM4への配置を行います。
-- 第1引数に`test`、`format`、`lint`、`publish`を指定すると、それぞれテスト、整形と自動修正、リントと自動修正、BOOTH配布用ZIPの生成を実行します。
-- GitHub Actionsでは最新の通常版YMM4を取得し、`Release|x64`でビルドしてBOOTH配布用ZIPを生成します。
+- 第1引数に`test`、`fmt`（または`format`）、`lint`、`check`、`clean`、`publish`を指定できます。`check`は整形、リント、テストを順に実行し、`clean`はリポジトリ内のビルド出力と配布成果物を削除します。
+- GitHub ActionsのCIは管理対象C#の`fmt -Verify`と`lint`を実行し、CDは`publish`で`Release|x64`のBOOTH配布用ZIPを生成します。
 - リリースバージョンは`Directory.Build.targets`の`EffekseerForYMM4Version`で管理します。
 
 ```powershell
 .\scripts\dev.ps1
 .\scripts\dev.ps1 test
-.\scripts\dev.ps1 format
+.\scripts\dev.ps1 fmt
 .\scripts\dev.ps1 lint
+.\scripts\dev.ps1 check
+.\scripts\dev.ps1 clean
 .\scripts\dev.ps1 publish
 ```
 
