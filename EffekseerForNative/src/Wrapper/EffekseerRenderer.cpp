@@ -1,218 +1,192 @@
 #include "EffekseerRenderer.h"
+
 #include "../Core/EffectsManager.h"
-#include <msclr/marshal_cppstd.h>
+#include "../Core/WindowsString.h"
 
-using namespace System::Runtime::InteropServices;
-using namespace System;
+#include <algorithm>
+#include <cstring>
+#include <exception>
+#include <filesystem>
+#include <new>
+#include <string>
 
-namespace EffekseerForNative {
+namespace {
+EffectsManager *GetManager(EffekseerRendererHandle handle) {
+  return static_cast<EffectsManager *>(handle);
+}
 
-    EffekseerRenderer::EffekseerRenderer()
-    {
-        m_impl = new EffectsManager();
-    }
+std::filesystem::path ToPath(const char *pathUtf8) {
+  return EffekseerForYMM4::WindowsString::Utf8ToAbsolutePath(pathUtf8);
+}
 
-    EffekseerRenderer::~EffekseerRenderer()
-    {
-        this->!EffekseerRenderer();
-    }
+int32_t CopyUtf8ToBuffer(const std::string &value, char *buffer,
+                         int32_t bufferSize) {
+  const auto required = static_cast<int32_t>(value.size() + 1);
+  if (buffer == nullptr || bufferSize <= 0) {
+    return required;
+  }
 
-    EffekseerRenderer::!EffekseerRenderer()
-    {
-        Destroy();
-        if (m_impl)
-        {
-            delete m_impl;
-            m_impl = nullptr;
-        }
-    }
+  const auto copySize =
+      (std::min)(static_cast<size_t>(bufferSize - 1), value.size());
+  if (copySize > 0) {
+    std::memcpy(buffer, value.data(), copySize);
+  }
+  buffer[copySize] = '\0';
+  return required;
+}
+} // namespace
 
-    bool EffekseerRenderer::Initialize(IntPtr device, IntPtr context, int width, int height)
-    {
-        if (!m_impl) return false;
+EffekseerRendererHandle effekseer_renderer_create() {
+  return new (std::nothrow) EffectsManager();
+}
 
-        ID3D11Device* d3d11Device = nullptr;
-        ID3D11DeviceContext* d3d11Context = nullptr;
+void effekseer_renderer_destroy(EffekseerRendererHandle handle) {
+  auto *manager = GetManager(handle);
+  if (manager == nullptr) {
+    return;
+  }
 
-        if (device != IntPtr::Zero)
-            d3d11Device = (ID3D11Device*)device.ToPointer();
+  manager->Shutdown();
+  delete manager;
+}
 
-        if (context != IntPtr::Zero)
-            d3d11Context = (ID3D11DeviceContext*)context.ToPointer();
+int32_t effekseer_renderer_initialize(EffekseerRendererHandle handle,
+                                      void *device, void *context,
+                                      int32_t width, int32_t height) {
+  auto *manager = GetManager(handle);
+  if (manager == nullptr ||
+      !manager->Initialize(static_cast<ID3D11Device *>(device),
+                           static_cast<ID3D11DeviceContext *>(context))) {
+    return 0;
+  }
 
-        if (!m_impl->Initialize(d3d11Device, d3d11Context))
-        {
-            return false;
-        }
+  manager->SetProjectionPerspective(90.0f, width, height, 1.0f, 2000.0f);
+  return 1;
+}
 
-        m_impl->SetProjection(width, height);
-        m_impl->SetCamera(20.0f);
+int32_t effekseer_renderer_load_effect(EffekseerRendererHandle handle,
+                                       const char *pathUtf8) {
+  auto *manager = GetManager(handle);
+  if (manager == nullptr) {
+    return 0;
+  }
 
-        return true;
-    }
+  try {
+    const auto path = ToPath(pathUtf8);
+    return !path.empty() && manager->LoadEffect(path) ? 1 : 0;
+  } catch (const std::exception &exception) {
+    auto detail = EffekseerForYMM4::WindowsString::Utf8ToWide(exception.what());
+    manager->SetLastErrorMessage(
+        detail.empty()
+            ? L"An exception occurred while resolving the effect file path."
+            : L"An exception occurred while loading the effect file: " +
+                  detail);
+    return 0;
+  } catch (...) {
+    manager->SetLastErrorMessage(
+        L"An unknown exception occurred while loading the effect file.");
+    return 0;
+  }
+}
 
-    bool EffekseerRenderer::LoadEffect(System::String^ path)
-    {
-        if (!m_impl) return false;
+int32_t effekseer_renderer_get_last_error(EffekseerRendererHandle handle,
+                                          char *buffer, int32_t bufferSize) {
+  auto *manager = GetManager(handle);
+  return CopyUtf8ToBuffer(manager == nullptr
+                              ? std::string{}
+                              : EffekseerForYMM4::WindowsString::WideToUtf8(
+                                    manager->GetLastErrorMessage()),
+                          buffer, bufferSize);
+}
 
-        std::wstring wpath = msclr::interop::marshal_as<std::wstring>(path);
-        std::wstring key = wpath; // Use path as key
+void effekseer_renderer_render(EffekseerRendererHandle handle,
+                               void *renderTarget, void *depthStencil,
+                               int32_t width, int32_t height) {
+  if (auto *manager = GetManager(handle)) {
+    manager->Draw(static_cast<ID3D11RenderTargetView *>(renderTarget),
+                  static_cast<ID3D11DepthStencilView *>(depthStencil), width,
+                  height);
+  }
+}
 
-        if (!m_impl->LoadEffect(key, wpath))
-        {
-            return false;
-        }
+void effekseer_renderer_update(EffekseerRendererHandle handle,
+                               float deltaFrames) {
+  if (auto *manager = GetManager(handle)) {
+    manager->Update(deltaFrames / 60.0f);
+  }
+}
 
-        m_impl->PlayEffect(key, 0, 0, 0);
+void effekseer_renderer_compute(EffekseerRendererHandle handle) {
+  if (auto *manager = GetManager(handle)) {
+    manager->Compute();
+  }
+}
 
-        return true;
-    }
+void effekseer_renderer_set_sound_callbacks(EffekseerRendererHandle handle,
+                                            void *loadSound, void *unloadSound,
+                                            void *playSound) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetSoundCallbacks(
+        reinterpret_cast<EffekseerForNative::LoadSoundFunc>(loadSound),
+        reinterpret_cast<EffekseerForNative::UnloadSoundFunc>(unloadSound),
+        reinterpret_cast<EffekseerForNative::PlaySoundFunc>(playSound));
+  }
+}
 
-    System::String^ EffekseerRenderer::LastErrorMessage::get()
-    {
-        if (!m_impl)
-        {
-            return nullptr;
-        }
+void effekseer_renderer_set_projection_perspective(
+    EffekseerRendererHandle handle, float fov, int32_t width, int32_t height,
+    float nearValue, float farValue) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetProjectionPerspective(fov, width, height, nearValue, farValue);
+  }
+}
 
-        auto message = m_impl->GetLastErrorMessage();
-        if (message.empty())
-        {
-            return nullptr;
-        }
+void effekseer_renderer_set_projection_orthographic(
+    EffekseerRendererHandle handle, float width, float height, float nearValue,
+    float farValue) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetProjectionOrthographic(width, height, nearValue, farValue);
+  }
+}
 
-        return gcnew System::String(message.c_str());
-    }
+void effekseer_renderer_set_camera_look_at(EffekseerRendererHandle handle,
+                                           float positionX, float positionY,
+                                           float positionZ, float targetX,
+                                           float targetY, float targetZ,
+                                           float upX, float upY, float upZ) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetCameraLookAt(positionX, positionY, positionZ, targetX, targetY,
+                             targetZ, upX, upY, upZ);
+  }
+}
 
-    void EffekseerRenderer::Render()
-    {
-        if (m_impl)
-        {
-            m_impl->Draw();
-        }
-    }
+void effekseer_renderer_set_location(EffekseerRendererHandle handle, float x,
+                                     float y, float z) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetLocation(x, y, z);
+  }
+}
 
-    void EffekseerRenderer::Update(float deltaFrames)
-    {
-        if (m_impl)
-        {
-            // Convert frames to seconds (assuming 60fps base)
-            m_impl->Update(deltaFrames / 60.0f);
-        }
-    }
+void effekseer_renderer_set_rotation(EffekseerRendererHandle handle, float x,
+                                     float y, float z) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetRotation(x, y, z);
+  }
+}
 
-    void EffekseerRenderer::SetSoundCallback(System::IntPtr loadSound, System::IntPtr unloadSound, System::IntPtr playSound)
-    {
-        if (m_impl)
-        {
-            m_impl->SetSoundCallback(
-                (EffekseerForNative::LoadSoundFunc)loadSound.ToPointer(),
-                (EffekseerForNative::UnloadSoundFunc)unloadSound.ToPointer(),
-                (EffekseerForNative::PlaySoundFunc)playSound.ToPointer()
-            );
-        }
-    }
+void effekseer_renderer_set_scale(EffekseerRendererHandle handle, float scale) {
+  if (auto *manager = GetManager(handle)) {
+    manager->SetScale(scale);
+  }
+}
 
-    void EffekseerRenderer::SetProjection(int width, int height)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjection(width, height);
-        }
-    }
+void effekseer_renderer_reset(EffekseerRendererHandle handle) {
+  if (auto *manager = GetManager(handle)) {
+    manager->Restart();
+  }
+}
 
-    void EffekseerRenderer::SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjectionPerspective(fov, width, height, nearVal, farVal);
-        }
-    }
-
-    void EffekseerRenderer::SetProjectionOrthographic(float width, float height, float nearVal, float farVal)
-    {
-        if (m_impl)
-        {
-            m_impl->SetProjectionOrthographic(width, height, nearVal, farVal);
-        }
-    }
-
-    void EffekseerRenderer::SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ)
-    {
-        if (m_impl)
-        {
-            m_impl->SetCameraLookAt(posX, posY, posZ, targetX, targetY, targetZ, upX, upY, upZ);
-        }
-    }
-
-    void EffekseerRenderer::SetLocation(float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            m_impl->SetLocation(x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::SetRotation(float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            m_impl->SetRotation(x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::SetScale(float scale)
-    {
-        if (m_impl)
-        {
-            m_impl->SetScale(scale);
-        }
-    }
-
-    void EffekseerRenderer::Reset()
-    {
-        if (m_impl)
-        {
-            m_impl->StopAll();
-
-            std::wstring lastKey = m_impl->GetLastPlayedKey();
-            if (!lastKey.empty())
-            {
-                m_impl->PlayEffect(lastKey, 0, 0, 0);
-            }
-        }
-    }
-
-    void EffekseerRenderer::StopRoot()
-    {
-        if (m_impl)
-        {
-            m_impl->StopAll();
-        }
-    }
-
-    void EffekseerRenderer::PlayEffect(System::String^ path, float x, float y, float z)
-    {
-        if (m_impl)
-        {
-            std::wstring wpath = msclr::interop::marshal_as<std::wstring>(path);
-            m_impl->PlayEffect(wpath, x, y, z);
-        }
-    }
-
-    void EffekseerRenderer::Destroy()
-    {
-        if (m_impl)
-        {
-            m_impl->Shutdown();
-        }
-    }
-
-    int EffekseerRenderer::GetTotalFrame()
-    {
-        if (!m_impl) return 0;
-        std::wstring key = m_impl->GetLastPlayedKey();
-        if (key.empty()) return 0;
-        return m_impl->GetTotalFrame(key);
-    }
+int32_t effekseer_renderer_get_total_frame(EffekseerRendererHandle handle) {
+  auto *manager = GetManager(handle);
+  return manager == nullptr ? 0 : manager->GetTotalFrame();
 }

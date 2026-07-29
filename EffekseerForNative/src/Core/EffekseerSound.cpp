@@ -1,97 +1,67 @@
 #include "EffekseerSound.h"
+#include "WindowsString.h"
 
-namespace EffekseerForNative
-{
-    using namespace Effekseer;
+#include <string>
 
-    CustomSoundLoader::CustomSoundLoader(LoadSoundFunc loadFunc, UnloadSoundFunc unloadFunc)
-        : loadFunc_(loadFunc), unloadFunc_(unloadFunc)
-    {
-    }
+namespace EffekseerForNative {
+CustomSoundLoader::CustomSoundLoader(LoadSoundFunc loadSound,
+                                     UnloadSoundFunc unloadSound)
+    : loadSound_(loadSound), unloadSound_(unloadSound) {}
 
-    CustomSoundLoader::~CustomSoundLoader()
-    {
-    }
+::Effekseer::SoundDataRef CustomSoundLoader::Load(const char16_t *path) {
+  if (loadSound_ == nullptr || path == nullptr) {
+    return nullptr;
+  }
 
-    SoundDataRef CustomSoundLoader::Load(const char16_t* path)
-    {
-        if (loadFunc_)
-        {
-            int32_t id = loadFunc_(path);
-            if (id >= 0)
-            {
-                return MakeRefPtr<CustomSoundData>(id);
-            }
-        }
-        return nullptr;
-    }
-
-    SoundDataRef CustomSoundLoader::Load(const void* data, int32_t size)
-    {
-        // Not implemented for binary blob loading via memory
-        return nullptr;
-    }
-
-    void CustomSoundLoader::Unload(SoundDataRef data)
-    {
-        if (data != nullptr)
-        {
-            auto customData = (CustomSoundData*)data.Get();
-            if (unloadFunc_)
-            {
-                unloadFunc_(customData->SoundId);
-            }
-        }
-        data.Reset();
-    }
-
-    CustomSoundPlayer::CustomSoundPlayer(PlaySoundFunc playFunc)
-        : playFunc_(playFunc)
-    {
-    }
-
-    CustomSoundPlayer::~CustomSoundPlayer()
-    {
-    }
-
-    SoundHandle CustomSoundPlayer::Play(SoundTag tag, const InstanceParameter& parameter)
-    {
-        if (parameter.Data != nullptr && playFunc_)
-        {
-            auto customData = (CustomSoundData*)parameter.Data.Get();
-            playFunc_(customData->SoundId, parameter.Volume, parameter.Pan, parameter.Pitch, parameter.Mode3D,
-                parameter.Position.X, parameter.Position.Y, parameter.Position.Z, parameter.Distance);
-        }
-        return nullptr;
-    }
-
-    void CustomSoundPlayer::Stop(SoundHandle handle, SoundTag tag)
-    {
-    }
-
-    void CustomSoundPlayer::Pause(SoundHandle handle, SoundTag tag, bool pause)
-    {
-    }
-
-    bool CustomSoundPlayer::CheckPlaying(SoundHandle handle, SoundTag tag)
-    {
-        return false;
-    }
-
-    void CustomSoundPlayer::StopTag(SoundTag tag)
-    {
-    }
-
-    void CustomSoundPlayer::PauseTag(SoundTag tag, bool pause)
-    {
-    }
-
-    bool CustomSoundPlayer::CheckPlayingTag(SoundTag tag)
-    {
-        return false;
-    }
-
-    void CustomSoundPlayer::StopAll()
-    {
-    }
+  static_assert(sizeof(wchar_t) == sizeof(char16_t));
+  const auto pathUtf8 = EffekseerForYMM4::WindowsString::WideToUtf8(
+      std::wstring(reinterpret_cast<const wchar_t *>(path)));
+  const auto id = loadSound_(pathUtf8.c_str());
+  return id < 0 ? nullptr : ::Effekseer::MakeRefPtr<CustomSoundData>(id);
 }
+
+::Effekseer::SoundDataRef CustomSoundLoader::Load(const void *, int32_t) {
+  return nullptr;
+}
+
+void CustomSoundLoader::Unload(::Effekseer::SoundDataRef data) {
+  if (data != nullptr && unloadSound_ != nullptr) {
+    const auto *sound = static_cast<CustomSoundData *>(data.Get());
+    unloadSound_(sound->SoundId);
+  }
+  data.Reset();
+}
+
+CustomSoundPlayer::CustomSoundPlayer(PlaySoundFunc playSound)
+    : playSound_(playSound) {}
+
+::Effekseer::SoundHandle
+CustomSoundPlayer::Play(::Effekseer::SoundTag,
+                        const InstanceParameter &parameter) {
+  if (parameter.Data != nullptr && playSound_ != nullptr) {
+    const auto *sound = static_cast<CustomSoundData *>(parameter.Data.Get());
+    playSound_(sound->SoundId, parameter.Volume, parameter.Pan, parameter.Pitch,
+               parameter.Mode3D, parameter.Position.X, parameter.Position.Y,
+               parameter.Position.Z, parameter.Distance);
+  }
+  return nullptr;
+}
+
+void CustomSoundPlayer::Stop(::Effekseer::SoundHandle, ::Effekseer::SoundTag) {}
+
+void CustomSoundPlayer::Pause(::Effekseer::SoundHandle, ::Effekseer::SoundTag,
+                              bool) {}
+
+bool CustomSoundPlayer::CheckPlaying(::Effekseer::SoundHandle,
+                                     ::Effekseer::SoundTag) {
+  return false;
+}
+
+void CustomSoundPlayer::StopTag(::Effekseer::SoundTag) {}
+
+void CustomSoundPlayer::PauseTag(::Effekseer::SoundTag, bool) {}
+
+bool CustomSoundPlayer::CheckPlayingTag(::Effekseer::SoundTag) { return false; }
+
+void CustomSoundPlayer::StopAll() {}
+} // namespace EffekseerForNative

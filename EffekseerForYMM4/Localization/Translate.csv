@@ -3,42 +3,48 @@ Plugin_VideoEffect_Name,plugin name,Effekseerビデオエフェクト,Effekseer 
 Plugin_AudioEffect_Name,plugin name,Effekseer音声エフェクト,Effekseer Audio Effect,Effekseer 音频效果,Effekseer 音訊效果,Effekseer 오디오 효과,Efecto de audio Effekseer,تأثير صوت Effekseer,Efek Audio Effekseer
 Group_Effect,group,エフェクト,Effect,效果,效果,효과,Efecto,التأثير,Efek
 Group_Camera,group,カメラ,Camera,相机,相機,카메라,Cámara,الكاميرا,Kamera
-Group_Transform,group,変形,Transform,变换,變形,변형,Transformar,التحويل,Transformasi
+Group_Transform,group,描画,Drawing,渲染,描繪,그리기,Dibujar,رسم,Gambar
 Common_File_Name,name,ファイル,File,文件,檔案,파일,Archivo,ملف,File
 Common_File_Desc,desc,エフェクトファイル,Effect file,效果文件,效果檔案,효과 파일,Archivo de efecto,ملف التأثير,File efek
 Common_Loop_Name,name,ループ,Loop,循环,循環,반복,Bucle,تكرار,Loop
-Video_Loop_Desc,desc,エフェクトをループ再生する,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
-Audio_Loop_Desc,desc,エフェクトをループ再生します,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
-Video_ScreenSize_Name,name,スクリーンサイズ,Screen Size,屏幕尺寸,螢幕尺寸,화면 크기,Tamaño de pantalla,حجم الشاشة,Ukuran Layar
-Video_ScreenSize_Desc,desc,スクリーンサイズに合わせてレンダリングする,Render to match the screen size.,按屏幕尺寸进行渲染。,依螢幕尺寸進行渲染。,화면 크기에 맞춰 렌더링합니다.,Renderiza ajustándose al tamaño de la pantalla.,يعرض بما يتوافق مع حجم الشاشة.,Render sesuai ukuran layar.
-Audio_Volume_Name,name,音量,Volume,音量,音量,볼륨,Volumen,مستوى الصوت,Volume
-Audio_Volume_Desc,desc,音量を調整します,Adjust the volume.,调整音量。,調整音量。,볼륨을 조절합니다.,Ajusta el volumen.,يضبط مستوى الصوت.,Menyesuaikan volume.
+Video_Loop_Desc,desc,エフェクトをループ再生します。,Loop the effect playback.,循环播放效果。,循環播放效果。,효과를 반복 재생합니다.,Reproduce el efecto en bucle.,يشغل التأثير بشكل متكرر.,Memutar efek secara berulang.
+Audio_Volume_Name,name,音量,Volume,音量,音量,음량,Volumen,الصوت,Volume
+Audio_Volume_Desc,desc,音量,Volume,音量,音量,음량,Volumen,مستوى الصوت,Volume
+Audio_Loop_Desc,desc,映像と音声をループ再生します。,Loop the effect video and sound.,循环播放效果画面和声音。,循環播放效果影像與聲音。,효과 영상과 소리를 반복 재생합니다.,Reproduce en bucle el video y el sonido del efecto.,يشغل صورة التأثير وصوته بشكل متكرر.,Memutar visual dan suara efek secara berulang.
+Video_ScreenSize_Name,name,画面サイズ,Screen size,画面尺寸,畫面尺寸,화면 크기,Tamaño de pantalla,حجم الشاشة,Ukuran layar
+Video_ScreenSize_Desc,desc,画面サイズに合わせてレンダリングします。,Render to match the screen size.,按画面尺寸进行渲染。,依畫面尺寸進行渲染。,화면 크기에 맞춰 렌더링합니다.,Renderiza ajustándose al tamaño de la pantalla.,يعرض بما يتوافق مع حجم الشاشة.,Render sesuai ukuran layar.
 Camera_X_Name,name,X,X,X,X,X,X,X,X
-Camera_X_Desc,desc,カメラのX座標,Camera X position,相机 X 坐标,相機 X 座標,카메라 X 좌표,Posición X de la cámara,موضع X للكاميرا,Posisi X kamera
+Camera_X_Desc,desc,カメラの位置（横方向）,Camera position (horizontal),摄像机位置（水平）,攝像機位置（水平）,카메라 위치（가로 방향）,Posición de la cámara (horizontal),موضع الكاميرا (أفقي),Posisi kamera (horizontal)
 Camera_Y_Name,name,Y,Y,Y,Y,Y,Y,Y,Y
-Camera_Y_Desc,desc,カメラのY座標,Camera Y position,相机 Y 坐标,相機 Y 座標,카메라 Y 좌표,Posición Y de la cámara,موضع Y للكاميرا,Posisi Y kamera
+Camera_Y_Desc,desc,カメラの位置（縦方向）,Camera position (vertical),摄像机位置（垂直）,攝像機位置（垂直）,카메라 위치（세로 방향）,Posición de la cámara (vertical),موضع الكاميرا (عمودي),Posisi kamera (vertikal)
 Camera_Z_Name,name,Z,Z,Z,Z,Z,Z,Z,Z
-Camera_Z_Desc,desc,カメラのZ座標,Camera Z position,相机 Z 坐标,相機 Z 座標,카메라 Z 좌표,Posición Z de la cámara,موضع Z للكاميرا,Posisi Z kamera
+Camera_Z_Desc,desc,カメラの位置（奥行き）,Camera position (depth),摄像机位置（深度）,攝像機位置（深度）,카메라 위치（깊이）,Posición de la cámara (profundidad),موضع الكاميرا (العمق),Posisi kamera (kedalaman)
 Video_Fov_Name,name,視野角,Field of View,视野角,視野角,시야각,Campo de visión,زاوية الرؤية,Sudut Pandang
-Video_Fov_Desc,desc,視野角(度),Field of view (degrees),视野角（度）,視野角（度）,시야각(도),Campo de visión (grados),زاوية الرؤية (درجة),Sudut pandang (derajat)
-Transform_Scale_Name,name,拡大率,Scale,缩放率,縮放率,배율,Escala,المقياس,Skala
-Transform_Scale_Desc,desc,エフェクト全体の拡大率,Scale of the entire effect,整个效果的缩放率,整體效果的縮放率,효과 전체의 배율,Escala de todo el efecto,مقياس التأثير بالكامل,Skala seluruh efek
-Transform_PositionX_Name,name,位置X,Position X,位置X,位置X,위치 X,Posición X,الموضع X,Posisi X
-Transform_PositionX_Desc,desc,エフェクト位置X,Effect position X,效果位置 X,效果位置 X,효과 위치 X,Posición X del efecto,موضع التأثير X,Posisi efek X
-Transform_PositionY_Name,name,位置Y,Position Y,位置Y,位置Y,위치 Y,Posición Y,الموضع Y,Posisi Y
-Transform_PositionY_Desc,desc,エフェクト位置Y,Effect position Y,效果位置 Y,效果位置 Y,효과 위치 Y,Posición Y del efecto,موضع التأثير Y,Posisi efek Y
-Transform_PositionZ_Name,name,位置Z,Position Z,位置Z,位置Z,위치 Z,Posición Z,الموضع Z,Posisi Z
-Transform_PositionZ_Desc,desc,エフェクト位置Z,Effect position Z,效果位置 Z,效果位置 Z,효과 위치 Z,Posición Z del efecto,موضع التأثير Z,Posisi efek Z
-Transform_RotationX_Name,name,回転X,Rotation X,旋转X,旋轉X,회전 X,Rotación X,الدوران X,Rotasi X
-Transform_RotationX_Desc,desc,エフェクト回転X,Effect rotation X,效果旋转 X,效果旋轉 X,효과 회전 X,Rotación X del efecto,دوران التأثير X,Rotasi efek X
-Transform_RotationY_Name,name,回転Y,Rotation Y,旋转Y,旋轉Y,회전 Y,Rotación Y,الدوران Y,Rotasi Y
-Transform_RotationY_Desc,desc,エフェクト回転Y,Effect rotation Y,效果旋转 Y,效果旋轉 Y,효과 회전 Y,Rotación Y del efecto,دوران التأثير Y,Rotasi efek Y
-Transform_RotationZ_Name,name,回転Z,Rotation Z,旋转Z,旋轉Z,회전 Z,Rotación Z,الدوران Z,Rotasi Z
-Transform_RotationZ_Desc,desc,エフェクト回転Z,Effect rotation Z,效果旋转 Z,效果旋轉 Z,효과 회전 Z,Rotación Z del efecto,دوران التأثير Z,Rotasi efek Z
+Video_Fov_Desc,desc,視野角（度）,Field of view (degrees),视野角（度）,視野角（度）,시야각(도),Campo de visión (grados),زاوية الرؤية (درجة),Sudut pandang (derajat)
+Video_Projection_Name,name,投影,Projection,投影,投影,투영,Proyección,الإسقاط,Proyeksi
+Video_Projection_Desc,desc,遠近感を付ける透視投影と、平面的に表示する正投影を切り替えます。,Camera projection mode.,相机的投影方式。,相機的投影方式。,카메라 투영 방식입니다.,Modo de proyección de la cámara.,وضع إسقاط الكاميرا.,Mode proyeksi kamera.
+Video_Projection_Perspective,ui,透視投影,Perspective,透视投影,透視投影,원근 투영,Perspectiva,إسقاط منظور,Perspektif
+Video_Projection_Orthographic,ui,正投影,Orthographic,正交投影,正交投影,직교 투영,Ortográfica,إسقاط متعامد,Ortografis
+Video_OrthographicSize_Name,name,正投影サイズ,Orthographic Size,正交尺寸,正交尺寸,직교 크기,Tamaño ortográfico,حجم الإسقاط المتعامد,Ukuran Ortografis
+Video_OrthographicSize_Desc,desc,正投影時の表示範囲を調整します。,Visible range for orthographic projection.,正交投影时的显示范围。,正交投影時的顯示範圍。,직교 투영 시 표시 범위입니다.,Rango visible para proyección ortográfica.,نطاق العرض عند الإسقاط المتعامد.,Rentang tampilan untuk proyeksi ortografis.
+Transform_Scale_Name,name,拡大率,Zoom,缩放率,放大率,확대율,Aumento,معدل التكبير,Pembesaran
+Transform_Scale_Desc,desc,拡大率,Zoom,缩放率,放大率,확대율,Aumento,معدل التكبير,Pembesaran
+Transform_PositionX_Name,name,X,X,X,X,X,X,X,X
+Transform_PositionX_Desc,desc,描画位置（横方向）,Drawing position (horizontal),渲染位置（水平）,描繪位置（水平）,그리기 위치(가로),Posición de trazado (horizontal),موضع الرسم (أفقي),Posisi gambar (horizontal)
+Transform_PositionY_Name,name,Y,Y,Y,Y,Y,Y,Y,Y
+Transform_PositionY_Desc,desc,描画位置（縦方向）,Drawing position (vertical),渲染位置（垂直）,描繪位置（垂直）,그리기 위치(세로),Posición de dibujo (dirección vertical),موضع الرسم (عمودي),Posisi gambar (vertikal)
+Transform_PositionZ_Name,name,Z,Z,Z,Z,Z,Z,Z,Z
+Transform_PositionZ_Desc,desc,描画位置（奥行き）,Drawing position (depth),渲染位置（深度）,繪圖位置（深度）,그리기 위치（깊이）,Posición de dibujo (profundidad),موضع الرسم (العمق),Posisi menggambar (kedalaman)
+Transform_RotationX_Name,name,X軸,X axis,X轴,X軸,X축,Eje X,محور X,Sumbu X
+Transform_RotationX_Desc,desc,縦方向、X軸に対する回転角,"Vertical, angle of rotation relative to X-axis",垂直方向，相对于X轴的旋转角度,垂直方向，相對X軸的回轉角度,"세로방향, X축에 대한 회전각","Vertical, ángulo de rotación sobre el eje x",زاوية الدوران العمودية بالنسبة لمحور X,"Vertikal, sudut rotasi relatif terhadap sumbu-X"
+Transform_RotationY_Name,name,Y軸,Y axis,Y轴,Y軸,Y축,Eje Y,محور Y,Sumbu Y
+Transform_RotationY_Desc,desc,横方向、Y軸に対する回転角,"Horizontal, angle of rotation about Y-axis",水平方向，相对Y轴的旋转角度,水平方向，相對Y軸的回轉角度,"가로 방향, Y축에 대한 회전 각도","Dirección horizontal, ángulo de rotación sobre el eje Y",الاتجاه الأفقي، زاوية الدوران حول المحور Y,"Horizontal, sudut rotasi sumbu Y"
+Transform_RotationZ_Name,name,Z軸,Z axis,Z轴,Z軸,Z축,Eje Z,محور Z,Sumbu Z
+Transform_RotationZ_Desc,desc,平面方向、Z軸に対する回転角,"Planar direction, rotation angle relative to Z-axis",相对于平面、Z轴方向的旋转角度,相對平面、Z軸方向的旋轉角度,"평면 방향, Z축에 대한 회전 각도","Ángulo de rotación sobre la dirección del plano, eje Z",الاتجاه المستوي، زاوية الدوران بالنسبة لمحور Z,"Arah planar, sudut rotasi relatif terhadap sumbu Z"
 Error_DialogTitle,title,Error,Error,错误,錯誤,오류,Error,خطأ,Error
 Error_EffectLoadFailed_Title,title,Effekseerファイルの読み込みに失敗しました,Failed to load the Effekseer file,加载 Effekseer 文件失败,載入 Effekseer 檔案失敗,Effekseer 파일을 불러오지 못했습니다,No se pudo cargar el archivo de Effekseer,تعذر تحميل ملف Effekseer,Gagal memuat file Effekseer
 Error_TargetPath_Label,label,対象パス,Target Path,目标路径,目標路徑,대상 경로,Ruta de destino,المسار الهدف,Jalur target
 Error_CheckEffectFiles,message,ファイルの種類と内容を確認してください。,Check the file type and contents.,请检查文件类型和内容。,請確認檔案類型與內容。,파일 형식과 내용을 확인하세요.,Comprueba el tipo y el contenido del archivo.,تحقق من نوع الملف ومحتواه.,Periksa jenis dan isi file.
-Error_InvalidEffectExtension,message,対応していない拡張子です。対応拡張子: {0},Unsupported file extension. Supported extensions: {0},不支持的扩展名。支持的扩展名: {0},不支援的副檔名。支援的副檔名: {0},지원하지 않는 확장자입니다. 지원 확장자: {0},Extensión de archivo no compatible. Extensiones compatibles: {0},امتداد ملف غير مدعوم. الامتدادات المدعومة: {0},Ekstensi file tidak didukung. Ekstensi yang didukung: {0}
+Error_InvalidEffectExtension,message,対応していない拡張子です。対応している拡張子：{0},Unsupported file extension. Supported extensions: {0},不支持的扩展名。支持的扩展名: {0},不支援的副檔名。支援的副檔名: {0},지원하지 않는 확장자입니다. 지원 확장자: {0},Extensión de archivo no compatible. Extensiones compatibles: {0},امتداد ملف غير مدعوم. الامتدادات المدعومة: {0},Ekstensi file tidak didukung. Ekstensi yang didukung: {0}
 Error_EffectFileNotFound,message,ファイルが見つかりません。,File not found.,找不到文件。,找不到檔案。,파일을 찾을 수 없습니다.,No se encontró el archivo.,تعذر العثور على الملف.,File tidak ditemukan.
-Error_EffectFilesMayBeInvalid,message,Effekseerファイルが壊れているか、参照ファイルが不足している可能性があります。,The Effekseer file may be invalid or required referenced files may be missing.,Effekseer 文件可能已损坏，或缺少所需的引用文件。,Effekseer 檔案可能已損壞，或缺少必要的參照檔案。,Effekseer 파일이 손상되었거나 필요한 참조 파일이 누락되었을 수 있습니다.,El archivo de Effekseer puede ser inválido o pueden faltar archivos referenciados requeridos.,قد يكون ملف Effekseer غير صالح أو قد تكون الملفات المرجعية المطلوبة مفقودة.,File Effekseer mungkin tidak valid atau file referensi yang dibutuhkan mungkin hilang.
+Error_EffectFilesMayBeInvalid,message,Effekseerファイルが壊れているか、必要な参照ファイルが不足している可能性があります。,The Effekseer file may be invalid or required referenced files may be missing.,Effekseer 文件可能已损坏，或缺少所需的引用文件。,Effekseer 檔案可能已損壞，或缺少必要的參照檔案。,Effekseer 파일이 손상되었거나 필요한 참조 파일이 누락되었을 수 있습니다.,El archivo de Effekseer puede ser inválido o pueden faltar archivos referenciados requeridos.,قد يكون ملف Effekseer غير صالح أو قد تكون الملفات المرجعية المطلوبة مفقودة.,File Effekseer mungkin tidak valid atau file referensi yang dibutuhkan mungkin hilang.

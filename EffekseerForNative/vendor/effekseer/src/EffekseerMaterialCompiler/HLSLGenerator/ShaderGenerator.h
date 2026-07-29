@@ -22,6 +22,7 @@ enum class ShaderGeneratorTarget
 	DirectX12,
 	PSSL,
 	XBOXONE,
+	WebGPU,
 };
 
 class ShaderGenerator
@@ -62,6 +63,8 @@ protected:
 					bool isSprite,
 					MaterialShaderType shaderType,
 					const std::string& baseCode);
+
+	void RemovePixelScreenPosition(ShaderData& shaderData);
 
 public:
 	ShaderGenerator(ShaderGeneratorTarget target);

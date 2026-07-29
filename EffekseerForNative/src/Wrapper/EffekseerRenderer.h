@@ -1,40 +1,52 @@
 #pragma once
 
-#include <d3d11.h>
+#include <cstdint>
 
-class EffectsManager;
+#define EFFEKSEER_NATIVE_API extern "C" __declspec(dllexport)
 
-using namespace System;
+using EffekseerRendererHandle = void *;
 
-namespace EffekseerForNative {
-
-        public ref class EffekseerRenderer
-        {
-        public:
-            EffekseerRenderer();
-            ~EffekseerRenderer();
-            !EffekseerRenderer();
-
-            bool Initialize(IntPtr device, IntPtr context, int width, int height);
-            bool LoadEffect(System::String^ path);
-            property System::String^ LastErrorMessage { System::String^ get(); }
-            void Render();
-            void Update(float deltaFrames);
-            void SetSoundCallback(System::IntPtr loadSound, System::IntPtr unloadSound, System::IntPtr playSound);
-            void SetProjection(int width, int height);
-            void SetProjectionPerspective(float fov, int width, int height, float nearVal, float farVal);
-            void SetProjectionOrthographic(float width, float height, float nearVal, float farVal);
-            void SetCameraLookAt(float posX, float posY, float posZ, float targetX, float targetY, float targetZ, float upX, float upY, float upZ);
-            void SetLocation(float x, float y, float z);
-            void SetRotation(float x, float y, float z);
-            void SetScale(float scale);
-            void Reset();
-            void StopRoot();
-            void PlayEffect(System::String^ path, float x, float y, float z);
-            void Destroy();
-            int GetTotalFrame();
-
-        private:
-            EffectsManager* m_impl = nullptr;
-        };
-}
+EFFEKSEER_NATIVE_API EffekseerRendererHandle effekseer_renderer_create();
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_destroy(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API int32_t
+effekseer_renderer_initialize(EffekseerRendererHandle handle, void *device,
+                              void *context, int32_t width, int32_t height);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_load_effect(
+    EffekseerRendererHandle handle, const char *pathUtf8);
+EFFEKSEER_NATIVE_API int32_t effekseer_renderer_get_last_error(
+    EffekseerRendererHandle handle, char *buffer, int32_t bufferSize);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_render(EffekseerRendererHandle handle, void *renderTarget,
+                          void *depthStencil, int32_t width, int32_t height);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_update(EffekseerRendererHandle handle, float deltaFrames);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_compute(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_set_sound_callbacks(EffekseerRendererHandle handle,
+                                       void *loadSound, void *unloadSound,
+                                       void *playSound);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_projection_perspective(
+    EffekseerRendererHandle handle, float fov, int32_t width, int32_t height,
+    float nearValue, float farValue);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_set_projection_orthographic(EffekseerRendererHandle handle,
+                                               float width, float height,
+                                               float nearValue, float farValue);
+EFFEKSEER_NATIVE_API void effekseer_renderer_set_camera_look_at(
+    EffekseerRendererHandle handle, float positionX, float positionY,
+    float positionZ, float targetX, float targetY, float targetZ, float upX,
+    float upY, float upZ);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_set_location(EffekseerRendererHandle handle, float x,
+                                float y, float z);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_set_rotation(EffekseerRendererHandle handle, float x,
+                                float y, float z);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_set_scale(EffekseerRendererHandle handle, float scale);
+EFFEKSEER_NATIVE_API void
+effekseer_renderer_reset(EffekseerRendererHandle handle);
+EFFEKSEER_NATIVE_API int32_t
+effekseer_renderer_get_total_frame(EffekseerRendererHandle handle);

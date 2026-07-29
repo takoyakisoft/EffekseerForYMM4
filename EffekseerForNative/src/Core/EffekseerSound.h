@@ -1,59 +1,55 @@
 #pragma once
 
-// Do not redefine Effekseer classes.
-// Instead, import them from the vendor headers or rely on Effekseer.h if possible.
-// Since Effekseer.h does not define SoundPlayer, we use the internal headers,
-// which is acceptable given we are statically linking and need to extend the engine.
-// We use relative paths to the vendor directory.
-
 #include "../../vendor/effekseer/src/Effekseer/Effekseer/Effekseer.SoundLoader.h"
 #include "../../vendor/effekseer/src/Effekseer/Effekseer/Sound/Effekseer.SoundPlayer.h"
 
-namespace EffekseerForNative
-{
-    using namespace Effekseer;
+#include <cstdint>
 
-    class CustomSoundData : public SoundData
-    {
-    public:
-        int32_t SoundId = -1;
-        CustomSoundData(int32_t id) : SoundId(id) {}
-        virtual ~CustomSoundData() {}
-    };
+namespace EffekseerForNative {
+using LoadSoundFunc = int32_t(EFK_STDCALL *)(const char *pathUtf8);
+using UnloadSoundFunc = void(EFK_STDCALL *)(int32_t id);
+using PlaySoundFunc = void(EFK_STDCALL *)(int32_t id, float volume, float pan,
+                                          float pitch, bool mode3d, float x,
+                                          float y, float z, float distance);
 
-    typedef int32_t(EFK_STDCALL* LoadSoundFunc)(const char16_t* path);
-    typedef void(EFK_STDCALL* UnloadSoundFunc)(int32_t id);
-    typedef void(EFK_STDCALL* PlaySoundFunc)(int32_t id, float volume, float pan, float pitch, bool mode3d, float x, float y, float z, float distance);
+class CustomSoundData final : public ::Effekseer::SoundData {
+public:
+  explicit CustomSoundData(int32_t id) : SoundId(id) {}
 
-    class CustomSoundLoader : public SoundLoader
-    {
-        LoadSoundFunc loadFunc_ = nullptr;
-        UnloadSoundFunc unloadFunc_ = nullptr;
+  int32_t SoundId;
+};
 
-    public:
-        CustomSoundLoader(LoadSoundFunc loadFunc, UnloadSoundFunc unloadFunc);
-        virtual ~CustomSoundLoader();
+class CustomSoundLoader final : public ::Effekseer::SoundLoader {
+public:
+  CustomSoundLoader(LoadSoundFunc loadSound, UnloadSoundFunc unloadSound);
 
-        SoundDataRef Load(const char16_t* path) override;
-        SoundDataRef Load(const void* data, int32_t size) override;
-        void Unload(SoundDataRef data) override;
-    };
+  ::Effekseer::SoundDataRef Load(const char16_t *path) override;
+  ::Effekseer::SoundDataRef Load(const void *data, int32_t size) override;
+  void Unload(::Effekseer::SoundDataRef data) override;
 
-    class CustomSoundPlayer : public SoundPlayer
-    {
-        PlaySoundFunc playFunc_ = nullptr;
+private:
+  LoadSoundFunc loadSound_;
+  UnloadSoundFunc unloadSound_;
+};
 
-    public:
-        CustomSoundPlayer(PlaySoundFunc playFunc);
-        virtual ~CustomSoundPlayer();
+class CustomSoundPlayer final : public ::Effekseer::SoundPlayer {
+public:
+  explicit CustomSoundPlayer(PlaySoundFunc playSound);
 
-        SoundHandle Play(SoundTag tag, const InstanceParameter& parameter) override;
-        void Stop(SoundHandle handle, SoundTag tag) override;
-        void Pause(SoundHandle handle, SoundTag tag, bool pause) override;
-        bool CheckPlaying(SoundHandle handle, SoundTag tag) override;
-        void StopTag(SoundTag tag) override;
-        void PauseTag(SoundTag tag, bool pause) override;
-        bool CheckPlayingTag(SoundTag tag) override;
-        void StopAll() override;
-    };
-}
+  ::Effekseer::SoundHandle Play(::Effekseer::SoundTag tag,
+                                const InstanceParameter &parameter) override;
+  void Stop(::Effekseer::SoundHandle handle,
+            ::Effekseer::SoundTag tag) override;
+  void Pause(::Effekseer::SoundHandle handle, ::Effekseer::SoundTag tag,
+             bool pause) override;
+  bool CheckPlaying(::Effekseer::SoundHandle handle,
+                    ::Effekseer::SoundTag tag) override;
+  void StopTag(::Effekseer::SoundTag tag) override;
+  void PauseTag(::Effekseer::SoundTag tag, bool pause) override;
+  bool CheckPlayingTag(::Effekseer::SoundTag tag) override;
+  void StopAll() override;
+
+private:
+  PlaySoundFunc playSound_;
+};
+} // namespace EffekseerForNative

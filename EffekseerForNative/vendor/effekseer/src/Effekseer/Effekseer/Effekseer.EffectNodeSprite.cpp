@@ -222,12 +222,20 @@ void EffectNodeSprite::Rendering(const Instance& instance, const Instance* next_
 
 		instanceParameter.FlipbookIndexAndNextRate = instance.GetFlipbookIndexAndNextRate();
 
-		instanceParameter.AlphaThreshold = instance.m_AlphaThreshold;
+		instanceParameter.AlphaThreshold = instance.alphaThreshold_;
 
 		if (nodeParam_.EnableViewOffset)
 		{
-			instanceParameter.ViewOffsetDistance = instance.translation_values.view_offset.distance;
+			instanceParameter.ViewOffsetDistance = instance.translation_state_.view_offset.distance;
 		}
+
+		if (nodeParam_.Billboard == BillboardType::DirectionalBillboard)
+		{
+			instanceParameter.Direction = instance.GetGlobalDirection();
+		}
+
+		instanceParameter.ParticleTimes[0] = instance.GetNormalizedLivetime();
+		instanceParameter.ParticleTimes[1] = instance.livingTime_ / 60.0f;
 
 		CalcCustomData(&instance, instanceParameter.CustomData1, instanceParameter.CustomData2);
 
@@ -250,7 +258,7 @@ void EffectNodeSprite::InitializeRenderedInstance(Instance& instance, InstanceGr
 	IRandObject& rand = instance.GetRandObject();
 
 	AllTypeColorFunctions::Init(instValues.allColorValues, rand, SpriteAllColor);
-	instValues._originalColor = AllTypeColorFunctions::Calculate(instValues.allColorValues, SpriteAllColor, instance.m_LivingTime, instance.m_LivedTime);
+	instValues._originalColor = AllTypeColorFunctions::Calculate(instValues.allColorValues, SpriteAllColor, instance.livingTime_, instance.livedTime_);
 
 	// TODO : Refactor
 	if (RendererCommon.ColorBindType == BindType::Always || RendererCommon.ColorBindType == BindType::WhenCreating)
@@ -262,6 +270,8 @@ void EffectNodeSprite::InitializeRenderedInstance(Instance& instance, InstanceGr
 		instValues._color = instValues._originalColor;
 	}
 
+	ApplyRendererCommonUVHorizontalFlip(instance, rand);
+
 	instance.ColorInheritance = instValues._color;
 }
 
@@ -269,9 +279,10 @@ void EffectNodeSprite::UpdateRenderedInstance(Instance& instance, InstanceGroup&
 {
 	InstanceValues& instValues = instance.rendererValues.sprite;
 
-	instValues._originalColor = AllTypeColorFunctions::Calculate(instValues.allColorValues, SpriteAllColor, instance.m_LivingTime, instance.m_LivedTime);
+	instValues._originalColor = AllTypeColorFunctions::Calculate(instValues.allColorValues, SpriteAllColor, instance.livingTime_, instance.livedTime_);
 
 	float fadeAlpha = GetFadeAlpha(instance);
+
 	if (fadeAlpha != 1.0f)
 	{
 		instValues._originalColor.A = (uint8_t)(instValues._originalColor.A * fadeAlpha);

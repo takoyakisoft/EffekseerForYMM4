@@ -1,0 +1,9 @@
+<Project>
+	<PropertyGroup>
+		<EffekseerForYMM4Version>1.2.0</EffekseerForYMM4Version>
+		<Version>$(EffekseerForYMM4Version)</Version>
+		<AssemblyVersion>$(EffekseerForYMM4Version).0</AssemblyVersion>
+		<FileVersion>$(EffekseerForYMM4Version).0</FileVersion>
+		<InformationalVersion>$(EffekseerForYMM4Version)</InformationalVersion>
+	</PropertyGroup>
+</Project>

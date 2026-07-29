@@ -63,38 +63,44 @@
 <data name="Plugin_AudioEffect_Name" xml:space="preserve"><value>Efek Audio Effekseer</value></data>
 <data name="Group_Effect" xml:space="preserve"><value>Efek</value></data>
 <data name="Group_Camera" xml:space="preserve"><value>Kamera</value></data>
-<data name="Group_Transform" xml:space="preserve"><value>Transformasi</value></data>
+<data name="Group_Transform" xml:space="preserve"><value>Gambar</value></data>
 <data name="Common_File_Name" xml:space="preserve"><value>File</value></data>
 <data name="Common_File_Desc" xml:space="preserve"><value>File efek</value></data>
 <data name="Common_Loop_Name" xml:space="preserve"><value>Loop</value></data>
 <data name="Video_Loop_Desc" xml:space="preserve"><value>Memutar efek secara berulang.</value></data>
-<data name="Audio_Loop_Desc" xml:space="preserve"><value>Memutar efek secara berulang.</value></data>
-<data name="Video_ScreenSize_Name" xml:space="preserve"><value>Ukuran Layar</value></data>
-<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>Render sesuai ukuran layar.</value></data>
 <data name="Audio_Volume_Name" xml:space="preserve"><value>Volume</value></data>
-<data name="Audio_Volume_Desc" xml:space="preserve"><value>Menyesuaikan volume.</value></data>
+<data name="Audio_Volume_Desc" xml:space="preserve"><value>Volume</value></data>
+<data name="Audio_Loop_Desc" xml:space="preserve"><value>Memutar visual dan suara efek secara berulang.</value></data>
+<data name="Video_ScreenSize_Name" xml:space="preserve"><value>Ukuran layar</value></data>
+<data name="Video_ScreenSize_Desc" xml:space="preserve"><value>Render sesuai ukuran layar.</value></data>
 <data name="Camera_X_Name" xml:space="preserve"><value>X</value></data>
-<data name="Camera_X_Desc" xml:space="preserve"><value>Posisi X kamera</value></data>
+<data name="Camera_X_Desc" xml:space="preserve"><value>Posisi kamera (horizontal)</value></data>
 <data name="Camera_Y_Name" xml:space="preserve"><value>Y</value></data>
-<data name="Camera_Y_Desc" xml:space="preserve"><value>Posisi Y kamera</value></data>
+<data name="Camera_Y_Desc" xml:space="preserve"><value>Posisi kamera (vertikal)</value></data>
 <data name="Camera_Z_Name" xml:space="preserve"><value>Z</value></data>
-<data name="Camera_Z_Desc" xml:space="preserve"><value>Posisi Z kamera</value></data>
+<data name="Camera_Z_Desc" xml:space="preserve"><value>Posisi kamera (kedalaman)</value></data>
 <data name="Video_Fov_Name" xml:space="preserve"><value>Sudut Pandang</value></data>
 <data name="Video_Fov_Desc" xml:space="preserve"><value>Sudut pandang (derajat)</value></data>
-<data name="Transform_Scale_Name" xml:space="preserve"><value>Skala</value></data>
-<data name="Transform_Scale_Desc" xml:space="preserve"><value>Skala seluruh efek</value></data>
-<data name="Transform_PositionX_Name" xml:space="preserve"><value>Posisi X</value></data>
-<data name="Transform_PositionX_Desc" xml:space="preserve"><value>Posisi efek X</value></data>
-<data name="Transform_PositionY_Name" xml:space="preserve"><value>Posisi Y</value></data>
-<data name="Transform_PositionY_Desc" xml:space="preserve"><value>Posisi efek Y</value></data>
-<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Posisi Z</value></data>
-<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Posisi efek Z</value></data>
-<data name="Transform_RotationX_Name" xml:space="preserve"><value>Rotasi X</value></data>
-<data name="Transform_RotationX_Desc" xml:space="preserve"><value>Rotasi efek X</value></data>
-<data name="Transform_RotationY_Name" xml:space="preserve"><value>Rotasi Y</value></data>
-<data name="Transform_RotationY_Desc" xml:space="preserve"><value>Rotasi efek Y</value></data>
-<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Rotasi Z</value></data>
-<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>Rotasi efek Z</value></data>
+<data name="Video_Projection_Name" xml:space="preserve"><value>Proyeksi</value></data>
+<data name="Video_Projection_Desc" xml:space="preserve"><value>Mode proyeksi kamera.</value></data>
+<data name="Video_Projection_Perspective" xml:space="preserve"><value>Perspektif</value></data>
+<data name="Video_Projection_Orthographic" xml:space="preserve"><value>Ortografis</value></data>
+<data name="Video_OrthographicSize_Name" xml:space="preserve"><value>Ukuran Ortografis</value></data>
+<data name="Video_OrthographicSize_Desc" xml:space="preserve"><value>Rentang tampilan untuk proyeksi ortografis.</value></data>
+<data name="Transform_Scale_Name" xml:space="preserve"><value>Pembesaran</value></data>
+<data name="Transform_Scale_Desc" xml:space="preserve"><value>Pembesaran</value></data>
+<data name="Transform_PositionX_Name" xml:space="preserve"><value>X</value></data>
+<data name="Transform_PositionX_Desc" xml:space="preserve"><value>Posisi gambar (horizontal)</value></data>
+<data name="Transform_PositionY_Name" xml:space="preserve"><value>Y</value></data>
+<data name="Transform_PositionY_Desc" xml:space="preserve"><value>Posisi gambar (vertikal)</value></data>
+<data name="Transform_PositionZ_Name" xml:space="preserve"><value>Z</value></data>
+<data name="Transform_PositionZ_Desc" xml:space="preserve"><value>Posisi menggambar (kedalaman)</value></data>
+<data name="Transform_RotationX_Name" xml:space="preserve"><value>Sumbu X</value></data>
+<data name="Transform_RotationX_Desc" xml:space="preserve"><value>Vertikal, sudut rotasi relatif terhadap sumbu-X</value></data>
+<data name="Transform_RotationY_Name" xml:space="preserve"><value>Sumbu Y</value></data>
+<data name="Transform_RotationY_Desc" xml:space="preserve"><value>Horizontal, sudut rotasi sumbu Y</value></data>
+<data name="Transform_RotationZ_Name" xml:space="preserve"><value>Sumbu Z</value></data>
+<data name="Transform_RotationZ_Desc" xml:space="preserve"><value>Arah planar, sudut rotasi relatif terhadap sumbu Z</value></data>
 <data name="Error_DialogTitle" xml:space="preserve"><value>Error</value></data>
 <data name="Error_EffectLoadFailed_Title" xml:space="preserve"><value>Gagal memuat file Effekseer</value></data>
 <data name="Error_TargetPath_Label" xml:space="preserve"><value>Jalur target</value></data>

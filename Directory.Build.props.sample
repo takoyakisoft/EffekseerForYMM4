@@ -1,5 +1,9 @@
 <Project>
+  <!-- Copy this file to Directory.Build.props and edit only the copy. -->
   <PropertyGroup>
-	  <YMM4DirPath>D:\YMM4\</YMM4DirPath>
+    <YMM4DirPath>PATH_TO_YMM4\</YMM4DirPath>
+    <DotnetPath>PATH_TO_DOTNET_EXE</DotnetPath>
+    <MSBuildPath>PATH_TO_MSBUILD_EXE</MSBuildPath>
+    <ClangFormatPath>PATH_TO_CLANG_FORMAT_EXE</ClangFormatPath>
   </PropertyGroup>
 </Project>
