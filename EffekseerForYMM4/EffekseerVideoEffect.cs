@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using EffekseerForYMM4.Commons.CustomPropertyEditor;
 using YukkuriMovieMaker.Commons;
 using YukkuriMovieMaker.Controls;
 using YukkuriMovieMaker.Exo;
@@ -16,17 +14,6 @@ namespace EffekseerForYMM4
     [VideoEffect(nameof(Translate.Plugin_VideoEffect_Name), ["装飾"], ["Effekseer"], ResourceType = typeof(Translate))]
     internal class EffekseerVideoEffect : VideoEffectBase
     {
-        public EffekseerVideoEffect()
-        {
-            Projection.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName == nameof(ProjectionModeViewModel.SelectedProjectionMode))
-                {
-                    ProjectionMode = Projection.SelectedProjectionMode;
-                }
-            };
-        }
-
         public override string Label => Translate.Plugin_VideoEffect_Name;
 
         [Display(GroupName = nameof(Translate.Group_Effect), Name = nameof(Translate.Common_File_Name), Description = nameof(Translate.Common_File_Desc), ResourceType = typeof(Translate))]
@@ -45,29 +32,10 @@ namespace EffekseerForYMM4
         bool isLoop = true;
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Video_Projection_Name), Description = nameof(Translate.Video_Projection_Desc), ResourceType = typeof(Translate))]
-        [CustomComboBox]
-        public ProjectionModeViewModel Projection { get; } = new(ProjectionMode.Perspective);
-
-        [Browsable(false)]
+        [EnumComboBox]
         [DefaultValue(ProjectionMode.Perspective)]
-        public ProjectionMode ProjectionMode
-        {
-            get => projectionMode;
-            set
-            {
-                if (Set(ref projectionMode, value) && Projection.SelectedProjectionMode != value)
-                {
-                    Projection.Select(value);
-                }
-            }
-        }
+        public ProjectionMode ProjectionMode { get => projectionMode; set => Set(ref projectionMode, value); }
         ProjectionMode projectionMode = ProjectionMode.Perspective;
-
-        [SuppressMessage(
-            "Performance",
-            "CA1822:Mark members as static",
-            Justification = "ShouldSerialize methods must remain instance methods for serializer convention discovery.")]
-        public bool ShouldSerializeProjection() => false;
 
         [Display(GroupName = nameof(Translate.Group_Camera), Name = nameof(Translate.Camera_X_Name), Description = nameof(Translate.Camera_X_Desc), ResourceType = typeof(Translate))]
         [AnimationSlider("F1", "px", EffekseerParameterSettings.PositionSliderMinimum, EffekseerParameterSettings.PositionSliderMaximum)]
