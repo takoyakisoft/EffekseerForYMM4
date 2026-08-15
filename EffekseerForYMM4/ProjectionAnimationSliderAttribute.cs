@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using YukkuriMovieMaker.Commons;
@@ -26,10 +27,20 @@ internal sealed class ProjectionAnimationSliderAttribute(
 
     public override void SetBindings(FrameworkElement control, ItemProperty[] itemProperties)
     {
-        innerAttribute.SetBindings(control, itemProperties);
+        ArgumentNullException.ThrowIfNull(control);
+        ArgumentNullException.ThrowIfNull(itemProperties);
+        ArgumentOutOfRangeException.ThrowIfZero(itemProperties.Length);
+
+        var compatibleItemProperties = GetCompatibleItemProperties(itemProperties);
+        if (compatibleItemProperties.Length == 0)
+        {
+            throw new InvalidOperationException($"No compatible item properties were found for {GetType().FullName}.");
+        }
+
+        innerAttribute.SetBindings(control, compatibleItemProperties);
         RemoveSubscription(control);
 
-        var effect = itemProperties
+        var effect = compatibleItemProperties
             .Select(itemProperty => itemProperty.PropertyOwner)
             .OfType<EffekseerVideoEffect>()
             .FirstOrDefault();
@@ -46,6 +57,15 @@ internal sealed class ProjectionAnimationSliderAttribute(
             control,
             new ProjectionModeEnablementSubscription(control, effect, EnabledMode));
     }
+
+    internal ItemProperty[] GetCompatibleItemProperties(ItemProperty[] itemProperties) =>
+        [.. itemProperties.Where(itemProperty =>
+            itemProperty.PropertyInfo.GetCustomAttribute<ProjectionAnimationSliderAttribute>() is { } attribute
+            && EnabledMode == attribute.EnabledMode
+            && Format == attribute.Format
+            && Unit == attribute.Unit
+            && SliderMinimum == attribute.SliderMinimum
+            && SliderMaximum == attribute.SliderMaximum)];
 
     public override void ClearBindings(FrameworkElement control)
     {
