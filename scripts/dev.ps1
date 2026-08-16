@@ -1,8 +1,8 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [Parameter(Position = 0)]
-    [ValidateSet("build", "test", "fmt", "format", "lint", "check", "clean", "publish")]
-    [string]$Task = "build",
+    [ValidateSet("build", "test", "fmt", "format", "lint", "check", "clean", "publish", "help")]
+    [string]$Task = "help",
 
     [switch]$Verify,
 
@@ -12,6 +12,41 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $propsPath = Join-Path $root "Directory.Build.props"
+
+function Show-DevHelp {
+    @"
+Usage:
+  .\scripts\dev.ps1 <command> [options]
+
+Commands:
+  build      Build and deploy the plugin to YMM4.
+  test       Run managed and Native tests.
+  fmt        Format managed and Native sources. Alias: format
+  format     Format managed and Native sources.
+  lint       Run analyzer/lint checks.
+  check      Verify formatting, run lint checks, and run tests.
+  clean      Remove repository build outputs.
+  publish    Build, deploy, and create the release package.
+  help       Show this command list. (default)
+
+Options:
+  -Verify          With fmt/format, verify without changing files.
+  -ManagedOnly     With fmt/format, process managed projects only.
+
+Examples:
+  .\scripts\dev.ps1
+  .\scripts\dev.ps1 help
+  .\scripts\dev.ps1 build
+  .\scripts\dev.ps1 test
+  .\scripts\dev.ps1 check
+  .\scripts\dev.ps1 publish
+"@ | Write-Host
+}
+
+if ($Task -eq "help") {
+    Show-DevHelp
+    return
+}
 
 function Get-BuildProperty {
     param(
